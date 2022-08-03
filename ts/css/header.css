@@ -1,0 +1,68 @@
+.container {
+    height: 100%;
+}
+.window-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #1E282D;
+    /* border: 1px solid #785A28; */
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.5);
+}
+.window-container .window-header {
+    display: flex;
+    justify-content: space-between;
+    height: 31px;
+    /* border-bottom: 1px solid #785A28; */
+    border-bottom: 1px solid #1E282D;
+    background-color: rgba(5,14,23,1);
+}
+.window-container .window-header .logo-container {
+    padding-top: 4px;
+    padding-left: 8px;
+    border-right: 1px solid #1E282D;
+    width: 200px;
+}
+.window-container .window-header .logo-container .app-logo {
+    display: flex;
+}
+.window-container .window-header .logo-container .app-logo .app-logo-icon {
+    width: 24px;
+    height: 24px;
+}
+.window-container .window-header .logo-container .app-logo .app-name {
+    color: #F4F2FF;
+    font-size: 16px;
+    line-height: 26px;
+    padding-left: 9px;
+}
+.window-container .window-header .actions-container {
+    display: flex;
+}
+
+.s-lcu-status:hover {
+    filter: brightness(150%);
+    cursor: pointer;
+}
+
+.s-lcu-status-light { 
+    height: 11px;
+    padding-bottom: 6px;
+}
+
+.s-lcu-status-logo {
+    margin-top: 2px;
+    height: 25px;
+    width: 25px;
+}
+
+.s-lcu-status-text {
+    vertical-align: super;
+    width: 175px;
+    display: inline-block;
+}
+
+.s-lcu-status-text-disconnected {
+    font-style: italic;
+    color: rgba(240, 234, 217, 0.5);
+}

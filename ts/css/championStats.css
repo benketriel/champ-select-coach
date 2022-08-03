@@ -1,0 +1,55 @@
+
+/* Stats bars */
+.stats-table {
+    border-spacing: 0px;
+}
+.stats-table img {
+    height: 11px;
+    margin-right: 4px;
+    margin-top: 1px;
+    float: left;
+}
+.stats-bar-area {
+    width: 60px;
+    display: block;
+    font-size: 1px;
+    margin-left: 8px;
+}
+.dmg-type-bar {
+    height: 10px;
+    width: 33%;
+    display: inline-block;
+}
+.dmg-type-bar-ad {
+    background: linear-gradient(180deg, rgba(188, 96, 71, 1) 0%, rgba(103, 55, 39, 1) 100%);
+}
+.dmg-type-bar-ap {
+    background: linear-gradient(180deg, rgba(50, 134, 202, 1) 0%, rgba(27, 76, 111, 1) 100%);
+}
+.dmg-type-bar-true {
+    background: linear-gradient(180deg, rgba(220, 217, 220, 1) 0%, rgba(121, 122, 121, 1) 100%);
+}
+.stats-value {
+    color: rgb(240, 234, 217);
+    float: right;
+    margin-left: 5px;
+}
+.stats-bar {
+    height: 10px;
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(5, 149, 169, 1) 0%, rgba(6, 111, 128, 1) 50%, rgba(5, 149, 169, 1) 100%);
+    background-size: 400% 400%;
+    border: rgba(6, 111, 128, 1);
+    border-width: 1px;
+    border-style: solid;
+}
+.stats-bar-container {
+    width: 100%;
+    display: inline-block;
+    /* animation: bar-grow 0.3s ease-out 1; */
+}
+/* @keyframes bar-grow {
+    0% { width:0%; }
+    100% { width:100%; }
+} */
+

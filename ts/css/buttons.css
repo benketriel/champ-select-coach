@@ -1,0 +1,63 @@
+.s-icon-button {
+  background-color: transparent;
+  border: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  transition: background-color 150ms ease;
+  cursor: pointer;
+}
+.s-icon-button .s-icon-button-svg {
+  /* pointer-events: none; */
+  user-select: none;
+  width: 30px;
+  height: 30px;
+  transition: fill 150ms ease;
+}
+.s-icon-svg {
+  user-select: none;
+  width: 30px;
+  height: 30px;
+  transition: fill 150ms ease;
+}
+.s-icon-svg-20-by-20 {
+  transform: scale(0.67);
+}
+.s-icon-svg-larger {
+  transform: scale(1.67);
+}
+.s-icon-button-no-fill {
+  fill: none;
+  stroke: #958FB2;
+  stroke-width: 2px;
+}
+.s-icon-button-no-fill:hover {
+  fill: none;
+  stroke: #F4F2FF;
+  background-color: #332E4D;
+}
+.s-icon-button-fill {
+  fill: #958FB2;
+  stroke: none;
+}
+.s-icon-button-fill:hover {
+  fill: #F4F2FF;
+  stroke: none;
+  background-color: #332E4D;
+}
+.s-icon-no-fill {
+  fill: none;
+  stroke: #958FB2;
+  stroke-width: 2px;
+}
+.s-icon-fill {
+  fill: #958FB2;
+  stroke: none;
+}
+.s-icon-button-svg:focus {
+  outline: none;
+}
+
+
+

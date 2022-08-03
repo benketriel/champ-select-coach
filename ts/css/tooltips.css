@@ -1,0 +1,115 @@
+
+/* Tooltip */
+.tooltip {
+    cursor: help;
+    display: inline-block;
+}
+.tooltiptext {
+    cursor: help;
+    visibility: hidden;
+    display: block;
+    opacity: 0;
+    background: linear-gradient(145deg, rgba(30, 35, 40, 1) 0%, rgba(27, 32, 38, 1) 100%);
+    color: rgb(205, 190, 145);
+    width: max-content;
+    
+    position: absolute;
+    z-index: 2;
+    transition: opacity 0.5s ease;
+}
+
+.tooltiptext.tooltiptext-sm {
+    border: 1px solid black;
+    outline: 1px solid rgb(190, 148, 58);
+    text-align: left;
+    padding: 5px;
+    margin-top: 20px;
+}
+.tooltiptext.tooltiptext-sm-msg {
+    transform: translate(-20px, 2px);
+}
+.tooltiptext.tooltiptext-sm-error {
+    width: 105px;
+    transform: translate(-6px, -23px);
+    white-space: normal;
+}
+.tooltiptext.tooltiptext-lg {
+    border: 1px solid black;
+    outline: 2px solid rgb(190, 148, 58);
+    text-align: left;
+    padding: 10px;
+    font-size: x-large;
+}
+.tooltiptext.tooltiptext-lg-msg {
+    width: 250px;
+    transform: translate(40px, 0px);
+    white-space: normal;
+}
+.tooltiptext.tooltiptext-lg-error {
+    width: 250px;
+    transform: translate(40px, 0px);
+    white-space: normal;
+}
+.tooltip:hover .tooltiptext 
+/* .tooltip .tooltiptext  */
+{
+    visibility: visible;
+    /* display: table-row; */
+    opacity: 1;
+}
+
+
+/* Tooltip info */
+.tooltip-info {
+    cursor: help;
+}
+.tooltip-info-container {
+    display: block;
+}
+.tooltip-info-text {
+    cursor: help;
+    visibility: hidden;
+    display: block;
+    opacity: 0;
+    background: white;
+    color: black;
+
+    position: absolute;
+    z-index: 2;
+    transition: opacity 0.5s ease;
+
+    border: 1px solid black;
+    border-radius: 7px;
+    text-align: left;
+    padding: 8px;
+}
+.tooltip-info:hover .tooltip-info-container .tooltip-info-text {
+    visibility: visible;
+    /* display: table-row; */
+    opacity: 1;
+}
+.tooltip-info-text::after {
+    content: attr(arrow);
+    position: absolute;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 8px solid white;
+}
+.tooltip-info-msg-title {
+    font-family: 'Friz Quadrata Std';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 19px;
+}
+.tooltip-info-msg-text {
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 14px;
+    margin-top: 3px;
+}
+.tooltip-info-msg-highlight {
+    text-decoration: underline;
+}

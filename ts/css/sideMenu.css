@@ -1,0 +1,165 @@
+.side-menu {
+    font-family: 'Friz Quadrata Std';
+    background-color: rgba(5,14,23,1);
+    width: 208px;
+    border-right: 1px solid #1E282D;
+    height: 686px;
+    float: left;
+    display: block;
+}
+
+.side-menu-waiting {
+    padding: 30px;
+    display: block;
+    text-align: center;
+}
+
+.side-menu-divider {
+    display: block;
+    height: 1px;
+    width: 100%;
+    transform: translate(0px, 3px);
+    background: linear-gradient(90deg, rgba(120,90,40,0) 0%, rgba(120,90,40,1) 50%, rgba(120,90,40,0) 100%);
+}
+
+.side-menu-current-cs {
+    height: 90px;
+}
+
+.side-menu-add-manual-cs {
+    height: 23px;
+}
+
+.side-menu-old-cs {
+    height: 39px;
+}
+
+.side-menu-hover-effect:hover {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0) 100%);
+    background-position-y: 5px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+.side-menu-hover-effect:hover img {
+    filter: brightness(180%);
+}
+
+.side-menu-selected-effect {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.05) 30%, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0) 100%);
+    background-position-y: 5px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+.side-menu-selected-effect img {
+    filter: brightness(160%);
+}
+
+.side-menu-champion {
+    background: rgba(30, 40, 45, 1);
+    height: 44px;
+    width: 44px;
+    border-radius: 23px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #785A28;
+    position: relative;
+    top: 24px;
+    left: 24px;
+}
+
+.side-menu-champion-old {
+    zoom: 50%;
+    top: 5px;
+    left: 26px;
+}
+
+.side-menu-role img {
+    display: inline-block;
+    position: relative;
+    height: 30px;
+    width: 30px;
+    top: 17px;
+    left: 41px;
+}
+.side-menu-role-old img {
+    zoom: 50%;
+    top: -5px;
+    left: 50px;
+}
+
+.side-menu-current-cs-score {
+    font-size: xx-large;
+    height: 46px;
+    display: inline-block;
+    vertical-align: bottom;
+    position: relative;
+    top: 24px;
+    left: 55px;
+}
+
+.side-menu-old-cs-score {
+    font-size: larger;
+    vertical-align: bottom;
+    position: relative;
+    display: inline-block;
+    top: -2px;
+    left: 43px;
+}
+
+.side-menu-old-cs-date {
+    font-size: x-small;
+    vertical-align: bottom;
+    position: relative;
+    display: inline-block;
+    top: 0px;
+    left: 57px;
+}
+
+.side-menu-old-cs-close {
+    position: relative;
+    display: inline-block;
+    top: 7px;
+    left: 68px;
+    overflow: hidden;
+    border-radius: 30px;
+    width: 22px;
+    height: 30px;
+}
+
+.side-menu-old-cs-close button {
+    margin-left: -4px;
+}
+
+.side-menu-add-manual-cs-plus {
+    position: relative;
+    left: calc(50% - 9px);
+    top: 5px;
+    display: block;
+    overflow: hidden;
+    border-radius: 15px;
+    width: 18px;
+    height: 18px;
+}
+
+.side-menu-add-manual-cs-plus button {
+    margin: -6px;
+}
+
+.main-ad-container {
+    bottom: 30px;
+    height: 300px;
+    display: block;
+    right: 5px;
+    position: absolute;
+}
+
+.main-ad {
+    width: 400px;
+    height: 300px;
+    background-color: white;
+    display: block;
+    left: calc(50% - 200px);
+    position: relative;
+}

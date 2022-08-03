@@ -1,0 +1,69 @@
+{
+  "manifest_version": 1,
+  "type": "WebApp",
+  "meta": {
+    "name": "Champ Select Coach",
+    "author": "Samuel Blad",
+    "version": "0.3.0",
+    "minimum-overwolf-version": "0.173.0",
+    "description": "Compute your matchup score with machine learning at champion select",
+    "dock_button_title": "Champ Select Coach",
+    "icon": "icons/IconMouseOver.png",
+    "icon_gray": "icons/IconMouseNormal.png",
+    "launcher_icon": "icons/launcher_icon.ico",
+    "window_icon": "icons/WindowIcon.png"
+  },
+  "permissions": [ "Extensions", "Streaming", "Profile", "GameInfo", "Web", "DesktopStreaming", "FileSystem" ],
+  "data": {
+    "start_window": "background",
+    "windows": {
+      "background": {
+        "file": "dist/background/background.html",
+        "is_background_page": true
+      },
+      "mainWindow": {
+        "file": "dist/mainWindow/mainWindow.html",
+        "desktop_only": true,
+        "native_window": true,
+        "resizable": false,
+        "transparent": true,
+        "override_on_update": true,
+        "block_top_window_navigation": true,
+        "popup_blocker": true,
+        "mute": true,
+        "size": {
+          "width": 1300,
+          "height": 720
+        },
+        "min_size": {
+          "width": 1300,
+          "height": 720
+        }
+      }
+    },
+    "game_targeting": { "type": "dedicated", "game_ids": [ 5426, 10902 ] },
+    "game_events": [ 10902 ],
+    "launch_events": [ { "event": "GameLaunch", "event_data": { "game_ids": [ 10902 ] }, "start_minimized": false } ],
+    "protocol_override_domains": { "googlesyndication": "http" },
+    "externally_connectable": {
+      "matches": [
+        "https://*.google-analytics.com",
+        "http://*.google-analytics.com",
+        "https://www.googleapis.com",
+        "https://*.execute-api.us-east-2.amazonaws.com"
+      ]
+    },
+    "force_browser": "user",
+    "developer": {
+      "enable_auto_refresh": true,
+      "reload_delay": 1000,
+      "filter": "*.*"
+    },
+    "extra-objects": {
+      "CSCAI": {
+        "file": "cslib/CSCAI.dll",
+        "class": "CSCAI.Api"
+      }
+    }
+  }
+}

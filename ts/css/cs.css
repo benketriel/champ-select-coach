@@ -1,0 +1,536 @@
+.cs-tab {
+    position: absolute;
+    display: block;
+    top: 36px;
+    left: 210px;
+}
+
+/* Total score */
+.cs-wr-total-cell {
+    position: absolute;
+    top: 0px;
+    left: 694px;
+    width: 390px;
+    height: 350px;
+}
+.cs-wr-large {
+    text-align: center;
+    font-family: 'Friz Quadrata Std';
+    margin: 5px 20px 5px 20px;
+    height: 45px;
+}
+.cs-wr-total-result {
+    font-size: 45px;
+}
+.cs-wr-total-left-result {
+    font-size: 20px;
+    position: relative;
+    top: -9px;
+    display: inline-block;
+    right: 42px;}
+.cs-wr-total-right-result {
+    font-size: 20px;
+    position: relative;
+    top: -9px;
+    display: inline-block;
+    left: 42px;
+}
+.cs-wr-total-frame {
+    display: block;
+    height: 1px;
+    width: 100%;
+    transform: translate(0px, 26px);
+											background: linear-gradient(90deg, rgba(185,143,50,0) 0%, rgba(185,143,50,1) 35%, rgba(185,143,50,0) 36%, rgba(185,143,50,0) 64%, rgba(185,143,50,1) 65%, rgba(185,143,50,0) 100%);}
+.cs-wr-total-frame-holes {                     background: linear-gradient(90deg, rgba(185,143,50,0) 0%, rgba(185,143,50,0.51) 18%, rgba(185,143,50,0) 19%, rgba(185,143,50,0) 28%, rgba(185,143,50,0.83) 29%, rgba(185,143,50,1) 35%, rgba(185,143,50,0) 36%, rgba(185,143,50,0) 64%, rgba(185,143,50,1) 65%, rgba(185,143,50,0.83) 71%, rgba(185,143,50,0) 72%, rgba(185,143,50,0) 81%, rgba(185,143,50,0.51) 82%, rgba(185,143,50,0) 100%);}
+.cs-wr-total-frame-little-success {            background: linear-gradient(90deg, rgba(95,154,55,0) 0%, rgba(95,154,55,1) 35%, rgba(95,154,55,0) 36%, rgba(95,154,55,0) 64%, rgba(95,154,55,1) 65%, rgba(95,154,55,0) 100%);}
+.cs-wr-total-frame-little-success-holes {      background: linear-gradient(90deg, rgba(95,154,55,0) 0%, rgba(95,154,55,0.51) 18%, rgba(95,154,55,0) 19%, rgba(95,154,55,0) 28%, rgba(95,154,55,0.83) 29%, rgba(95,154,55,1) 35%, rgba(95,154,55,0) 36%, rgba(95,154,55,0) 64%, rgba(95,154,55,1) 65%, rgba(95,154,55,0.83) 71%, rgba(95,154,55,0) 72%, rgba(95,154,55,0) 81%, rgba(95,154,55,0.51) 82%, rgba(95,154,55,0) 100%);}
+.cs-wr-total-frame-success {                   background: linear-gradient(90deg, rgba(6,166,60,0) 0%, rgba(6,166,60,1) 35%, rgba(6,166,60,0) 36%, rgba(6,166,60,0) 64%, rgba(6,166,60,1) 65%, rgba(6,166,60,0) 100%);}
+.cs-wr-total-frame-success-holes {             background: linear-gradient(90deg, rgba(6,166,60,0) 0%, rgba(6,166,60,0.51) 18%, rgba(6,166,60,0) 19%, rgba(6,166,60,0) 28%, rgba(6,166,60,0.83) 29%, rgba(6,166,60,1) 35%, rgba(6,166,60,0) 36%, rgba(6,166,60,0) 64%, rgba(6,166,60,1) 65%, rgba(6,166,60,0.83) 71%, rgba(6,166,60,0) 72%, rgba(6,166,60,0) 81%, rgba(6,166,60,0.51) 82%, rgba(6,166,60,0) 100%);}
+.cs-wr-total-frame-little-danger {             background: linear-gradient(90deg, rgba(170,96,34,0) 0%, rgba(170,96,34,1) 35%, rgba(170,96,34,0) 36%, rgba(170,96,34,0) 64%, rgba(170,96,34,1) 65%, rgba(170,96,34,0) 100%);}
+.cs-wr-total-frame-little-danger-holes {       background: linear-gradient(90deg, rgba(170,96,34,0) 0%, rgba(170,96,34,0.51) 18%, rgba(170,96,34,0) 19%, rgba(170,96,34,0) 28%, rgba(170,96,34,0.83) 29%, rgba(170,96,34,1) 35%, rgba(170,96,34,0) 36%, rgba(170,96,34,0) 64%, rgba(170,96,34,1) 65%, rgba(170,96,34,0.83) 71%, rgba(170,96,34,0) 72%, rgba(170,96,34,0) 81%, rgba(170,96,34,0.51) 82%, rgba(170,96,34,0) 100%);}
+.cs-wr-total-frame-danger {                    background: linear-gradient(90deg, rgba(156,50,19,0) 0%, rgba(156,50,19,1) 35%, rgba(156,50,19,0) 36%, rgba(156,50,19,0) 64%, rgba(156,50,19,1) 65%, rgba(156,50,19,0) 100%);}
+.cs-wr-total-frame-danger-holes {              background: linear-gradient(90deg, rgba(156,50,19,0) 0%, rgba(156,50,19,0.51) 18%, rgba(156,50,19,0) 19%, rgba(156,50,19,0) 28%, rgba(156,50,19,0.83) 29%, rgba(156,50,19,1) 35%, rgba(156,50,19,0) 36%, rgba(156,50,19,0) 64%, rgba(156,50,19,1) 65%, rgba(156,50,19,0.83) 71%, rgba(156,50,19,0) 72%, rgba(156,50,19,0) 81%, rgba(156,50,19,0.51) 82%, rgba(156,50,19,0) 100%);}
+
+/* Objectives */
+.cs-objectives-table {
+    width: 100%;
+    margin-top: 15px;
+}
+.cs-objective-cell {
+    width: 35px;
+    text-align: center;
+}
+.cs-objective-timer-cell {
+    width: 40px;
+    text-align: center;
+}
+
+
+/* Team bars */
+.cs-colors-legend-table {
+    width: 100%;
+    text-align: center;
+    border-spacing: 0px;
+    margin-top: 20px;
+}
+
+.cs-colors-legend-table-margin-cell {
+    width: 40px;
+}
+
+.cs-colors-legend-champion {
+    background: rgba(30, 40, 45, 1);
+    height: 44px;
+    width: 44px;
+    border-radius: 23px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #785A28;
+    zoom: 32%;
+    margin: 0px 8px 0px 8px;
+}
+
+.cs-total-bars-table {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.cs-total-bars-table td:nth-child(1) {
+    text-align: right;
+}
+.cs-total-bars-table td:nth-child(2) {
+    text-align: center;
+    width: 30px;
+}
+.cs-total-bars-table td:nth-child(3) {
+    text-align: left;
+}
+
+.cs-colors-bar {
+    height: 10px;
+    display: inline-block;
+    border-width: 1px;
+    border-style: solid;
+    margin: 0px -3px 0px -3px;
+    width: 0px;
+}
+
+.cs-colors-bar-legend {
+    width: 10px;
+}
+
+.cs-colors-top {
+    background: linear-gradient(135deg, rgba(165, 165, 165, 1) 0%, rgba(165, 165, 165, 0.9) 50%, rgba(165, 165, 165, 1) 100%);
+    border-color: rgba(165, 165, 165, 0.5);
+}
+
+.cs-colors-jungle {
+    background: linear-gradient(135deg, rgba(145, 152, 112, 1) 0%, rgba(145, 152, 112, 0.9) 50%, rgba(145, 152, 112, 1) 100%);
+    border-color: rgba(145, 152, 112, 0.5);
+}
+
+.cs-colors-mid {
+    background: linear-gradient(135deg, rgba(63, 106, 142, 1) 0%, rgba(63, 106, 142, 0.9) 50%, rgba(63, 106, 142, 1) 100%);
+    border-color: rgba(63, 106, 142, 0.5);
+}
+
+.cs-colors-support {
+    background: linear-gradient(135deg, rgba(240, 234, 217, 1) 0%, rgba(240, 234, 217, 0.9) 50%, rgba(240, 234, 217, 1) 100%);
+    border-color: rgba(240, 234, 217, 0.5);
+}
+
+.cs-colors-bot {
+    background: linear-gradient(135deg, rgba(126, 91, 104, 1) 0%, rgba(126, 91, 104, 0.9) 50%, rgba(126, 91, 104, 1) 100%);
+    border-color: rgba(126, 91, 104, 0.5);
+}
+
+
+/* Main table */
+
+.cs-table {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgb(136, 128, 99);
+    border-spacing: 0px;
+
+    table-layout: fixed;
+    width: 670px;
+    margin: 0px 12px 0px 12px;
+    position: absolute;
+    display: block;
+    top: 15px;
+    left: 5px;
+}
+.cs-table .cs-table-cell {
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* Now it goes column by column since they all share the same width, so remember to update all if you change */
+
+/* Champion Icon */
+.cs-table-champion-icon-cell .cs-table-cell {
+    vertical-align: top;
+    width: 60px;
+    height: calc(17px + 17px + 17px);
+}
+.cs-table-champion-icon-cell .cs-table-cell .cs-table-champion-icon {
+    background: rgba(30, 40, 45, 1);
+    height: 44px;
+    width: 44px;
+    border-radius: 23px;
+    display: block;
+    overflow: hidden;
+}
+.cs-table-champion-icon-cell:nth-child(1) .cs-table-cell .cs-table-champion-icon {
+    border: 1px solid #785A28;
+    float: left;
+}
+.cs-table-champion-icon-cell:nth-child(7) .cs-table-cell .cs-table-champion-icon {
+    border: 1px solid rgb(105, 18, 21);
+    float: right;
+}
+.cs-table-champion-swap {
+    display: inline-block;
+    margin-left: -4px;
+    margin-top: 30px;
+}
+.cs-table-champion-swap button {
+    margin-left: -14px;
+    margin-top: -6px;
+    opacity: 50%;
+}
+.cs-table-champion-icon-cell:nth-child(7) .cs-table-champion-swap {
+    margin-left: 15px;
+}
+.cs-table-champion-icon-cell:nth-child(7) .cs-table-champion-swap button {
+    margin-left: -14px;
+    margin-top: -6px;
+    transform: scaleX(-1);
+}
+.cs-table-champion-swap button:hover {
+    opacity: 100%;
+    background: none;
+    /* background-image: radial-gradient(rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0) 100%);
+    background-position-y: 5px;
+    background-repeat: no-repeat; */
+    cursor: pointer;
+}
+/* Winrates */
+.cs-table-main-role-win-lose-cell .cs-table-cell {
+    width: 60px;
+    height: 17px;
+    margin-top: 7px;
+}
+.cs-table-main-role-win-lose-cell .cs-table-cell img {
+    width: 17px;
+    height: 17px;
+}
+.cs-table-main-role-win-lose-cell:nth-child(5) .cs-table-cell {
+    text-align: right;
+}
+.cs-table-secondary-role-win-lose-cell .cs-table-cell {
+    width: 60px;
+    height: 17px;
+    margin-bottom: 7px;
+    color: rgb(110, 107, 99);
+}
+.cs-table-secondary-role-win-lose-cell .cs-table-cell img {
+    width: 17px;
+    height: 17px;
+}
+.cs-table-secondary-role-win-lose-cell:nth-child(3) .cs-table-cell {
+    text-align: right;
+}
+.cs-table-role-wr {
+    position: relative;
+    top: -3px;
+    margin: 0px 2px 0px 2px;
+}
+
+/* Champion Name */
+.cs-table-champion-name-cell .cs-table-cell {
+    width: 138px;
+    height: 17px;
+    vertical-align: top;
+}
+.cs-table-champion-name-cell:nth-child(6) .cs-table-cell {
+    text-align: right;
+}
+
+/* Summoner Name */
+.cs-table-summoner-name-cell .cs-table-cell {
+    width: 138px;
+    height: 17px;
+    color: rgb(110, 107, 99);
+    vertical-align: top;
+}
+.cs-table-summoner-name-cell:nth-child(4) .cs-table-cell {
+    text-align: right;
+}
+
+/* Best champions */
+.cs-table-recommended-champions-cell .cs-table-cell {
+    width: calc(138px + 77px);
+    height: 17px;
+    vertical-align: top;
+}
+.cs-table-recommended-champions-cell:nth-child(2) .cs-table-cell {
+    text-align: right;
+}
+.cs-table-recommended-champion-border {
+    background: rgba(30, 40, 45, 1);
+    height: 44px;
+    width: 44px;
+    border-radius: 23px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #785A28;
+    zoom: 32%;
+}
+
+/* Individual scores */
+.cs-table-individuals-solo-cell .cs-table-cell {
+    width: 77px;
+    height: 17px;
+    font-size: 15px;
+}
+.cs-table-individuals-solo-cell:nth-child(5) .cs-table-cell {
+    text-align: right;
+}
+.cs-table-individuals-solo-cell img {
+    height: 17px;
+    margin: 0px 9px 0px 8px;
+}
+.cs-table-individuals-p {
+    position: relative;
+    top: -3px;
+    margin: 0px 2px 0px 2px;
+}
+
+.cs-table-individuals-team-cell .cs-table-cell {
+    width: 77px;
+    height: 17px;
+    font-size: 15px;
+}
+.cs-table-individuals-team-cell:nth-child(3) .cs-table-cell {
+    text-align: right;
+}
+.cs-table-individuals-team-cell img {
+    height: 17px;
+    margin: 0px 2px 0px 2px;
+}
+
+/* History */
+.cs-table-history-cell .cs-table-cell {
+    width: calc(138px + 77px);
+    height: calc(14px + 17px + 17px);
+    margin-top: 4px;
+}
+.cs-table-history-cell:nth-child(4) .cs-table-cell {
+    text-align: right;
+}
+.cs-table-history-border {
+    display: inline-block;
+    padding: 1px 1px 0px 1px;
+    background: linear-gradient(to bottom right, rgba(205, 190, 145, 0) 0%, rgba(205, 190, 145, 0) 40%, rgba(205, 190, 145, 1) 100%);
+}
+.cs-table-history-border-win {
+    background: linear-gradient(to bottom right, rgba(6, 166, 60, 0) 0%, rgba(6, 166, 60, 0) 40%, rgba(6, 166, 60, 1) 100%);
+}
+.cs-table-history-border-lose {
+    background: linear-gradient(to bottom right, rgba(156, 50, 19, 0) 0%, rgba(156, 50, 19, 0) 40%, rgba(156, 50, 19, 1) 100%);
+}
+.cs-table-history {
+    background-color: #121A21;
+    border-spacing: 0px;
+    display: inline-block;
+}
+.cs-table-history-separator {
+    width: 0px;
+    height: 16px;
+    top: -16px;
+    border-left: 1px solid rgba(120,90,40,1);
+    display: inline-block;
+    position: relative;
+    margin: 0px -1px 0px -1px;
+}
+.cs-table-history-champion {
+    background: rgba(30, 40, 45, 1);
+    height: 44px;
+    width: 44px;
+    border-radius: 23px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #785A28;
+    zoom: 32%;
+    margin: 8px 0px 0px 4px;
+}
+.cs-table-history-role img {
+    width: 17px;
+    height: 17px;
+}
+
+
+/* Role */
+.cs-table-role-cell .cs-table-cell {
+    width: 84px;
+    height: calc(17px + 17px + 17px);
+    text-align: center;
+}
+.cs-table-role-cell img {
+    width: 36px;
+}
+
+/* Prio */
+.cs-table-prio-cell .cs-table-cell {
+    width: 84px;
+    height: 17px;
+    text-align: center;
+}
+.cs-table-prio-cell img {
+    position: relative;
+    top: -1px;
+    margin: 0px 3px 0px 3px;
+}
+.cs-table-prio-p {
+    position: relative;
+    top: -4px;
+    margin: 0px 2px 0px 2px;
+}
+
+/* Lane Winner */
+.cs-table-lane-winner-cell .cs-table-cell {
+    width: 84px;
+    height: 17px;
+    text-align: center;
+}
+.cs-table-lane-winner-cell img {
+    position: relative;
+    top: -1px;
+    margin: 0px 2px 0px 2px;
+}
+.cs-table-lane-winner-p {
+    position: relative;
+    top: -4px;
+    margin: 0px 2px 0px 2px;
+}
+
+
+/* Separator */
+.cs-table-horizontal-sep {
+    display: block;
+    height: 1px;
+    width: 100%;
+    transform: translate(0px, 3px);
+}
+.cs-table-horizontal-sep-left {
+    background: linear-gradient(90deg, rgba(120,90,40,1) 0%, rgba(120,90,40,0) 100%)    
+}
+.cs-table-horizontal-sep-right {
+    background: linear-gradient(270deg, rgba(120,90,40,1) 0%, rgba(120,90,40,0) 100%)    
+}
+.cs-table-horizontal-diamond {
+    width: 5px;
+    height: 5px;
+    border: 1px solid rgba(120,90,40,1);
+}
+.cs-table-horizontal-diamond-left {
+    transform: translate(-7px, 0px) rotate(45deg);
+    float: left;
+}
+.cs-table-horizontal-diamond-right {
+    transform: translate(7px, 0px) rotate(45deg);
+    float: right;
+}
+
+
+/* Best champions tooltip */
+.cs-table-stats-table {
+    border-spacing: 0px;
+}
+.cs-table-stats-row {
+    /* display: inline-block; */
+}
+.cs-table-stats-value {
+    color: rgb(240, 234, 217);
+    float: right;
+}
+.cs-table-stats-key {
+    margin-right: 5px;
+}
+
+/* Swapping tooltip */
+.cs-table-champion-swap-options {
+    border-spacing: 0px;
+    cursor: default;
+    text-align: center;
+}
+.cs-table-champion-swap-champion {
+    background: rgba(30, 40, 45, 1);
+    height: 44px;
+    width: 44px;
+    border-radius: 23px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #785A28;
+    zoom: 32%;
+    margin: 0px 8px 0px 8px;
+}
+.cs-table-champion-swap-role:hover {
+    filter: brightness(180%);
+    cursor: pointer;
+}
+.cs-table-champion-swap-champion:hover {
+    filter: brightness(180%);
+    cursor: pointer;
+}
+.cs-table-champion-swap-role img {
+    width: 17px;
+    height: 17px;
+    margin: 0px 2px 0px 2px;
+}
+
+
+/* Ban recommendations */
+.cs-ban-recommendations {
+    display: block;
+    position: absolute;
+    top: 110px;
+    left: 430px;
+    height: 305px;
+    width: 190px;
+    background: linear-gradient(145deg, rgba(30, 35, 40, 1) 0%, rgba(27, 32, 38, 1) 100%);
+    color: rgb(205, 190, 145);
+    border: 1px solid black;
+    outline: 1px solid rgb(190, 148, 58);
+    padding: 5px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.cs-ban-recommendations table {
+    margin: 5px 0px 5px 0px
+}
+
+.cs-table-recommended-bans-role img {
+    height: 36px;
+}
+
+.cs-table-recommended-bans-champion-border {
+    background: rgba(30, 40, 45, 1);
+    height: 44px;
+    width: 44px;
+    border-radius: 23px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #785A28;
+    zoom: 50%;
+}
+
+.cs-table-recommended-bans-score {
+    margin-left: 8px;
+    color: rgb(240, 234, 217);
+}
