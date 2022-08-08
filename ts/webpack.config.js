@@ -64,11 +64,6 @@ module.exports = {
             chunks: []
         }),
         new HtmlWebpackPlugin({
-            template: './windows/mainWindow/homeTab.html',
-            filename: `${__dirname}/dist/mainWindow/homeTab.html`,
-            chunks: []
-        }),
-        new HtmlWebpackPlugin({
             template: './windows/mainWindow/newsTab.html',
             filename: `${__dirname}/dist/mainWindow/newsTab.html`,
             chunks: []
@@ -79,6 +74,16 @@ module.exports = {
             chunks: []
         }),
         new HtmlWebpackPlugin({
+            template: './windows/mainWindow/personalTabChampionItem.html',
+            filename: `${__dirname}/dist/mainWindow/personalTabChampionItem.html`,
+            chunks: []
+        }),
+        new HtmlWebpackPlugin({
+            template: './windows/mainWindow/personalTabHistoryItem.html',
+            filename: `${__dirname}/dist/mainWindow/personalTabHistoryItem.html`,
+            chunks: []
+        }),
+        new HtmlWebpackPlugin({
             template: './windows/mainWindow/popup.html',
             filename: `${__dirname}/dist/mainWindow/popup.html`,
             chunks: []
@@ -86,11 +91,6 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: './windows/mainWindow/settingsTab.html',
             filename: `${__dirname}/dist/mainWindow/settingsTab.html`,
-            chunks: []
-        }),
-        new HtmlWebpackPlugin({
-            template: './windows/mainWindow/summonerTab.html',
-            filename: `${__dirname}/dist/mainWindow/summonerTab.html`,
             chunks: []
         }),
         new HtmlWebpackPlugin({

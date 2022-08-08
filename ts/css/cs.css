@@ -451,9 +451,6 @@
 .cs-table-stats-table {
     border-spacing: 0px;
 }
-.cs-table-stats-row {
-    /* display: inline-block; */
-}
 .cs-table-stats-value {
     color: rgb(240, 234, 217);
     float: right;

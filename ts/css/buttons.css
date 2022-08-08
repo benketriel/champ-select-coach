@@ -60,4 +60,26 @@
 }
 
 
+.text-button {
+  display: block;
+  position: absolute;
+  top: 141px;
+  left: 30px;
+  padding: 3px;
+  outline: 1px solid rgb(105, 18, 21);
+  color: rgb(157, 27, 31);
+  width: 100px;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.text-button-danger {
+  outline: 1px solid rgb(105, 18, 21);
+  color: rgb(157, 27, 31);
+}
+
+.text-button:hover {
+  filter: brightness(130%);
+}
+
 

@@ -1,0 +1,443 @@
+.personal-container {
+    background: linear-gradient(145deg, rgba(30, 35, 40, 1) 0%, rgba(27, 32, 38, 1) 100%);
+    color: rgb(205, 190, 145);
+    border: 1px solid black;
+    outline: 1px solid rgb(190, 148, 58);
+}
+
+.personal-title {
+    font-family: 'Friz Quadrata Std';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 24px;  
+}
+
+/* Champions */
+.personal-champions-container {
+    position: absolute;
+    top: 40px;
+    left: 215px;
+    width: 675px;
+    height: 350px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.personal-champions-list {
+    display: inline-block;
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    height: 265px;
+    width: 600px;
+
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 13px;
+}
+
+.personal-champions-left-arrow {
+    display: block;
+    position: absolute;
+    top: 140px;
+    left: 16px;
+}
+
+.personal-champions-right-arrow {
+    display: block;
+    position: absolute;
+    top: 140px;
+    left: 634px;
+}
+
+.personal-champions-table-container {
+    width: 140px;
+    display: inline-block;
+    margin: 0px 1px 0px 1px;
+}
+
+.personal-champions-table {
+    border-spacing: 0px;
+    text-align: left;
+    margin: 4px;
+}
+
+.personal-champions-champion-name {
+    width: 85px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.personal-champions-champion-icon {
+    background: rgba(30, 40, 45, 1);
+    height: 44px;
+    width: 44px;
+    border-radius: 23px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #785A28;
+    zoom: 32%;
+    margin: 0px 8px 0px 8px;
+}
+
+.personal-champions-table img {
+    height: 15px;
+    margin-right: 4px;
+    margin-top: 1px;
+    float: left;
+}
+
+.personal-champions-champion-icon img {
+    height: initial;
+}
+
+.personal-champions-bar-area {
+    width: 60px;
+    float: right;
+}
+.personal-champions-dmg-type-bar {
+    height: 10px;
+    width: 33%;
+    display: inline-block;
+}
+.personal-champions-dmg-type-bar-ad {
+    background: linear-gradient(180deg, rgba(188, 96, 71, 1) 0%, rgba(103, 55, 39, 1) 100%);
+}
+.personal-champions-dmg-type-bar-ap {
+    background: linear-gradient(180deg, rgba(50, 134, 202, 1) 0%, rgba(27, 76, 111, 1) 100%);
+}
+.personal-champions-dmg-type-bar-true {
+    background: linear-gradient(180deg, rgba(220, 217, 220, 1) 0%, rgba(121, 122, 121, 1) 100%);
+}
+.personal-champions-value {
+    color: rgb(240, 234, 217);
+    float: right;
+}
+.personal-champions-bar {
+    height: 10px;
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(5, 149, 169, 1) 0%, rgba(6, 111, 128, 1) 50%, rgba(5, 149, 169, 1) 100%);
+    background-size: 400% 400%;
+    border: rgba(6, 111, 128, 1);
+    border-width: 1px;
+    border-style: solid;
+}
+.personal-champions-bar-container {
+    width: 100%;
+    display: inline-block;
+    /* animation: bar-grow 0.3s ease-out 1; */
+}
+
+.personal-champions-options {
+    display: block;
+    position: absolute;
+    top: 315px;
+    font-size: 12px;
+    left: 49px;
+    width: 582px;
+}
+
+.personal-champions-options-sort {
+    float: left;
+}
+
+.personal-champions-options-performance {
+    float: right;
+}
+
+/* Summary */
+
+.personal-summary-container {
+    position: absolute;
+    top: 400px;
+    left: 215px;
+    width: 675px;
+    height: 100px;
+    text-align: center;
+}
+
+.personal-summary-panel {
+    display: block;
+    position: absolute;
+    width: 94px;
+    height: 45px;
+    top: 35px;
+    padding: 3px;
+}
+
+.personal-summary-general {
+    line-height: 26px;
+    left: 110px;
+}
+
+.personal-summary-value {
+    color: rgb(240, 234, 217);
+}
+
+.personal-summary-mains {
+    left: 224px;
+}
+
+.personal-summary-primary {
+    left: 338px;
+}
+
+.personal-summary-secondary {
+    left: 452px;
+}
+
+.personal-summary-role-icon img {
+    height: 22px;
+}
+
+.personal-summary-champion-icon {
+    background: rgba(30, 40, 45, 1);
+    height: 44px;
+    width: 44px;
+    border-radius: 23px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #785A28;
+    zoom: 50%;
+}
+
+.personal-history-options-score {
+    display: block;
+    position: absolute;
+    top: 172px;
+    font-size: 12px;
+    left: 0px;
+    width: 582px;
+}
+
+
+/* History */
+
+.personal-history-container {
+    position: absolute;
+    top: 510px;
+    left: 215px;
+    width: 675px;
+    height: 200px;
+    text-align: center;
+}
+
+.personal-history-stats {
+    display: block;
+    position: absolute;
+    left: 21px;
+    top: 50px;
+    width: 122px;
+    font-size: 12px;
+}
+
+.personal-history-stats-total {
+    font-family: 'Friz Quadrata Std';
+    color: rgb(240, 234, 217);
+    font-size: 25px;
+}
+
+.personal-history-left-arrow {
+    display: block;
+    position: absolute;
+    top: 84px;
+    left: 129px;
+}
+
+.personal-history-right-arrow {
+    display: block;
+    position: absolute;
+    top: 84px;
+    left: 641px;
+}
+
+.personal-history-list {
+    display: block;
+    position: absolute;
+    top: 35px;
+    left: 160px;
+}
+
+.personal-history-table-container {
+    width: 40px;
+    display: inline-block;
+    margin: 0px 1px 0px 1px;
+}
+
+.personal-history-table {
+    border-spacing: 0px;
+    text-align: center;
+    margin: 4px;
+}
+
+.personal-history-champion-icon {
+    background: rgba(30, 40, 45, 1);
+    height: 44px;
+    width: 44px;
+    border-radius: 23px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #785A28;
+    zoom: 50%;
+}
+
+.personal-history-role-icon img {
+    height: 22px;
+}
+
+.personal-history-score {
+    font-family: 'Friz Quadrata Std';
+    color: rgb(240, 234, 217);
+    font-size: 18px;
+}
+
+.personal-history-date {
+    font-size: 12px;
+}
+
+.personal-history-table-container-win {
+    outline: 1px solid rgba(6, 166, 60, 0.6);
+}
+
+.personal-history-table-container-lose {
+    outline: 1px solid rgba(156, 50, 19, 0.8);
+}
+
+
+/* Graph */
+
+.personal-graph-container {
+    display: block;
+    position: absolute;
+    top: 45px;
+    left: 900px;
+    width: 377px;
+    height: 310px;
+    text-align: center;
+    padding: 15px 5px 5px 5px;
+}
+
+.personal-graph-canvas { 
+    display: block;
+    position: absolute;
+    top: 40px;
+    left: 50px;
+}
+
+.personal-graph-title {
+    font-weight: bold;
+}
+
+.personal-graph-y-axis {
+    display: block;
+    position: absolute;
+    top: 138px;
+    left: -18px;
+    transform: rotate(-90deg);
+    font-size: 14px;
+}
+
+.personal-graph-y-axis-ticks {
+    display: block;
+    position: absolute;
+    top: 64px;
+    left: 28px;
+    font-size: 11px;
+}
+.personal-graph-y-axis-ticks span { display: block; position: absolute; }
+.personal-graph-y-axis-ticks span:nth-child(1) { top: 0px; }
+.personal-graph-y-axis-ticks span:nth-child(2) { top: 20px; }
+.personal-graph-y-axis-ticks span:nth-child(3) { top: 40px; }
+.personal-graph-y-axis-ticks span:nth-child(4) { top: 60px; }
+.personal-graph-y-axis-ticks span:nth-child(5) { top: 80px; }
+.personal-graph-y-axis-ticks span:nth-child(6) { top: 100px; }
+.personal-graph-y-axis-ticks span:nth-child(7) { top: 120px; }
+.personal-graph-y-axis-ticks span:nth-child(8) { top: 140px; }
+.personal-graph-y-axis-ticks span:nth-child(9) { top: 160px; }
+
+.personal-graph-x-axis {
+    display: block;
+    position: relative;
+    top: 244px;
+    left: 22px;
+    font-size: 14px;
+}
+
+.personal-graph-x-axis-ticks {
+    display: block;
+    position: relative;
+    top: 211px;
+    left: 78px;
+    font-size: 11px;
+}
+
+.personal-graph-x-axis-ticks span { display: block; position: absolute; }
+.personal-graph-x-axis-ticks span:nth-child(1) { left: 0px; }
+.personal-graph-x-axis-ticks span:nth-child(2) { left: 30px; }
+.personal-graph-x-axis-ticks span:nth-child(3) { left: 60px; }
+.personal-graph-x-axis-ticks span:nth-child(4) { left: 90px; }
+.personal-graph-x-axis-ticks span:nth-child(5) { left: 120px; }
+.personal-graph-x-axis-ticks span:nth-child(6) { left: 150px; }
+.personal-graph-x-axis-ticks span:nth-child(7) { left: 180px; }
+.personal-graph-x-axis-ticks span:nth-child(8) { left: 210px; }
+.personal-graph-x-axis-ticks span:nth-child(9) { left: 240px; }
+
+
+.personal-graph-legend {
+    display: block;
+    position: absolute;
+    top: 305px;
+    left: 10px;
+    font-size: 14px;
+    max-width: 365px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.personal-graph-legend-color {
+    height: 10px;
+    display: inline-block;
+    border-width: 1px;
+    border-style: solid;
+    width: 10px;
+}
+
+.personal-graph-legend-text {
+    margin: 0px 10px 0px 10px;
+}
+
+.personal-graph-legend-all {
+    color: rgb(223, 218, 203);
+}
+
+.personal-graph-legend-all .personal-graph-legend-color {
+    background: linear-gradient(135deg, rgba(223, 218, 203, 1) 0%, rgba(223, 218, 203, 0.9) 50%, rgba(223, 218, 203, 1) 100%);
+    border-color: rgba(223, 218, 203, 0.5);
+}
+
+.personal-graph-legend-users {
+    color: rgb(59, 98, 132);
+}
+
+.personal-graph-legend-users .personal-graph-legend-color {
+    background: linear-gradient(135deg, rgba(59, 98, 132, 1) 0%, rgba(59, 98, 132, 0.9) 50%, rgba(59, 98, 132, 1) 100%);
+    border-color: rgba(59, 98, 132, 0.5);
+}
+
+.personal-graph-legend-personal {
+    color: rgb(117, 86, 99);
+}
+
+.personal-graph-legend-personal .personal-graph-legend-color {
+    background: linear-gradient(135deg, rgba(117, 86, 99, 1) 0%, rgba(117, 86, 99, 0.9) 50%, rgba(117, 86, 99, 1) 100%);
+    border-color: rgba(117, 86, 99, 0.5);
+}
+
+
+

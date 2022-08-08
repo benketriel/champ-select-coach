@@ -51,16 +51,14 @@
     white-space: normal;
 }
 .tooltip:hover .tooltiptext 
-/* .tooltip .tooltiptext  */
 {
     visibility: visible;
-    /* display: table-row; */
     opacity: 1;
 }
 
 
 /* Tooltip info */
-.tooltip-info {
+/* .tooltip-info {
     cursor: help;
 }
 .tooltip-info-container {
@@ -85,7 +83,6 @@
 }
 .tooltip-info:hover .tooltip-info-container .tooltip-info-text {
     visibility: visible;
-    /* display: table-row; */
     opacity: 1;
 }
 .tooltip-info-text::after {
@@ -112,4 +109,4 @@
 }
 .tooltip-info-msg-highlight {
     text-decoration: underline;
-}
+} */
