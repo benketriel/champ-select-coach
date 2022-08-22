@@ -1,9 +1,10 @@
+import { CsData, CsInput } from "./csManager";
 import { ErrorReporting } from "./errorReporting";
 
 export class CSCAI {
   private static _pluginInstance: any = null;
 
-  public static async instance() {
+  private static async instance() {
     if (this._pluginInstance == null) {
       await new Promise(resolve => CSCAI._initialize(resolve));
     }
@@ -32,22 +33,67 @@ export class CSCAI {
     });
   }
 
-  public newTask(matchSample: any, variantInfo: any, computeBans: boolean, playedChampions: any[]) {
-    //sample has all the info
-    //variant says if it's blue, red, or both
-    //if computing bans, check the odds for each champ to be in a lane, then if above threshold check that variant for bans
-    //playedChampions tells what recommendations to try
-    //the rest happens in C#, and results are returned on subsequent calls to getNextResult(taskId)
-    //return taskId
+  public static async getPatchInfo() {
+    const ai = await this.instance();
+    const json = await new Promise<any>(resolve => ai.GetPatchInfo(resolve))
+    return json == null ? json : JSON.parse(json);
   }
 
-  public cancelTask(taskId: string) {
-    //TODO
+  public static async getRolePredictions(csInput: CsInput) {
+    const ai = await this.instance();
+    const inputJSON = JSON.stringify(csInput);
+    const json = await new Promise<any>(resolve => ai.GetRolePredictions(inputJSON, resolve));
+    return json == null ? json : JSON.parse(json);
   }
 
-  public getNextTaskResult(taskId: string) {
-    //TODO
+  public static async prepareData(csInput: CsInput, csData: CsData) {
+    const ai = await this.instance();
+    const inputJSON = JSON.stringify(csInput);
+    const dataJSON = JSON.stringify(csData);
+    const json = await new Promise<any>(resolve => ai.PrepareData(inputJSON, dataJSON, resolve));
+    return json == null ? json : JSON.parse(json);
   }
 
+  public static async getBans() {
+    const ai = await this.instance();
+    const json = await new Promise<any>(resolve => ai.GetBans(resolve));
+    return json == null ? json : JSON.parse(json);
+  }
+
+  public static async getFullScore() {
+    const ai = await this.instance();
+    const json = await new Promise<any>(resolve => ai.GetFullScore(resolve));
+    return json == null ? json : JSON.parse(json);
+  }
   
+  public static async getPartialScore(blue: boolean) {
+    const ai = await this.instance();
+    const json = await new Promise<any>(resolve => ai.GetPartialScore(blue, resolve));
+    return json == null ? json : JSON.parse(json);
+  }
+  
+  public static async getSoloScore(i: number) {
+    const ai = await this.instance();
+    const json = await new Promise<any>(resolve => ai.GetSoloScore(i, resolve));
+    return json == null ? json : JSON.parse(json);
+  }
+  
+  public static async getMissingScore(i: number) {
+    const ai = await this.instance();
+    const json = await new Promise<any>(resolve => ai.GetMissingScore(i, resolve));
+    return json == null ? json : JSON.parse(json);
+  }
+  
+  public static async getRecommendations(i: number, championIds: string[]) {
+    const ai = await this.instance();
+    const json = await new Promise<any>(resolve => ai.GetRecommendations(i, championIds, resolve));
+    return json == null ? json : JSON.parse(json);
+  }
+  
+  public static async unzip(b64zip: string) {
+    const ai = await this.instance();
+    const json = await new Promise<any>(resolve => ai.Unzip(b64zip, resolve));
+    return JSON.parse(json);
+  }
+
 }

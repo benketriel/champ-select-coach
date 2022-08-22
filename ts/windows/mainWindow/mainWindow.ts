@@ -1,19 +1,17 @@
-import { lcuClassId, windowNames } from "../../ts-lib/consts";
-import { Beta } from "../../ts-lib/beta";
+import { windowNames } from "../../ts-lib/consts";
 import * as $ from "jquery"; //npm install --save-dev @types/jquery
 import { Timer } from "../../ts-lib/timer";
-import { Lcu } from "../../ts-lib/lcu";
-import { Aws } from "../../ts-lib/aws";
-import { Settings } from "../../ts-lib/settings";
 import { OWWindow } from "../../ts-lib/ow-window";
-import { Logger } from "../../ts-lib/logger";
+import { CsTab } from "../../ts-lib/csTab";
 
 export class MainWindow {
   private static _instance: MainWindow;
   protected window: OWWindow;
+  private csTab: CsTab;
 
   constructor() {
     this.window = new OWWindow(windowNames.mainWindow);
+    this.csTab = new CsTab();
     this.initWindow();
   }
 

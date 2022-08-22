@@ -45,15 +45,16 @@ class BackgroundController {
     overwolf.games.events.onError.addListener(reportError);
 
     //Closing
-    overwolf.windows.onMessageReceived.removeListener(this.handleCloseMessage);
-    overwolf.windows.onMessageReceived.addListener(this.handleCloseMessage);
+    const handleCloseMessage = (event: any) => that.handleCloseMessage(event);
+    overwolf.windows.onMessageReceived.removeListener(handleCloseMessage);
+    overwolf.windows.onMessageReceived.addListener(handleCloseMessage);
     
     this.ensureModelLoads();
   };
 
   private async ensureModelLoads() {
-    const model = await CSCAI.instance();
-    if (model == null) {
+    const info = await CSCAI.getPatchInfo();
+    if (info == null) {
       alert("Fatal error, some required app files are missing. Try reinstalling the app. The app will now exit.");
 
       this._windows[windowNames.mainWindow].close();

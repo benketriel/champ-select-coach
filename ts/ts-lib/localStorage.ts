@@ -3,13 +3,16 @@
 
 export class LocalStorage {
 
-    public static async get(key) {
-        return true; //TODO
+    private static get(key: string) {
+        return localStorage.getItem(key);
     }
 
-    public static async set(key, value) {
-        return true; //TODO
+    private static set(key: string, value: string) {
+        localStorage.setItem(key, value);
     }
     
+    public static getProgressBarStats() { return JSON.parse(LocalStorage.get('progress-bar-stats')) || {}; }
+    public static setProgressBarStats(stats: any) { LocalStorage.set('progress-bar-stats', JSON.stringify(stats)); }
+
 
 }

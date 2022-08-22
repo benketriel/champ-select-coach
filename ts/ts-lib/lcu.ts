@@ -1,4 +1,5 @@
 import { lcuClassId, lcuUrls } from "./consts";
+import { CsInput } from "./csManager";
 import { ErrorReporting } from "./errorReporting";
 import { Logger } from "./logger";
 import { Timer } from "./timer";
@@ -78,40 +79,42 @@ export class Lcu {
     return {};
   }
 
-  public static async getChampionSelectStatus(currStatus: any, all_info_alt: any): Promise<any> {
+  public static async getCsInput(prevCsInput: CsInput, all_info_alt: any): Promise<CsInput> {
     try {
       let info = {};
       if (!all_info_alt || !all_info_alt.info || !all_info_alt.info.champ_select || !all_info_alt.info.champ_select.raw) {
         const all_info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
-        if (!all_info || !all_info.res || !all_info.res.champ_select || !all_info.res.champ_select.raw || !all_info.res.summoner_info || !all_info.res.summoner_info.platform_id) return "InvalidInfo";
+        if (!all_info || !all_info.res || !all_info.res.champ_select || !all_info.res.champ_select.raw || !all_info.res.summoner_info || !all_info.res.summoner_info.platform_id) { Logger.log("InvalidInfo"); return null; }
       
         info = JSON.parse(all_info.res.champ_select.raw);
       } else {
         info = JSON.parse(all_info_alt.info.champ_select.raw);
       }
 
-      if (!info || !info["myTeam"]) return "InvalidInfo";
-      if (info["myTeam"].length == 0) return "NotInChampionSelect";
+      if (!info || !info["myTeam"]) { Logger.log("InvalidInfo"); return null; }
+      if (info["myTeam"].length == 0) { Logger.log("NotInChampionSelect"); return null; }
 
       let cellInfoIds = {};
-      let blueTeam = true;
+      let blueSide = true;
       for (let x of info["myTeam"]) {
           let cellId = parseInt(x["cellId"]);
-          blueTeam = cellId < 5;
+          blueSide = cellId < 5;
 
-          let sId = x["summonerId"].toString();
+          // let sId = x["summonerId"].toString();
 
           let cId = x["championId"].toString();
           let name = ((x["summonerInfo"] || {})["displayName"] || "").toString();
-          let puuid = ((x["summonerInfo"] || {})["puuid"] || "").toString();
+          // let puuid = ((x["summonerInfo"] || {})["puuid"] || "").toString();
           let position = x["assignedPosition"].toString();
-          let hasSmite = (x["spell1Id"] || {}).toString() == "11" || (x["spell2Id"] || {}).toString() == "11";
+          let spells = [x["spell1Id"] || -1, x["spell2Id"] || -1];
+          if (spells[0] > 255) spells[0] = -1;
+          if (spells[1] > 255) spells[0] = -1;
           //if (cId == "0")
           //{
           //    cId = x["championPickIntent"].toString();
           //}
 
-          cellInfoIds[cellId] = { champId: cId, name: name, puuid: puuid, position: position, hasSmite: hasSmite };
+          cellInfoIds[cellId] = { champId: cId, name: name, position: position, spells: spells };
       }
       let opponentCellChampionIds = {};
       for (let x of info["theirTeam"]) {
@@ -151,9 +154,8 @@ export class Lcu {
           let cid = cellInfoIds[cellId];
           let champId = cid.champId;
           let name = cid.name;
-          let puuid = cid.puuid;
           let position = cid.position;
-          let hasSmite = cid.hasSmite;
+          let spells = cid.spells;
           let lockedIn = champId != "0";
           let picking = false;
           if (cellLastChamp[cellId]) {
@@ -162,7 +164,7 @@ export class Lcu {
               picking = cellLastChamp[cellId].picking;
           }
           let champion = champId || "";
-          return { name, puuid, champion, lockedIn, picking, position, hasSmite };
+          return { name, champion, lockedIn, picking, position, spells };
       });
 
       let opponentTeam = Object.keys(opponentCellChampionIds).map(cellId => {
@@ -178,57 +180,51 @@ export class Lcu {
 
           //This info is hidden from LCU
           const name = "";
-          const puuid = "";
-          const position:any = "";
-          const hasSmite = false;
-          return { name, puuid, champion, lockedIn, picking, position, hasSmite };
+          const position: any = "";
+          const spells = [-1, -1];
+          return { name, champion, lockedIn, picking, position, spells };
       });
 
-      const newStatus = {
-          Timestamp: new Date(),
-          QueueId: currStatus.QueueId,
-          IsBlueTeam: blueTeam,
-          Region: currStatus.Region,
-          Summoners: (myTeam.map(x => x.name).concat(["", "", "", "", ""])).slice(0, 5).concat((opponentTeam.map(x => x.name).concat(["", "", "", "", ""])).slice(0, 5)),
-          //For testing Summoners: (myTeam.map(x => x.name).concat(["", "", "", "", ""])).slice(0, 5).concat((myTeam.map(x => x.name).concat(["", "", "", "", ""])).slice(0, 5)),
-          Picking: (myTeam.map(x => x.picking).concat([false, false, false, false, false])).slice(0, 5).concat((opponentTeam.map(x => x.picking).concat([false, false, false, false, false])).slice(0, 5)),
-          Positions: (myTeam.map(x => x.position).concat([-1, -1, -1, -1, -1])).slice(0, 5).concat((opponentTeam.map(x => x.position).concat([-1, -1, -1, -1, -1])).slice(0, 5)),
-          HasSmite: (myTeam.map(x => x.hasSmite).concat([false, false, false, false, false])).slice(0, 5).concat((opponentTeam.map(x => x.hasSmite).concat([false, false, false, false, false])).slice(0, 5)),
-          ManualPositions: [],
-          GuessedPositions: [],
-          Puuids: (myTeam.map(x => x.puuid).concat(["", "", "", "", ""])).slice(0, 5).concat((opponentTeam.map(x => x.puuid).concat(["", "", "", "", ""])).slice(0, 5)),
-          //For testing Puuids: (myTeam.map(x => x.puuid).concat(["", "", "", "", ""])).slice(0, 5).concat((myTeam.map(x => x.puuid).concat(["", "", "", "", ""])).slice(0, 5)),
-          Champions: (myTeam.map(x => x.champion).concat(["", "", "", "", ""])).slice(0, 5).concat((opponentTeam.map(x => x.champion).concat(["", "", "", "", ""])).slice(0, 5)),
-          SummonerInfo: [],
-          SummonerHistory: [],
-          LcuTierInfos: []
-      };
+      const blueTeam = blueSide ? myTeam : opponentTeam;
+      const redTeam = blueSide ? opponentTeam : myTeam;
 
+      const newCsInput = new CsInput();
+      newCsInput.queueId = prevCsInput == null ? '' : prevCsInput.queueId;
+      newCsInput.region = prevCsInput == null ? '' : prevCsInput.region;
+      newCsInput.blueSide = blueSide;
+      newCsInput.summonerNames = (blueTeam.map(x => x.name).concat(["", "", "", "", ""])).slice(0, 5).concat((redTeam.map(x => x.name).concat(["", "", "", "", ""])).slice(0, 5));
+
+      newCsInput.championIds = (blueTeam.map(x => x.champion).concat(["", "", "", "", ""])).slice(0, 5).concat((redTeam.map(x => x.champion).concat(["", "", "", "", ""])).slice(0, 5));
+      newCsInput.picking = (blueTeam.map(x => x.picking).concat([false, false, false, false, false])).slice(0, 5).concat((redTeam.map(x => x.picking).concat([false, false, false, false, false])).slice(0, 5));
+      newCsInput.assignedRoles = (blueTeam.map(x => x.position).concat([-1, -1, -1, -1, -1])).slice(0, 5).concat((redTeam.map(x => x.position).concat([-1, -1, -1, -1, -1])).slice(0, 5));
+      newCsInput.summonerSpells = (blueTeam.map(x => x.spells).concat([[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]])).slice(0, 5).concat((redTeam.map(x => x.spells).concat([[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]])).slice(0, 5));
+      
       for (let i = 0; i < 10; ++i) {
-        newStatus.Positions[i] = 
-          newStatus.Positions[i] == "top" ? 0 :
-          newStatus.Positions[i] == "utility" ? 4 :
-          newStatus.Positions[i] == "bottom" ? 3 :
-          newStatus.Positions[i] == "middle" ? 2 :
-          newStatus.Positions[i] == "jungle" ? 1 : 
+        newCsInput.assignedRoles[i] = 
+          newCsInput.assignedRoles[i] == "top" ? 0 :
+          newCsInput.assignedRoles[i] == "utility" ? 4 :
+          newCsInput.assignedRoles[i] == "bottom" ? 3 :
+          newCsInput.assignedRoles[i] == "middle" ? 2 :
+          newCsInput.assignedRoles[i] == "jungle" ? 1 : 
           -1;
       }
 
-
-      //Should clear QueueId when leaving queue in case they have the same summoners but swap queue type (nearly impossible since you can't control team in ranked but you know..)
-      if (newStatus.Region == '' || newStatus.QueueId == '' || JSON.stringify(currStatus.Summoners) != JSON.stringify(newStatus.Summoners)) {
+      if (newCsInput.region == '' || newCsInput.queueId == '' || CsInput.triggerNewCs(prevCsInput, newCsInput)) {
         const all_info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
-        if (!all_info || !all_info.res || !all_info.res.summoner_info || !all_info.res.summoner_info.platform_id || !all_info.res.lobby_info || !all_info.res.lobby_info.queueId) return "InvalidInfo";
-        newStatus.Region = all_info.res.summoner_info.platform_id;
-        if (!Lcu.WHITELISTED_QUEUES.includes(all_info.res.lobby_info.queueId)) return "InvalidInfo";
-        newStatus.QueueId = all_info.res.lobby_info.queueId;
-        Logger.log("QueueId:" + newStatus.QueueId);
+        if (!all_info || !all_info.res || !all_info.res.summoner_info || !all_info.res.summoner_info.platform_id || !all_info.res.lobby_info || !all_info.res.lobby_info.queueId) { Logger.log("InvalidInfo"); return null; }
+        newCsInput.region = all_info.res.summoner_info.platform_id;
+        if (!Lcu.WHITELISTED_QUEUES.includes(all_info.res.lobby_info.queueId)) { Logger.log("InvalidInfo"); return null; }
+        newCsInput.queueId = all_info.res.lobby_info.queueId;
+        Logger.log("QueueId:" + newCsInput.queueId);
+      } else {
+        newCsInput.roleSwaps = prevCsInput.roleSwaps;
+        newCsInput.championSwaps = prevCsInput.championSwaps;
       }
 
-      return newStatus;
+      return newCsInput;
     } catch (ex) {
       ErrorReporting.report('getChampionSelectStatus', ex);
-      return ex;
+      return null;
     }
   }
 
