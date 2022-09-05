@@ -1,5 +1,6 @@
 import { LocalStorage } from "./localStorage";
 import { Timer } from "./timer";
+import * as $ from "jquery"; //npm install --save-dev @types/jquery
 
 
 export class ProgressBar {
@@ -35,13 +36,17 @@ export class ProgressBar {
   private setValue() {
     //Actually edits the html element (this singleton class owns it)
     if (this == ProgressBar.currentlyActive) {
-      $('.progress-bar-value').css('width', (this.currentlyShownValue * 100) +'%');
+      $('.progress-bar-value').css('width', Math.round(1089 * this.currentlyShownValue) +'px');
     }
   }
 
   public setActive() {
     ProgressBar.currentlyActive = this;
     this.setValue();
+  }
+
+  public isActive() {
+    return ProgressBar.currentlyActive == this;
   }
 
   public taskCompleted() {
@@ -68,10 +73,10 @@ export class ProgressBar {
       this.totalSeconds += ProgressBar.TICK_MS / 1000.0;
       let taskEstimatedSeconds = (this.remainingTaskSeconds.length == 0) ? 0.0 : this.remainingTaskSeconds[0];
       this.currentValue = this.totalSeconds / (this.totalSeconds - this.secondsOnTask + Math.max(this.secondsOnTask, taskEstimatedSeconds) + this.remainingTotalSeconds - taskEstimatedSeconds);
-      this.currentlyShownValue = this.currentlyShownValue * 0.9 + 0.1 * this.currentValue;
+      this.currentlyShownValue = this.currentlyShownValue * 0.5 + 0.5 * this.currentValue;
       this.setValue();
       await Timer.wait(ProgressBar.TICK_MS);
-      if (this.remainingTaskSeconds.length == 0 && this.currentlyShownValue >= 0.999) {
+      if (this.remainingTaskSeconds.length == 0 && this.currentlyShownValue >= 0.999 || this != ProgressBar.currentlyActive && this.currentValue >= 0.999) {
         this.currentlyShownValue = 0.0;
         this.setValue();
         break;

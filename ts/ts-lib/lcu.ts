@@ -76,7 +76,7 @@ export class Lcu {
     } catch (ex) {
       ErrorReporting.report('getCurrentNameAndRegion', ex);
     }
-    return {};
+    return null;
   }
 
   public static async getCsInput(prevCsInput: CsInput, all_info_alt: any): Promise<CsInput> {
@@ -108,7 +108,7 @@ export class Lcu {
           let position = x["assignedPosition"].toString();
           let spells = [x["spell1Id"] || -1, x["spell2Id"] || -1];
           if (spells[0] > 255) spells[0] = -1;
-          if (spells[1] > 255) spells[0] = -1;
+          if (spells[1] > 255) spells[1] = -1;
           //if (cId == "0")
           //{
           //    cId = x["championPickIntent"].toString();
@@ -189,6 +189,7 @@ export class Lcu {
       const redTeam = blueSide ? opponentTeam : myTeam;
 
       const newCsInput = new CsInput();
+      newCsInput.ownerName = prevCsInput == null ? '' : prevCsInput.ownerName;
       newCsInput.queueId = prevCsInput == null ? '' : prevCsInput.queueId;
       newCsInput.region = prevCsInput == null ? '' : prevCsInput.region;
       newCsInput.blueSide = blueSide;
@@ -209,12 +210,17 @@ export class Lcu {
           -1;
       }
 
-      if (newCsInput.region == '' || newCsInput.queueId == '' || CsInput.triggerNewCs(prevCsInput, newCsInput)) {
+      if (newCsInput.region == '' || newCsInput.queueId == '' || newCsInput.ownerName == '' || CsInput.triggerNewCs(prevCsInput, newCsInput)) {
         const all_info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
-        if (!all_info || !all_info.res || !all_info.res.summoner_info || !all_info.res.summoner_info.platform_id || !all_info.res.lobby_info || !all_info.res.lobby_info.queueId) { Logger.log("InvalidInfo"); return null; }
+        if (!all_info || !all_info.res || !all_info.res.summoner_info || !all_info.res.summoner_info.platform_id || !all_info.res.summoner_info.display_name || 
+          !all_info.res.lobby_info || !all_info.res.lobby_info.queueId || !Lcu.WHITELISTED_QUEUES.includes(all_info.res.lobby_info.queueId)) { 
+          Logger.log("InvalidInfo");
+          return null;
+        }
+
         newCsInput.region = all_info.res.summoner_info.platform_id;
-        if (!Lcu.WHITELISTED_QUEUES.includes(all_info.res.lobby_info.queueId)) { Logger.log("InvalidInfo"); return null; }
         newCsInput.queueId = all_info.res.lobby_info.queueId;
+        newCsInput.ownerName = all_info.res.summoner_info.display_name;
         Logger.log("QueueId:" + newCsInput.queueId);
       } else {
         newCsInput.roleSwaps = prevCsInput.roleSwaps;
@@ -301,6 +307,18 @@ export class Lcu {
       ErrorReporting.report('getSummonerPuuidByName', ex);
       return ex;
     }
+  }
+
+  public static async getSummonersTierByName(summonerNames: Array<string>) {
+    const lcuPuuids = <string[]>await Lcu.getSummonerPuuidsByName(summonerNames);
+    const lcuTiers = await Lcu.getSummonersTierByPuuid(lcuPuuids);
+    const result = {};
+    for (let i = 0; i < summonerNames.length; ++i) {
+      if (summonerNames[i] && lcuTiers[i]) {
+        result[summonerNames[i]] = lcuTiers[i];
+      }
+    }
+    return { result };
   }
 
 }

@@ -3,15 +3,24 @@ import * as $ from "jquery"; //npm install --save-dev @types/jquery
 import { Timer } from "../../ts-lib/timer";
 import { OWWindow } from "../../ts-lib/ow-window";
 import { CsTab } from "../../ts-lib/csTab";
+import { PersonalTab } from "../../ts-lib/personalTab";
+import { Logger } from "../../ts-lib/logger";
+import { CSCAI } from "../../ts-lib/cscai";
 
 export class MainWindow {
   private static _instance: MainWindow;
   protected window: OWWindow;
+
   private csTab: CsTab;
+  private personalTab: PersonalTab;
+  private selectedView: string = '';
+
+  public patchInfo: any;
+
+  public static MAX_MENU_HISTORY_SIZE: number = 10;
 
   constructor() {
     this.window = new OWWindow(windowNames.mainWindow);
-    this.csTab = new CsTab();
     this.initWindow();
   }
 
@@ -26,123 +35,88 @@ export class MainWindow {
     const bodyWidth = $('body').width();
     for(var tt of $('.tooltiptext')) {
       const currPos = $(tt).offset();
-      const offsetX = $(tt).outerWidth() + currPos.left - (bodyWidth - 2);
-      const offsetY = $(tt).outerHeight() + currPos.top - (bodyHeight - 2);
+      let originalTop = $(tt).attr('data-original-top');
+      let originalLeft = $(tt).attr('data-original-left');
+      if (!originalTop || ! originalLeft) {
+        originalTop = currPos.top.toString();
+        originalLeft = currPos.left.toString();
+        $(tt).attr('data-original-top', originalTop);
+        $(tt).attr('data-original-left', originalLeft);
+      }
+      const offsetX = $(tt).outerWidth() + parseInt(originalLeft) - (bodyWidth - 2);
+      const offsetY = $(tt).outerHeight() + parseInt(originalTop) - (bodyHeight - 2);
       if (offsetY > 0 || offsetX > 0) {
-        $(tt).offset({ left: Math.min(currPos.left, currPos.left - offsetX), top: Math.min(currPos.top, currPos.top - offsetY) });
+        $(tt).offset({ left: Math.min(parseInt(originalLeft), parseInt(originalLeft) - offsetX), top: Math.min(parseInt(originalTop), parseInt(originalTop) - offsetY) });
       }
     }
   }
 
   public async initWindow() {
+    this.patchInfo = await CSCAI.getPatchInfo();
+    this.csTab = new CsTab(this.patchInfo);
+    this.personalTab = new PersonalTab();
+    await this.loadHTML();
+    await this.setCallbacks();
+
+    this.personalTab.canvasDraw();
+
+    this.csTab.show();
+    this.personalTab.hide();
+    this.repositionOverflowingPopups();
+
+  }
+
+  private async loadHTML() {
+    // Note, load everything but hide it, this is more efficient than having to reload every time
+
+    //Side menu
     $('.side-menu').append(await (await fetch('sideMenu.html')).text());
+    for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
+      $('#side-menu-old-cs-list').append(await (await fetch('sideMenuOption.html')).text());
+    }
+
+    //Popups
     $('.faq-tab').append(await (await fetch('faqTab.html')).text());
     $('.settings-tab').append(await (await fetch('settingsTab.html')).text());
     $('.feedback-tab').append(await (await fetch('feedbackTab.html')).text());
     $('.news-tab').append(await (await fetch('newsTab.html')).text());
-    $('.personal-tab').append(await (await fetch('personalTab.html')).text());
 
-    //For debugging:
-    for(let i = 0; i < 10; ++i) {
-      $('#side-menu-old-cs-list').append(await (await fetch('sideMenuOption.html')).text());
-    }
-    $('.cs-tab').append(await (await fetch('csTab.html')).text());
-    for(let i = 0; i < 5; ++i) {
-      $('.cs-table').append(await (await fetch('csTabRow.html')).text());
-    }
-    for(let i = 0; i < 6; ++i) {
-      $('.cs-table-recommended-champions-cell .cs-table-cell').append(await (await fetch('csTabRecommendationItem.html')).text());
-    }
-    for(let i = 0; i < 8; ++i) {
-      $('.cs-table-history-cell .cs-table-cell').append(await (await fetch('csTabHistoryItem.html')).text());
-    }
-    
-    for(let i = 0; i < 4; ++i) {
+    //Personal
+    $('.personal-tab').append(await (await fetch('personalTab.html')).text());
+    for (let i = 0; i < 4; ++i) {
       $('.personal-champions-list').append(await (await fetch('personalTabChampionItem.html')).text());
     }
 
-    for(let i = 0; i < 10; ++i) {
+    for (let i = 0; i < 10; ++i) {
       $('.personal-history-list').append(await (await fetch('personalTabHistoryItem.html')).text());
     }
 
-    
-    
-
-    this.repositionOverflowingPopups();
-
-    //Canvas drawing
-    const canvas : any = $('.personal-graph-canvas').get()[0];
-    canvas.width = 320;
-    canvas.height = 220;
-    const ctx = canvas.getContext("2d");
-
-    ctx.fillStyle = "#BE943A";
-    const yellow = "#BE943A"; //Yellowish
-    const white = "#DFDACB"; //White
-    const blue = "#3B6284"; //Blue
-    const red = "#755663"; //Red
-    const shadow = "#000000"; //Shadow
-    // ctx.fillRect(0, 0, 150, 75);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.lineWidth = 1;
-    for (let sh = 0; sh < 2; ++sh) {
-      const o = sh == 0 ? 2 : 0;
-      ctx.strokeStyle = sh == 0 ? shadow : yellow;
-
-      ctx.beginPath();
-      ctx.moveTo(o + 10, o + 10);
-      ctx.lineTo(o + 10, o + 210);
-      ctx.lineTo(o + 310, o + 210);
-      // ctx.closePath();
-      ctx.stroke();
-      for (let i = 1; i <= 9; ++i){
-        ctx.beginPath();
-        ctx.moveTo(o + 10, o + 10 + 20 * i);
-        ctx.lineTo(o + 3, o + 10 + 20 * i);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(o + 10 + 30 * i, o + 210);
-        ctx.lineTo(o + 10 + 30 * i, o + 217);
-        ctx.stroke();
-      }
+    //Cs
+    $('.cs-tab').append(await (await fetch('csTab.html')).text());
+    for (let i = 0; i < 5; ++i) {
+      $('.cs-table').append(await (await fetch('csTabRow.html')).text());
+    }
+    for (let i = 0; i < 6; ++i) {
+      $('.cs-table-recommended-champions-cell .cs-table-cell').append(await (await fetch('csTabRecommendationItem.html')).text());
+    }
+    for (let i = 0; i < 8; ++i) {
+      $('.cs-table-history-cell .cs-table-cell').append(await (await fetch('csTabHistoryItem.html')).text());
     }
 
-    const all = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    const csc = [0, 0.13, 0.22, 0.31, 0.47, 0.57, 0.62, 0.76, 0.85, 0.91, null]
-    const player = [null, 0.0, 1.0, 0.31, 0.37, 0.47, 0.72, 0.56, null, null, null]
-    for (let wh = 0; wh < 10; ++wh) {
-      ctx.strokeStyle = wh == 0 ? white : wh == 1 ? blue : red;
-      const data = wh == 0 ? all : wh == 1 ? csc : player;
-      for (let i = 1; i < 9; ++i) {
-        var y0 = data[i];
-        var y1 = data[i + 1];
-        if (y0 != null && y1 != null) {
-          ctx.beginPath();
-          ctx.moveTo(10 + 30 * i, 210 - 200 * y0);
-          ctx.lineTo(10 + 30 * (i + 1), 210 - 200 * y1);
-          ctx.stroke();
-        }
-      }
+  }
+
+  private async setCallbacks() {
+    //Call this function once, else add .off() calls before each .on()
+
+    //Menu navigation
+    $('.side-menu-current-cs').on('click', MainWindow.selectCurrentCS);
+    for (let i = 0; i < 10; ++i) {
+      $($('.side-menu-old-cs')[i]).on('click', () => MainWindow.selectHistoryCS(i));
     }
+    $('.side-menu-add-manual-cs').on('click', () => MainWindow.selectHistoryCS(null));
+    $('.s-lcu-status').on('click', MainWindow.selectPersonal);
 
-    // // the fill color
-    // ctx.fill();
-    
-
-    // $('#autoLoad').prop("checked", Settings.autoLoadOnChampionSelect());
-    // $('#autoLoad').on('change', () => { Settings.autoLoadOnChampionSelect($('#autoLoad').prop("checked").toString() == 'true') });
-
-    // Beta.isBetaVersion().then(v => $('#betaVersion').prop("checked", v));
-    // $('#betaVersion').on('change', async () => { await Beta.setBetaVersion($('#betaVersion').prop("checked")); });
-    
-    //Messaging between windows
-    // overwolf.windows.onMessageReceived.addListener(async (message: overwolf.windows.MessageReceivedEvent) => { if (message.id === 'home') { } });
-    // overwolf.windows.sendMessage(windowNames.mainWindow, 'home', '', () => {});
-
-    $('.drags-window').each((index, elem) => { this.setDrag(elem); });
-
+    //Popup navigation
     $('.homeButton').on('click', async () => { 
       $('.slide-overlay').animate({ left: '100%' });
     });
@@ -164,14 +138,61 @@ export class MainWindow {
     $('.backButton').on('click', () => { 
       $('.slide-overlay').animate({ left: '100%' });
     });
-    $('.rateApp').on('click', () => {
-      overwolf.utils.openStore({ page:overwolf.utils.enums.eStorePage.ReviewsPage, uid:"ljkaeojllenacnoipfcdpdllhcfndmohikaiphgi"});
-    });
 
+    //Global
+    $('.drags-window').each((index, elem) => { this.setDrag(elem); });
     $('.closeButton').on('click', async () => { overwolf.windows.sendMessage(windowNames.background, 'close', '', () => {}); });
     $('.minimizeButton').on('click', () => { this.window.minimize(); });
+    $('.rateApp').on('click', () => { overwolf.utils.openStore({ page:overwolf.utils.enums.eStorePage.ReviewsPage, uid:"ljkaeojllenacnoipfcdpdllhcfndmohikaiphgi"}); });
 
   }
+
+  //Make callbacks static since the 'this' is confusing to pass to a callback, use MainWindow.instance() instead
+  public static selectCurrentCS() {
+    const main = MainWindow.instance();
+    if (!main.csTab.hasBeenInCS) return;
+    if (main.selectedView == 'lcu') return;
+    main.selectedView = 'lcu';
+
+    main.csTab.swapToLcu();
+    main.personalTab.hide();
+    main.csTab.show();
+
+    $('.s-lcu-status-selected').removeClass('s-lcu-status-selected');
+    $('.side-menu-selected-effect').removeClass('side-menu-selected-effect');
+    $('.side-menu-current-cs').addClass('side-menu-selected-effect');
+  }
+
+  public static selectHistoryCS(i: number) {
+    const main = MainWindow.instance();
+    if (main.selectedView == 'hist' + i) return;
+    main.selectedView = 'hist' + i;
+
+    if (i = null) {
+      main.csTab.addManualCs();
+      i = 0;
+    }
+    main.csTab.swapToManual(i);
+    main.personalTab.hide();
+    main.csTab.show();
+
+    $('.s-lcu-status-selected').removeClass('s-lcu-status-selected');
+    $('.side-menu-selected-effect').removeClass('side-menu-selected-effect');
+    $($('.side-menu-old-cs')[i]).addClass('side-menu-selected-effect');
+  }
+
+  public static selectPersonal() {
+    const main = MainWindow.instance();
+    if (main.selectedView == 'personal') return;
+    main.selectedView = 'personal';
+
+    main.csTab.hide();
+    main.personalTab.show();
+
+    $('.side-menu-selected-effect').removeClass('side-menu-selected-effect');
+    $('.s-lcu-status').addClass('s-lcu-status-selected');
+  }
+
 
   public static async waitForWindowToOpen(w: OWWindow) {
     let i = 0;

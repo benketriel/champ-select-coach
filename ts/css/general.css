@@ -107,7 +107,24 @@ button:focus {
 }
 
 
-/* Loading spinner */
+/* Loading */
+.progress-bar-value {
+    position: absolute;
+    display: block;
+    top: 33px;
+    left: 210px;
+
+    height: 3px;
+    /* margin-bottom: -5px; */
+    width: 0px;
+    /* background-color: rgb(5, 149, 169); */
+    background: linear-gradient(135deg, rgba(5, 149, 169, 1) 0%, rgba(6, 111, 128, 1) 50%, rgba(5, 149, 169, 1) 100%);
+    /* background: linear-gradient(135deg, rgba(5, 149, 169, 1) 0%, green 50%, rgba(5, 149, 169, 1) 100%); */
+    background-size: 400% 400%;
+    /* border-right: 1px solid rgba(10, 48, 58); */
+    /* animation: panbg 4s ease infinite; */
+}
+
 .lds-ring {
     display: inline-block;
     position: relative;

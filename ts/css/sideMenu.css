@@ -75,18 +75,22 @@
     left: 26px;
 }
 
-.side-menu-role img {
+.side-menu-role {
     display: inline-block;
     position: relative;
-    height: 30px;
-    width: 30px;
     top: 17px;
     left: 41px;
 }
+.side-menu-role img {
+    height: 30px;
+    width: 30px;
+}
+.side-menu-role-old {
+    top: -1px;
+    left: 28px;
+}
 .side-menu-role-old img {
     zoom: 50%;
-    top: -5px;
-    left: 50px;
 }
 
 .side-menu-current-cs-score {

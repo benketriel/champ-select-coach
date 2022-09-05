@@ -29,7 +29,7 @@
     transform: translate(-20px, 2px);
 }
 .tooltiptext.tooltiptext-sm-error {
-    width: 105px;
+    max-width: 105px;
     transform: translate(-6px, -23px);
     white-space: normal;
 }
@@ -41,12 +41,12 @@
     font-size: x-large;
 }
 .tooltiptext.tooltiptext-lg-msg {
-    width: 250px;
+    max-width: 250px;
     transform: translate(40px, 0px);
     white-space: normal;
 }
 .tooltiptext.tooltiptext-lg-error {
-    width: 250px;
+    max-width: 250px;
     transform: translate(40px, 0px);
     white-space: normal;
 }

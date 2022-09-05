@@ -45,6 +45,11 @@
     cursor: pointer;
 }
 
+.s-lcu-status-selected {
+    filter: brightness(130%);
+    cursor: pointer;
+}
+
 .s-lcu-status-light { 
     height: 11px;
     padding-bottom: 6px;

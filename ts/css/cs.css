@@ -120,8 +120,8 @@
 }
 
 .cs-colors-top {
-    background: linear-gradient(135deg, rgba(165, 165, 165, 1) 0%, rgba(165, 165, 165, 0.9) 50%, rgba(165, 165, 165, 1) 100%);
-    border-color: rgba(165, 165, 165, 0.5);
+    background: linear-gradient(135deg, rgba(240, 234, 217, 1) 0%, rgba(240, 234, 217, 0.9) 50%, rgba(240, 234, 217, 1) 100%);
+    border-color: rgba(240, 234, 217, 0.5);
 }
 
 .cs-colors-jungle {
@@ -134,15 +134,39 @@
     border-color: rgba(63, 106, 142, 0.5);
 }
 
-.cs-colors-support {
-    background: linear-gradient(135deg, rgba(240, 234, 217, 1) 0%, rgba(240, 234, 217, 0.9) 50%, rgba(240, 234, 217, 1) 100%);
-    border-color: rgba(240, 234, 217, 0.5);
+.cs-colors-bot {
+    background: linear-gradient(135deg, rgba(165, 165, 165, 1) 0%, rgba(165, 165, 165, 0.9) 50%, rgba(165, 165, 165, 1) 100%);
+    border-color: rgba(165, 165, 165, 0.5);
 }
 
-.cs-colors-bot {
+.cs-colors-support {
     background: linear-gradient(135deg, rgba(126, 91, 104, 1) 0%, rgba(126, 91, 104, 0.9) 50%, rgba(126, 91, 104, 1) 100%);
     border-color: rgba(126, 91, 104, 0.5);
 }
+
+/* .cs-colors-sub-bar-div {
+    position: relative;
+    top: -11px;
+    height: 5px;
+}
+
+.cs-colors-sub-bar {
+    height: 5px;
+}
+
+.cs-colors-ad {
+    background: linear-gradient(135deg, rgba(188, 96, 71, 1) 0%, rgba(188, 96, 71, 0.9) 50%, rgba(188, 96, 71, 1) 100%);
+    border-color: rgba(188, 96, 71, 0.5);
+}
+.cs-colors-ap {
+    background: linear-gradient(135deg, rgba(50, 134, 202, 1) 0%, rgba(50, 134, 202, 0.9) 50%, rgba(50, 134, 202, 1) 100%);
+    border-color: rgba(50, 134, 202, 0.5);
+}
+.cs-colors-true {
+    background: linear-gradient(135deg, rgba(220, 217, 220, 1) 0%, rgba(220, 217, 220, 0.9) 50%, rgba(220, 217, 220, 1) 100%);
+    border-color: rgba(220, 217, 220, 0.5);
+} */
+
 
 
 /* Main table */
@@ -372,6 +396,9 @@
     width: 17px;
     height: 17px;
 }
+.cs-table-horizontal-separator:nth-last-child(1) {
+    display: none;
+}
 
 
 /* Role */
@@ -399,6 +426,8 @@
     position: relative;
     top: -4px;
     margin: 0px 2px 0px 2px;
+    width: 30px;
+    display: inline-block;
 }
 
 /* Lane Winner */
@@ -416,6 +445,8 @@
     position: relative;
     top: -4px;
     margin: 0px 2px 0px 2px;
+    width: 30px;
+    display: inline-block;
 }
 
 
@@ -474,7 +505,7 @@
     overflow: hidden;
     border: 1px solid #785A28;
     zoom: 32%;
-    margin: 0px 8px 0px 8px;
+    margin: 6px 8px 0px 8px;
 }
 .cs-table-champion-swap-role:hover {
     filter: brightness(180%);
@@ -488,6 +519,16 @@
     width: 17px;
     height: 17px;
     margin: 0px 2px 0px 2px;
+}
+.cs-table-champion-swap-default {
+    font-size: 12px;
+    display: inline-block;
+    top: -4px;
+    position: relative;
+}
+.cs-table-champion-swap-default:hover {
+    filter: brightness(180%);
+    cursor: pointer;
 }
 
 
@@ -530,4 +571,17 @@
 .cs-table-recommended-bans-score {
     margin-left: 8px;
     color: rgb(240, 234, 217);
+}
+
+/* Footer */
+.cs-warning {
+    position: absolute;
+    top: 4px;
+    left: 223px;
+}
+
+.cs-region {
+    float: right;
+    margin-right: 10px;
+    font-size: 12px;
 }

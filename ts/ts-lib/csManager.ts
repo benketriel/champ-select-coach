@@ -12,12 +12,13 @@ import { Logger } from "./logger";
 
 export class CsInput {
   //Trigger onNewCs (except if manual), and require loading CsData
-  public queueId = "";
   public region = "";
+  public queueId = "";
   public blueSide = true;
   public summonerNames = []; //Order here is arbitrary (and will be invisible on the UI since they are later sorted by roles)
 
   //Trigger onCsUpdate
+  public ownerName = '';
   public championIds = [];
   public picking = [];
   public summonerSpells = [];
@@ -48,6 +49,7 @@ export class CsInput {
   }
 
   public static shouldComputeBans(csInput: CsInput) {
+    return false; //Until we figure out a faster way to do this
     return csInput.championIds.slice(0, 5).filter(x => x != null && x != "").length == 0 || csInput.championIds.slice(5, 10).filter(x => x != null && x != "").length == 0;
   }
 
@@ -72,6 +74,15 @@ export class CsInput {
     return res;
   }
 
+  public static getOwnerIdx(csInput: CsInput) {
+    const ownerIdx = csInput.summonerNames.indexOf(csInput.ownerName);
+    if (ownerIdx == -1) {
+      //TODO get the one with higest elo? will be relevant for manual cs
+      return 0;
+    }
+    return ownerIdx;
+  }
+
 }
 
 export class CsData {
@@ -85,6 +96,7 @@ export class CsData {
 }
 
 export class CsManager {
+  private patchInfo: any;
   public connectedToLcu: boolean = false;
   public onNewCs: any;
   public onCsUpdate: any;
@@ -96,24 +108,24 @@ export class CsManager {
   private currCsRolePrediction = null;
   private currCsBans = null;
   private currCsScore = null;
-  private currCsSoloScores = null;
   private currCsMissingScores = null;
   private currCsHistory = null;
   private currCsRecommendations = null;
   private currCsFirstRunComplete = false;
 
   private ongoingCsChange = false;
-  private ongoingProgressBar = new ProgressBar([], []);;
+  public ongoingProgressBar = new ProgressBar([], []);;
   private pendingCsChange = null;
 
-  constructor(connectedToLcu: boolean, onNewCs: any, onCsUpdate: any) {
+  constructor(patchInfo: any, connectedToLcu: boolean, onNewCs: any, onCsUpdate: any) {
+    this.patchInfo = patchInfo;
     this.connectedToLcu = connectedToLcu;
     this.onNewCs = onNewCs;
     this.onCsUpdate = onCsUpdate;
 
     if (this.connectedToLcu) {
       //Set required features when LCU starts
-      const setRequiredFeatures = () => { Lcu.setRequiredFeatures([interestingFeatures.game_flow]); };
+      const setRequiredFeatures = () => { Lcu.setRequiredFeatures([interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]); };
       overwolf.games.launchers.onLaunched.removeListener(setRequiredFeatures);
       overwolf.games.launchers.onLaunched.addListener(setRequiredFeatures);
       overwolf.games.launchers.getRunningLaunchersInfo(info => { if (Lcu.isLcuRunningFromInfo(info)) { setRequiredFeatures(); }});
@@ -126,6 +138,13 @@ export class CsManager {
       overwolf.games.launchers.events.onNewEvents.removeListener(handleLcuEvent);
       overwolf.games.launchers.events.onNewEvents.addListener(handleLcuEvent);
     }
+
+    this.debug();
+  }
+
+  private async debug() {
+    //TODO
+    await Timer.wait(2000);
   }
 
   public manualCsChange(newCsInput: CsInput) {
@@ -144,9 +163,10 @@ export class CsManager {
     if (!CsInput.anyVisibleChange(this.currCsInputView, newCsInput)) {
       return;
     }
+    const rolePred = await CSCAI.getRolePredictions(newCsInput);
     this.currCsInputView = newCsInput;
-    this.currCsRolePrediction = await CSCAI.getRolePredictions(this.currCsInputView);
-    this.onCsUpdate();
+    this.currCsRolePrediction = rolePred;
+    this.onCsUpdate('instant');
 
     if (this.ongoingCsChange) {
       this.pendingCsChange = newCsInput;
@@ -172,39 +192,43 @@ export class CsManager {
 
         //Init progress bar
         this.ongoingProgressBar.abort();
+        const activeProgressBar = this.ongoingProgressBar.isActive();
 
         const taskNames = [];
         const taskParallelism = [];
         if (loadData) { taskNames.push('loadData'); taskParallelism.push(1); }
         { taskNames.push('prepareData'); taskParallelism.push(1); }
         { taskNames.push('getScore'); taskParallelism.push(isTeamPartial ? 1 : 3); }
-        if (individualScoresThatNeedUpdate.length > 0) { taskNames.push('getSoloScore'); taskParallelism.push(individualScoresThatNeedUpdate.length); }
         if (individualScoresThatNeedUpdate.length > 0) { taskNames.push('getMissingScore'); taskParallelism.push(individualScoresThatNeedUpdate.length); }
         if (computeBans) { taskNames.push('getBans'); taskParallelism.push(1); }
         { taskNames.push('getRecommendations'); taskParallelism.push(isTeamPartial ? 5 : 10); }
 
         this.ongoingProgressBar = new ProgressBar(taskNames, taskParallelism);
+        if (activeProgressBar) this.ongoingProgressBar.setActive();
 
         //Start processing
         this.currCsInput = newCsInput;
         if (loadData) {
           this.currCsBans = {};
           this.currCsScore = {};
-          this.currCsSoloScores = {};
           this.currCsMissingScores = {};
           this.currCsHistory = {};
           this.currCsRecommendations = {};
           this.currCsFirstRunComplete = false;
-          this.onCsUpdate();
+          this.onCsUpdate('clearData');
 
-          this.currCsData = await CsDataFetcher.getCsData(this.currCsInput);
+          this.currCsData = await CsDataFetcher.getCsData(this.patchInfo, this.currCsInput);
           this.ongoingProgressBar.taskCompleted();
         }
         
         //Do not abort before this task because it's important that the loaded data is loaded to the AI
-        const { historySortedByRoles, roles } = await CSCAI.prepareData(this.currCsInput, loadData ? this.currCsData : null);
+        const { history, roles } = await CSCAI.prepareData(this.currCsInput, loadData ? this.currCsData : null);
+        const historySortedByRoles = history;
+
+        const TODOdebug = await CSCAI.debugView();
+
         this.currCsHistory = this.reverseRoleSortIntoDict(historySortedByRoles, roles);
-        this.onCsUpdate();
+        this.onCsUpdate('data');
         this.ongoingProgressBar.taskCompleted();
 
         if (this.currCsFirstRunComplete && this.pendingCsChange != null) continue;
@@ -213,24 +237,10 @@ export class CsManager {
         const redPartialTask = isTeamPartial ? Timer.wait(0) : CSCAI.getPartialScore(false);
         this.currCsScore['full'] = await fullTask;
         if (!isTeamPartial) {
-          this.currCsScore['bluePartial'] = await bluePartialTask;
-          this.currCsScore['redPartial'] = await redPartialTask;
+          this.currCsScore['partial'] = [ await bluePartialTask, await redPartialTask ];
         }
-        this.onCsUpdate();
+        this.onCsUpdate('score');
         this.ongoingProgressBar.taskCompleted();
-
-        if (individualScoresThatNeedUpdate.length > 0) {
-          if (this.currCsFirstRunComplete && this.pendingCsChange != null) continue;
-          const soloTasks = {}
-          for (let soloI of individualScoresThatNeedUpdate) {
-            soloTasks[soloI] = CSCAI.getSoloScore(roles[soloI] + (soloI < 5 ? 0 : 5));
-          }
-          for (let soloI of individualScoresThatNeedUpdate) {
-            this.currCsSoloScores[this.currCsInput.summonerNames[soloI]] = await soloTasks[soloI];
-          }
-          this.onCsUpdate();
-          this.ongoingProgressBar.taskCompleted();
-        }
 
         if (individualScoresThatNeedUpdate.length > 0) {
           if (this.currCsFirstRunComplete && this.pendingCsChange != null) continue;
@@ -241,14 +251,14 @@ export class CsManager {
           for (let missingI of individualScoresThatNeedUpdate) {
             this.currCsMissingScores[this.currCsInput.summonerNames[missingI]] = await missingTasks[missingI];
           }
-          this.onCsUpdate();
+          this.onCsUpdate('missing');
           this.ongoingProgressBar.taskCompleted();
         }
 
         if (computeBans) {
           if (this.currCsFirstRunComplete && this.pendingCsChange != null) continue;
           this.currCsBans = await CSCAI.getBans();
-          this.onCsUpdate();
+          this.onCsUpdate('bans');
           this.ongoingProgressBar.taskCompleted();
         }
 
@@ -259,7 +269,7 @@ export class CsManager {
         }
         for (let i = 0; i < 10; ++i) {
           this.currCsRecommendations[i] = await recommendationTasks[i];
-          this.onCsUpdate();
+          this.onCsUpdate('picks' + i);
         }
         this.currCsFirstRunComplete = true;
         this.ongoingProgressBar.taskCompleted();
@@ -299,13 +309,19 @@ export class CsManager {
 
   public getCsView() {
     return {
-      currCsInputView: this.currCsInputView,
-      currCsRolePrediction: this.currCsRolePrediction,
-      currCsBans: this.currCsBans,
-      currCsScore: this.currCsScore,
-      currCsHistory: this.currCsHistory,
-      currCsRecommendations: this.currCsRecommendations
+      inputView: this.currCsInputView,
+      rolePrediction: this.currCsRolePrediction,
+      lcuTiers: (this.currCsData || {}).lcuTiers || {},
+      bans: this.currCsBans || {},
+      score: this.currCsScore || {},
+      missingScore: this.currCsMissingScores || {},
+      history: this.currCsHistory || {},
+      recommendations: this.currCsRecommendations || {},
     };
+  }
+
+  public setCsView(csView: any, editable: boolean) {
+    //TODO
   }
 
   private async handleGameStarting(info: any) {
@@ -330,6 +346,10 @@ export class CsManager {
     if (alreadyPolling) return;
 
     const nr = await Lcu.getCurrentNameAndRegion();
+    if (nr == null) {
+      ErrorReporting.report('pollForSpectator', 'Lcu.getCurrentNameAndRegion');
+      return;
+    }
     const sId = (await CsDataFetcher.getSummoner(nr.region, nr.name)).summonerId; //Typically cached already
     await Timer.wait(msBeforePollingStart);
     while (Date.now() < this.pollingUntil) {
@@ -373,14 +393,18 @@ export class CsManager {
 
   private async uploadCurrentCS() {
     const nr = await Lcu.getCurrentNameAndRegion();
+    if (nr == null) {
+      ErrorReporting.report('uploadCurrentCS', 'Lcu.getCurrentNameAndRegion');
+      return;
+    }
     const puuid = (await CsDataFetcher.getSummoner(nr.region, nr.name)).puuid;
     const data = this.getCsView(); //Need the full view to be able to load an old CS from personal tab
 
     //TODO: Add more data to view such as usage statistics here
     //TODO: Wrap this in error reporting
 
-    const partialPrediction = data.currCsInputView.blueSide ? data.currCsScore.bluePartialScore : data.currCsScore.redPartialScore;
-    const fullPrediction = data.currCsInputView.blueSide ? data.currCsScore.totalScore : 1 - data.currCsScore.totalScore;
+    const partialPrediction = data.inputView.blueSide ? data.score.bluePartialScore : data.score.redPartialScore;
+    const fullPrediction = data.inputView.blueSide ? data.score.totalScore : 1 - data.score.totalScore;
     Aws.uploadPrediction(nr.region, puuid, JSON.stringify(data), partialPrediction, fullPrediction);
   }
 

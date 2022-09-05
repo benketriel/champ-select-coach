@@ -60,7 +60,7 @@ export class CsDataFetcher {
     return null;
   }
 
-  public static async getCsData(csInput: CsInput) {
+  public static async getCsData(patchInfo:any, csInput: CsInput) {
     const currCsData = new CsData();
     
     //Group calls to make less calls to AWS?
@@ -97,33 +97,65 @@ export class CsDataFetcher {
     }
 
     //Get LCU tiers
-    const lcuPuuids = <string[]>await Lcu.getSummonerPuuidsByName(csInput.summonerNames);
-    const lcuTiers = await Lcu.getSummonersTierByPuuid(lcuPuuids);
+    const lcuTiers = await this.cacheAndFetch(csInput.region, csInput.summonerNames, false, this.lcuTierCache, (region: string, sIds: string[]) => Lcu.getSummonersTierByName(sIds));
     currCsData.lcuTiers = {};
-    for (let i in csInput.summonerNames) {
-      const name = csInput.summonerNames[i];
-      currCsData.lcuTiers[name] = lcuTiers[i];
+    for (let name in lcuTiers) {
+      currCsData.lcuTiers[name] = CsDataFetcher.parseLCUTier(patchInfo, lcuTiers[name], csInput.queueId);
     }
 
     return currCsData;
+  }
+
+  public static parseLCUTier(patchInfo:any, lcuTier: any, queueId: string) {
+    let tier = '';
+    let division = '';
+    let lp = '';
+    if (lcuTier) {
+      const hasSoloTier = lcuTier.queueMap && lcuTier.queueMap.RANKED_SOLO_5x5 && lcuTier.queueMap.RANKED_SOLO_5x5.tier;
+      const hasFlexTier = lcuTier.queueMap && lcuTier.queueMap.RANKED_FLEX_SR && lcuTier.queueMap.RANKED_FLEX_SR.tier;
+      const isSoloGame = queueId in patchInfo.SoloQueueTypeIds;
+  
+      if (!isSoloGame && hasFlexTier) {
+        tier = lcuTier.queueMap.RANKED_SOLO_5x5.tier.toLocaleLowerCase();
+        division = lcuTier.queueMap.RANKED_SOLO_5x5.division;
+        lp = lcuTier.queueMap.RANKED_SOLO_5x5.leaguePoints;
+      } else if (isSoloGame && hasSoloTier) {
+        tier = lcuTier.queueMap.RANKED_FLEX_SR.tier.toLocaleLowerCase();
+        division = lcuTier.queueMap.RANKED_FLEX_SR.division;
+        lp = lcuTier.queueMap.RANKED_FLEX_SR.leaguePoints;
+      }
+      if (lcuTier && lcuTier.highestRankedEntry && lcuTier.highestRankedEntry.tier && ["iron", "bronze", "silver", "gold", "platinum", "diamond", "master", "grandmaster", "challenger"].includes(tier)) {
+        if (["master", "grandmaster", "challenger"].includes(tier)) {
+          division = '';
+        }
+      } else {
+        tier = '';
+        division = '';
+        lp = '';
+      }
+    }
+    return { tier, division, lp };
   }
 
   private static async cacheAndFetch(region: string, keys: string[], jsonParse: boolean, cache: Cache, fetch: any) {
     const missing = [];
     const res = {};
     for (let k of keys) {
+      if (k == null || k == '') continue;
       const x = await cache.getOrNull(region + k);
       if (x == null) missing.push(k);
       else res[k] = x;
     }
-    const fetched = (await fetch(region, missing)).result;
-    for (let k in fetched) {
-      let item = fetched[k];
-      if (jsonParse) {
-        item = JSON.parse(item);
+    if (missing.length > 0) {
+      let fetched = (await fetch(region, missing)).result;
+      for (let k in fetched) {
+        let item = fetched[k];
+        if (jsonParse) {
+          item = JSON.parse(item);
+        }
+        res[k] = item;
+        await cache.insert(region + k, item);
       }
-      res[k] = item;
-      await cache.insert(region + k, item);
     }
     return res;
   }

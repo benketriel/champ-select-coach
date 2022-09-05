@@ -1,3 +1,4 @@
+import { Timer } from "./timer";
 
 
 
@@ -79,6 +80,24 @@ export class Utils {
     return c;
   }
 
+  public static capitalizeFirstLetter(s: string) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
 
+  public static probabilityToScore(x: number) {
+    return (Math.round(x * 100) / 10).toFixed(1).toString();
+  }
+
+  public static async smoothChangeNumber(elem: HTMLElement, targetN: number, ms: number = 500) {
+    const fromN = parseFloat(elem.innerHTML) || 0;
+    for (let t = 0; true; t += 30) {
+      t = Math.min(t, ms);
+      let currN = fromN + (targetN - fromN) * (0.5 - 0.5 * Math.cos(t / ms * Math.PI));
+      elem.innerHTML = (Math.round(currN * 10) / 10).toFixed(1); // Digits to show after comma, forces .0 if such
+      const w = Math.min(30, ms - t);
+      if (w > 0) await Timer.wait(w);
+      if (t == ms) break;
+    }
+  }
 
 }
