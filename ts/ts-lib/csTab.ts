@@ -6,34 +6,48 @@ import { MainWindow } from "../windows/mainWindow/mainWindow";
 import { version } from "./consts";
 import { Utils } from "./utils";
 import { LocalStorage } from "./localStorage";
+import { ErrorReporting } from "./errorReporting";
+import { Popup } from "./popup";
 
 
 export class CsTab {
   private lcuCsManager: CsManager;
-  private manualCsManager: CsManager;
-  private history: any[] = [];
+  private manualCsManagers: CsManager[];
+  private staticCsManager: CsManager;
   private lcuManagerActive: boolean = false;
   private currHistoryIndex: number = -1;
   public hasBeenInCS: boolean = false;
+  public static NUM_RECOMMENDATIONS: number = 6;
+  public static NUM_HISTORY: number = 8;
+  private patchInfo;
 
   constructor(patchInfo: any) {
+    this.patchInfo = patchInfo;
     //if mode matches then handle their callbacks and set view
     const that = this;
     const onNewCsLcu = () => that.onNewCsLcu();
     const onCsUpdateLcu = (change: string) => that.onCsUpdateLcu(change);
-    const onNewCsManual = () => that.onNewCsManual();
-    const onCsUpdateManual = (change: string) => that.onCsUpdateManual(change);
-    this.lcuCsManager = new CsManager(patchInfo, true, onNewCsLcu, onCsUpdateLcu);
-    this.manualCsManager = new CsManager(patchInfo, false, onNewCsManual, onCsUpdateManual);
+    this.lcuCsManager = new CsManager(patchInfo, true, onNewCsLcu, onCsUpdateLcu, null, true, false, null);
+    this.manualCsManagers = [];
+    this.staticCsManager = new CsManager(patchInfo, false, null, null, null, false, false, null);
 
     this.init();
   }
 
   private async init() {
-    this.manualCsManager.ongoingProgressBar.setActive();
-    this.history = await LocalStorage.getCsHistory();
-    if (this.history.length > 0) {
-      this.swapToManual(0);
+    const that = this;
+    const onNewCsManual = () => that.onNewCsManual();
+    const onCsUpdateManual = (change: string) => that.onCsUpdateManual(change);
+
+    const history = await LocalStorage.getCsHistory();
+    for (let i in history) {
+      const h = history[i];
+      this.manualCsManagers.push(new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, h, h.swappable, h.editable, h.date));
+    }
+    this.updateCSHistory();
+
+    if (this.manualCsManagers.length > 0) {
+      MainWindow.selectHistoryCS(0);
     }
 
   }
@@ -44,14 +58,7 @@ export class CsTab {
   }
 
   private onCsUpdateLcu(change: string) {
-    const { inputView, rolePrediction, lcuTiers, bans, score, missingScore, history, recommendations } = this.lcuCsManager.getCsView();
-
-    const ownerIdx = CsInput.getOwnerIdx(inputView);
-    const lcuTier = lcuTiers[inputView.summonerNames[ownerIdx]] || {};
-    let fullScore = score['full'] ? score['full'][0][0] : 0.5;
-    fullScore = ownerIdx < 5 ? fullScore : 1 - fullScore;
-  
-    this.updateCurrentCSMenu(inputView.championIds[ownerIdx], rolePrediction[ownerIdx], lcuTier.tier, lcuTier.division, lcuTier.lp, fullScore);
+    this.updateCurrentCSMenu();
 
     if (this.lcuManagerActive) {
       this.updateView(change);
@@ -63,17 +70,8 @@ export class CsTab {
   }
 
   private onCsUpdateManual(change: string) {
-    if (this.currHistoryIndex != -1) {
-      const { inputView, rolePrediction, lcuTiers, bans, score, missingScore, history, recommendations } = this.manualCsManager.getCsView();
+    this.updateCSHistory();
 
-      const ownerIdx = CsInput.getOwnerIdx(inputView);
-      const lcuTier = lcuTiers[inputView.summonerNames[ownerIdx]] || {};
-      let fullScore = score['full'] ? score['full'][0][0] : 0.5;
-      fullScore = ownerIdx < 5 ? fullScore : 1 - fullScore;
-    
-      this.updateHistoryCSMenu(this.currHistoryIndex, inputView.championIds[ownerIdx], rolePrediction[ownerIdx], lcuTier.tier, lcuTier.division, lcuTier.lp, fullScore, null);
-    }
-    
     if (!this.lcuManagerActive) {
       this.updateView(change);
     }
@@ -93,43 +91,78 @@ export class CsTab {
     this.updateView('');
   }
 
-  public swapToManual(historyIndex: number) {
+  public swapToManual(i: number) {
     this.lcuManagerActive = false;
-    this.manualCsManager.ongoingProgressBar.setActive();
-    this.manualCsManager.setCsView(this.history[historyIndex].csView, this.history[historyIndex].editable);
-    this.currHistoryIndex = historyIndex;
+    this.currHistoryIndex = i;
+    this.manualCsManagers[i].ongoingProgressBar.setActive();
     this.updateView('');
   }
 
   public swapToStatic(csView: any) {
     this.lcuManagerActive = false;
-    this.manualCsManager.ongoingProgressBar.setActive();
-    this.manualCsManager.setCsView(csView, false);
     this.currHistoryIndex = -1;
+    
+    const that = this;
+    const onNewCsManual = () => that.onNewCsManual();
+    const onCsUpdateManual = (change: string) => that.onCsUpdateManual(change);
+
+    this.staticCsManager = new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, csView, false, false, null);
+    this.staticCsManager.ongoingProgressBar.setActive();
     this.updateView('');
   }
 
-  public addManualCs() {
-    const hist = {
-      editable: true,
-      date: null,
-      csView: JSON.parse(JSON.stringify((this.lcuManagerActive ? this.lcuCsManager : this.manualCsManager).getCsView())),
-    };
-    this.history.unshift(hist);
-    while (this.history.length > MainWindow.MAX_MENU_HISTORY_SIZE) {
-      this.history.pop();
-    }
-    this.syncMenuWithHistory();
-    LocalStorage.setCsHistory(this.history);
+  public getActiveManager() {
+    if (this.lcuManagerActive) return this.lcuCsManager;
+    if (this.currHistoryIndex == -1) return this.staticCsManager;
+    return this.manualCsManagers[this.currHistoryIndex];
   }
 
-  private updateCurrentCSMenu(championId: string, role: number, tier: string, division: string, lp: string, score: number) {
+  public addManualCs() {
+    const manager = this.getActiveManager();
+    const csView = JSON.parse(JSON.stringify(manager.getCsView()));
+
+    const that = this;
+    const onNewCsManual = () => that.onNewCsManual();
+    const onCsUpdateManual = (change: string) => that.onCsUpdateManual(change);
+    const newManager = new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, csView, true, true, null);
+
+    this.manualCsManagers.unshift(newManager);
+    newManager.refreshView();
+
+    while (this.manualCsManagers.length > MainWindow.MAX_MENU_HISTORY_SIZE) {
+      this.manualCsManagers.pop();
+    }
+    this.updateCSHistory();
+  }
+
+  public deleteCSHistory(i: number) {
+    if (i >= this.manualCsManagers.length) return;
+
+    this.manualCsManagers.splice(i, 1);
+    this.currHistoryIndex = Math.min(this.currHistoryIndex, this.manualCsManagers.length - 1);
+    this.updateCSHistory();
+  }
+
+  public getCSHistoryLength() {
+    return this.manualCsManagers.length;
+  }
+
+  private updateCurrentCSMenu() {
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+      this.lcuCsManager.getCsView();
+
+    const ownerIdx = CsInput.getOwnerIdx(csInputView);
+    const mergedTier = this.mergeTiers(lcuTiers, apiTiers)[csInputView.summonerNames[ownerIdx]] || {};
+    let fullScore = score && score['full'] ? score['full'][0][0] : 0.5;
+    fullScore = ownerIdx < 5 ? fullScore : 1 - fullScore;
+
     const patchInfo = MainWindow.instance().patchInfo;
 
-    CsTab.setChampionImg(patchInfo, $('.side-menu-current-cs .side-menu-champion img'), championId);
-    CsTab.setRoleImg($('.side-menu-current-cs .side-menu-role img'), role, tier, division, lp);
+    const swappedChamps = CsManager.applyChampionSwaps(csInputView);
+    CsTab.setChampionImg(patchInfo, $('.side-menu-current-cs .side-menu-champion img'), swappedChamps[ownerIdx]);
+    CsTab.setRoleImg($('.side-menu-current-cs .side-menu-role img'), rolePredictionView[ownerIdx], mergedTier.tier, mergedTier.division, mergedTier.lp);
 
-    $('.side-menu-current-cs .side-menu-current-cs-score').html(Utils.probabilityToScore(score));
+    $('.side-menu-current-cs .side-menu-current-cs-score').html(Utils.probabilityToScore(fullScore));
 
     $('.side-menu-current-cs .side-menu-waiting').hide();
     $('.side-menu-current-cs .side-menu-champion').show();
@@ -156,20 +189,26 @@ export class CsTab {
     $($('.side-menu-old-cs')[index]).hide();
   }
 
-  private syncMenuWithHistory() {
+  public updateCSHistory() {
+    const history = this.manualCsManagers.map(m => m.getCsView());
+    LocalStorage.setCsHistory(history);
+
     for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
-      if (i >= this.history.length) {
+      if (i >= this.manualCsManagers.length) {
         this.removeHistoryCSMenu(i);
         continue;
       }
-      const h = this.history[i];
-      const csInput: CsInput = h.csView.inputView;
+      const csView = this.manualCsManagers[i].getCsView();
+      const csInput: CsInput = csView.csInput;
       const ownerIdx = CsInput.getOwnerIdx(csInput);
-      const lcuTier = h.csView.lcuTiers[csInput.summonerNames[ownerIdx]] || {};
-      let score = ((h.csView.score || {})['full'] || 0.5);
+      const mergedTier = this.mergeTiers(csView.lcuTiers, csView.apiTiers);
+
+      const tier = mergedTier[csInput.summonerNames[ownerIdx]] || {};
+      let score = csView.score && csView.score['full'] ? csView.score['full'][0][0] : 0.5;
       score = ownerIdx < 5 ? score : 1 - score;
 
-      this.updateHistoryCSMenu(i, csInput.championIds[ownerIdx], h.csView.rolePrediction[ownerIdx], lcuTier.tier, lcuTier.division, lcuTier.lp, score, h.date);
+      const swappedChamps = CsManager.applyChampionSwaps(csInput);
+      this.updateHistoryCSMenu(i, swappedChamps[ownerIdx], (csView.rolePrediction || {})[ownerIdx] || 0, tier.tier, tier.division, tier.lp, score, csView.date);
     }
   }
 
@@ -198,52 +237,131 @@ export class CsTab {
     lp = lp || '';
     const grayscale = tier == '';
     const tierFile = tier == "platinum" ? 'plat' : tier == '' ? 'plat' : tier; // Because plat looks the best in grayscale
-
     const posFileNames = ['Top', 'Jungle', 'Mid', 'Bot', 'Support'];
+
+    const hash = tierFile + '-' + posFileNames[role] + (grayscale ? 'g':'');
+    const currName = element.attr('title');
+    if (currName == hash) {
+      element.show();
+      return;
+    }
+    element.attr('title', hash);
+
     element.attr('src', '/img/ranked-positions/Position_' + tierFile + '-' + posFileNames[role] + '.png');
-    element.parent().attr('title', (tier == '' ? '' : Utils.capitalizeFirstLetter(tier) + ' ' + division + ' ' + lp + ' LP ') + posFileNames[role]);
+    // element.parent().attr('title', (tier == '' ? '' : Utils.capitalizeFirstLetter(tier) + ' ' + division + ' ' + lp + ' LP ') + posFileNames[role]);
     element.css('filter', grayscale ? 'grayscale(100%)' : '');
     element.off('load');
     element.on('load', function() { element.show(); });
-
   }
 
   private updateView(change: string) {
+    let time = new Date().getTime();
+    const timeStats = {};
     //Updates the html view, change is for optimization, if empty reset everything
-    const { inputView, rolePrediction, lcuTiers, bans, score, missingScore, history, recommendations } = (this.lcuManagerActive ? this.lcuCsManager : this.manualCsManager).getCsView();
+    const manager = this.getActiveManager();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+      manager.getCsView();
 
-    //inputView and rolePrediction are assumed to always be there
-    const ownerIdx = CsInput.getOwnerIdx(inputView);
+    const mergedTier = this.mergeTiers(lcuTiers, apiTiers);
+    //csInputView and rolePredictionView are always available
+    const ownerIdx = CsInput.getOwnerIdx(csInputView);
     const side = Math.floor(ownerIdx/5);
     const patchInfo = MainWindow.instance().patchInfo;
-
-    if (!change || change == 'instant') {
-      this.dimAllScores();
-      this.updateDistributionLegend(patchInfo, side, inputView.championIds, rolePrediction);
-      this.updateRegionAndWarnings(patchInfo, inputView, history);
-      this.updateSwaps(patchInfo, side, inputView, rolePrediction, lcuTiers);
-      this.updateSummonersAndRoles(patchInfo, side, inputView, rolePrediction, lcuTiers);
-    } else if (!change || change == 'clearData') {
-    } else if (!change || change == 'data') {
-    } else if (!change || change == 'score') {
-      if (score.partial) {
-        this.updateScore(score.full[0][side], score.partial[side][0][side], score.partial[1 - side][0][1 - side]);
-      } else {
-        this.updateScore(score.full[0][Math.floor(ownerIdx/5)], -1, -1);
-      }
-      this.updateObjectives(side, score.full);
-      this.updateDistributions(side, score.full);
-      this.updateRoleScores(side, score.full);
-    } else if (!change || change == 'missing') {
-      this.updateTeamScores(side, inputView, rolePrediction, score.full[0], missingScore);
-    } else if (!change || change == 'picks' + 0) {
-
-
+    const swappedChampsView = CsManager.applyChampionSwaps(csInputView);
+    if (manager.swappableCs) {
+      $('.cs-table-champion-swap').show();
     } else {
-      Logger.warn('updateView() - Unknown change: ' + change);
+      $('.cs-table-champion-swap').hide();
     }
 
+    if (change == 'clearData') {
+      change = '';
+    }
+    timeStats['init'] = new Date().getTime() - time; time = new Date().getTime();
+    if (!change || change == '' || change == 'instant') {
+      const roleToIdxView = this.roleToIdx(rolePredictionView);
+      this.setAllToLoading();
+      this.updateDistributionLegend(patchInfo, side, swappedChampsView, rolePredictionView);
+      this.updateFooter(patchInfo, csInputView, editable);
+      this.updateSwaps(patchInfo, side, csInputView, roleToIdxView, mergedTier);
+      this.updateSummonersAndRoles(patchInfo, side, csInputView, rolePredictionView, mergedTier);
+    }
+    timeStats['instant'] = new Date().getTime() - time; time = new Date().getTime();
+    if (!change || change == '' || change == 'data') {
+      this.updateWarnings(patchInfo, csInput, history);
+      this.updateHistory(patchInfo, side, rolePrediction, csInput, history, mergedTier);
+      if (change == 'data') {
+        const roleToIdx =  this.roleToIdx(rolePrediction);
+        this.updateSwaps(patchInfo, side, csInput, roleToIdx, mergedTier); //Now the tiers are updated
+        this.updateSummonersAndRoles(patchInfo, side, csInput, rolePrediction, mergedTier); //Now the tiers are updated
+      }
+    }
+    timeStats['data'] = new Date().getTime() - time; time = new Date().getTime();
+    if (!change || change == '' || change == 'score') {
+      if (score && score.full && score.partial) {
+        this.updateScore(score.full[0][side], score.partial[side][0][side], score.partial[1 - side][0][1 - side]);
+      } else if (score && score.full) {
+        this.updateScore(score.full[0][Math.floor(ownerIdx/5)], -1, -1);
+      } else {
+        this.updateScore(0.5, -1, -1);
+      }
+      if (score && score.full) {
+        this.updateObjectives(side, score.full);
+        this.updateDistributions(side, score.full);
+        this.updateRoleScores(side, score.full);
+      } else {
+        this.updateObjectives(side, null);
+        this.updateDistributions(side, null);
+        this.updateRoleScores(side, null);
+      }
+    }
+    timeStats['score'] = new Date().getTime() - time; time = new Date().getTime();
+    if (!change || change == '' || change == 'missing') {
+      if (score && score.full) this.updateTeamScores(side, csInput, rolePrediction, score.full[0], missingScore);
+    }
+    timeStats['missing'] = new Date().getTime() - time; time = new Date().getTime();
+    if (!change || change == '' || change.startsWith('picks')) {
+      if (score && score.full && rolePrediction && csInput) {
+        const roleToIdx =  this.roleToIdx(rolePrediction);
+
+        for (let pickI of (change == '' ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : [parseInt(change.substring(5))])) {
+          const name = csInput.summonerNames[roleToIdx[pickI]];
+          this.updatePicks(patchInfo, side, score.full, pickI, (recommendations || {})[pickI], (history || {})[name]);
+        }
+      } else {
+        this.updatePicks(patchInfo, side, null, null, null, null);
+      }
+    }
+    timeStats['picks'] = new Date().getTime() - time; time = new Date().getTime();
+
     MainWindow.instance().repositionOverflowingPopups();
+    timeStats['popups'] = new Date().getTime() - time; time = new Date().getTime();
+    Logger.debug(JSON.stringify(timeStats));
+  }
+
+  private roleToIdx(roles: number[]) {
+    const res = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
+    for (let i = 0; i < 10; i++) {
+      res[Math.floor(i / 5) * 5 + roles[i]] = i;
+    }    
+    return res;
+  }
+
+  private mergeTiers(lcuTiers: any, apiTiers: any[]) {
+    const res = {};
+    if (lcuTiers) {
+      for (const name in lcuTiers) {
+        res[name] = lcuTiers[name];
+      }
+    }
+    if (apiTiers) {
+      for (const i in apiTiers) {
+        const x = apiTiers[i];
+        if (res[x.name] && res[x.name].tier != '') continue;
+        res[x.name] = { tier: x.tier.toLowerCase(), division: x.division, lp: x.lp };
+      }
+    }
+    return res;
   }
 
   private updateScore(wr: number, wrLeft: number, wrRight: number) {
@@ -255,8 +373,6 @@ export class CsTab {
       $('.cs-wr-total-left').addClass('tooltip');
       $('.cs-wr-total-right').addClass('tooltip');
     }
-
-    $('.cs-wr-total-tooltip').html(showSideScores ? 'Combined score' : 'Total score');
 
     $('.cs-wr-total-tooltip').removeClass('tooltiptext-lg-error');
     $('.cs-wr-total-tooltip').addClass('tooltiptext-lg-msg');
@@ -293,6 +409,8 @@ export class CsTab {
       Utils.smoothChangeNumber($('.cs-wr-total-left-result').get(0), wrLeft * 10);
       Utils.smoothChangeNumber($('.cs-wr-total-right-result').get(0), wrRight * 10);
     } else {
+      Utils.stopSmoothChangeNumberAnimation($('.cs-wr-total-left-result').get(0));
+      Utils.stopSmoothChangeNumberAnimation($('.cs-wr-total-right-result').get(0));
       $('.cs-wr-total-left-result').html('');
       $('.cs-wr-total-right-result').html('');
     }
@@ -310,11 +428,17 @@ export class CsTab {
     $('.cs-wr-total-frame').removeClass('cs-wr-total-frame-little-danger-holes');
   }
 
-  private IOUT_TIME = 11;
-  private IOUT_OBJECTIVES = 12;
   private updateObjectives(side:number, scores: number[][]) {
-    const oArr = scores[this.IOUT_OBJECTIVES];
-    const tArr = scores[this.IOUT_TIME]; //(0-10, -15, -20, -25, -30, -35, 35+)
+    if (!scores) {
+      $('.cs-objective-cell-value').css('opacity', '0.0');
+      $('.cs-objective-timer-cell-value').css('opacity', '0.0');
+      return;
+    }
+
+    const IOUT_TIME = 11;
+    const IOUT_OBJECTIVES = 12;
+    const oArr = scores[IOUT_OBJECTIVES];
+    const tArr = scores[IOUT_TIME]; //(0-10, -15, -20, -25, -30, -35, 35+)
     const minuteI = tArr.indexOf(Math.max(...tArr));
     let minutes = '';
     if (minuteI == 0) {
@@ -355,17 +479,25 @@ export class CsTab {
     }
   }
 
-  private IOUT_FIRST_BLOOD = 13;
-  private IOUT_DMG_TOTAL_BLUE = 110;
-  private IOUT_DMG_TOTAL_RED = 111;
-  private IOUT_TURRET_DAMAGE_BLUE = 96;
-  private IOUT_TURRET_DAMAGE_RED = 97;
-  private IOUT_GOLD_BLUE = 100;
-  private IOUT_GOLD_RED = 101;
-  private IOUT_KP_BLUE = 15;
-  private IOUT_KP_RED = 16;
   private updateDistributions(side:number, scores: number[][]) {
-    const fbArr = scores[this.IOUT_FIRST_BLOOD];
+    if (!scores) {
+      const barElems =  $('.cs-total-bars-table').find('.cs-colors-bar').get();
+      for (let i = 0; i < barElems.length; ++i) {
+        this.setBar(barElems[i], 0.0);
+      }
+      return;
+    }
+
+    const IOUT_FIRST_BLOOD = 13;
+    const IOUT_DMG_TOTAL_BLUE = 110;
+    const IOUT_DMG_TOTAL_RED = 111;
+    const IOUT_TURRET_DAMAGE_BLUE = 96;
+    const IOUT_TURRET_DAMAGE_RED = 97;
+    const IOUT_GOLD_BLUE = 100;
+    const IOUT_GOLD_RED = 101;
+    const IOUT_KP_BLUE = 15;
+    const IOUT_KP_RED = 16;
+    const fbArr = scores[IOUT_FIRST_BLOOD];
     const teamFbArr = fbArr.slice(side * 5, side * 5 + 5);
     const enemyFbArr = fbArr.slice((1 - side) * 5, (1 - side) * 5 + 5);
     const fbNorm = Math.max(
@@ -373,17 +505,17 @@ export class CsTab {
       enemyFbArr[0] + enemyFbArr[1] + enemyFbArr[2] + enemyFbArr[3] + enemyFbArr[4]
     );
 
-    const teamDmgArr = scores[side == 0 ? this.IOUT_DMG_TOTAL_BLUE : this.IOUT_DMG_TOTAL_RED];
-    const enemyDmgArr = scores[side == 1 ? this.IOUT_DMG_TOTAL_BLUE : this.IOUT_DMG_TOTAL_RED];
+    const teamDmgArr = scores[side == 0 ? IOUT_DMG_TOTAL_BLUE : IOUT_DMG_TOTAL_RED];
+    const enemyDmgArr = scores[side == 1 ? IOUT_DMG_TOTAL_BLUE : IOUT_DMG_TOTAL_RED];
 
-    const teamTurretDmgArr = scores[side == 0 ? this.IOUT_TURRET_DAMAGE_BLUE : this.IOUT_TURRET_DAMAGE_RED];
-    const enemyTurretDmgArr = scores[side == 1 ? this.IOUT_TURRET_DAMAGE_BLUE : this.IOUT_TURRET_DAMAGE_RED];
+    const teamTurretDmgArr = scores[side == 0 ? IOUT_TURRET_DAMAGE_BLUE : IOUT_TURRET_DAMAGE_RED];
+    const enemyTurretDmgArr = scores[side == 1 ? IOUT_TURRET_DAMAGE_BLUE : IOUT_TURRET_DAMAGE_RED];
 
-    const teamGoldArr = scores[side == 0 ? this.IOUT_GOLD_BLUE : this.IOUT_GOLD_RED];
-    const enemyGoldArr = scores[side == 1 ? this.IOUT_GOLD_BLUE : this.IOUT_GOLD_RED];
+    const teamGoldArr = scores[side == 0 ? IOUT_GOLD_BLUE : IOUT_GOLD_RED];
+    const enemyGoldArr = scores[side == 1 ? IOUT_GOLD_BLUE : IOUT_GOLD_RED];
 
-    const teamKpArr = scores[side == 0 ? this.IOUT_KP_BLUE : this.IOUT_KP_RED];
-    const enemyKpArr = scores[side == 1 ? this.IOUT_KP_BLUE : this.IOUT_KP_RED];
+    const teamKpArr = scores[side == 0 ? IOUT_KP_BLUE : IOUT_KP_RED];
+    const enemyKpArr = scores[side == 1 ? IOUT_KP_BLUE : IOUT_KP_RED];
 
     const barElems =  $('.cs-total-bars-table').find('.cs-colors-bar').get();
     for (let role = 0; role < 5; ++role) {
@@ -404,38 +536,47 @@ export class CsTab {
     }
   }
 
-  private setBar(elem: HTMLElement, p: number) {
+  private async setBar(elem: HTMLElement, p: number) {
     const w = (100 * p).toFixed(2).toString() + '%';
     if ($(elem).attr('title') == w) return;
     $(elem).stop();
-    $(elem).animate({ width: w }, 400);
+    $(elem).animate({ width: w }, 400); //this line is slow (100 ms in total)
+    // $(elem).css('width', w); //This one is faster but uglier (10 ms)
+    //TODO use a canvas instead, then remove the hack in MainWindow.selectHistoryCS()
     $(elem).attr('title', w);
   }
 
-  private IOUT_ROLE_EARLY_XP = 19; //+3
-  private IOUT_ROLE_XP = 20; //+3
-  private IOUT_ROLE_GOLD = 21; //+3
   private updateRoleScores(side: number, scores: number[][]) {
+    if (!scores) {
+      $('.cs-table-prio-p').css('opacity', 0.0);
+      $('.cs-table-lane-winner-p').css('opacity', 0.0);
+      $('.cs-table-individuals-p').css('opacity', 0.0);
+      return;
+    }
+
+    const IOUT_ROLE_EARLY_XP = 19; //+3
+    const IOUT_ROLE_XP = 20; //+3
+    const IOUT_ROLE_GOLD = 21; //+3
     const prioElems = $('.cs-table-prio-p').get();
     const winnerElems = $('.cs-table-lane-winner-p').get();
     
     for (let i = 0; i < 5; ++i) {
-      const earlyXp = scores[this.IOUT_ROLE_EARLY_XP + i * 3][side];
-      const xp = scores[this.IOUT_ROLE_XP + i * 3][side];
-      const gold = scores[this.IOUT_ROLE_GOLD + i * 3][side];
-      this.setSubScore($(prioElems[i]), earlyXp - 0.5);
-      this.setSubScore($(winnerElems[i]), (xp + gold) / 2 - 0.5);
+      const earlyXp = scores[IOUT_ROLE_EARLY_XP + i * 3][side];
+      const xp = scores[IOUT_ROLE_XP + i * 3][side];
+      const gold = scores[IOUT_ROLE_GOLD + i * 3][side];
+      this.setSubScore($(prioElems[i]), earlyXp - 0.5, true);
+      this.setSubScore($(winnerElems[i]), (xp + gold) / 2 - 0.5, true);
     }
 
     //Solo scores
     const elems = $('.cs-table-individuals-p').get();
     for (let i = 0; i < 5; ++i) {
-      this.setSubScore($(elems[4 * i + side]), scores[1 + i][0] - 0.5);
-      this.setSubScore($(elems[4 * i + 1 - side]), scores[1 + 5 + i][0] - 0.5);
+      this.setSubScore($(elems[4 * i + side]), scores[1 + i][0] - 0.5, side == 0);
+      this.setSubScore($(elems[4 * i + 1 - side]), scores[1 + 5 + i][0] - 0.5, side != 0);
     }
   }
 
-  private setSubScore(elem: any, score: number) {
+  private setSubScore(elem: any, score: number, isMyTeam: boolean) {
     const signedScore = (Math.round(score * 100) >= 0 ? "+" : "") + (Math.round(score * 100) / 10).toFixed(1);
 
     elem.html(signedScore);
@@ -445,15 +586,15 @@ export class CsTab {
     elem.removeClass('text-little-success');
     elem.removeClass('text-little-danger');
     if (Math.abs(score) >= 0.05) {
-      if (score > 0) {
+      if (score > 0 && isMyTeam || score < 0 && !isMyTeam) {
         elem.addClass('text-success');
-      } else if (score < 0) {
+      } else if (score < 0 && isMyTeam || score > 0 && !isMyTeam) {
         elem.addClass('text-danger');
       }
     } else if (Math.abs(score) >= 0.02) {
-      if (score > 0) {
+      if (score > 0 && isMyTeam || score < 0 && !isMyTeam) {
         elem.addClass('text-little-success');
-      } else if (score < 0) {
+      } else if (score < 0 && isMyTeam || score > 0 && !isMyTeam) {
         elem.addClass('text-little-danger');
       }
     }
@@ -463,17 +604,51 @@ export class CsTab {
     elem.animate({ opacity: 1.0 }, 400);
   }
 
-  private updateRegionAndWarnings(patchInfo: any, inputView: CsInput, history: any) {
-    $('.cs-region').html(patchInfo.RegionIdToGg[inputView.region].toUpperCase());
+  private updateFooter(patchInfo: any, inputView: CsInput, editableCs: boolean) {
+    $('.cs-region-value').html((patchInfo.RegionIdToGg[inputView.region] || 'Enter Region').toUpperCase());
+
+    const blue = CsInput.getOwnerIdx(inputView) < 5;
+
+    $('.cs-side-blue').prop("checked", blue);
+    $('.cs-side-red').prop("checked", !blue);
+
+    const isRanked = patchInfo.RankedQueueTypeIds.includes(parseInt(inputView.queueId));
+    const isSolo = patchInfo.SoloQueueTypeIds.includes(parseInt(inputView.queueId));
+    const isFlex = isRanked && !isSolo;
+    $('.cs-queue-solo').prop("checked", !isFlex);
+    $('.cs-queue-flex').prop("checked", isFlex);
+
+    if (!editableCs) {
+      $('.cs-side input').hide();
+      $('.cs-queue input').hide();
+      $($('.cs-side .translated-text').get(blue ? 1 : 2)).show();
+      $($('.cs-side .translated-text').get(blue ? 2 : 1)).hide();
+      $($('.cs-queue .translated-text').get(isFlex ? 2 : 1)).show();
+      $($('.cs-queue .translated-text').get(isFlex ? 1 : 2)).hide();
+    } else {
+      $('.cs-side input').show();
+      $('.cs-queue input').show();
+      $('.cs-side .translated-text').show();
+      $('.cs-queue .translated-text').show();
+    }
+
+    //Keep these just in case:
+    $('.cs-side-blue').attr('disabled', <any>!editableCs);
+    $('.cs-side-red').attr('disabled', <any>!editableCs);
+    $('.cs-queue-solo').attr('disabled', <any>!editableCs);
+    $('.cs-queue-flex').attr('disabled', <any>!editableCs);
+  }
+
+  private updateWarnings(patchInfo: any, inputView: CsInput, history: any) {
     let warn = false;
 
-    if (inputView.queueId in patchInfo.RankedQueueTypeIds) {
+    if (inputView && patchInfo.RankedQueueTypeIds.includes(parseInt(inputView.queueId))) {
       $('.cs-warning-unranked').hide();
     } else {
       $('.cs-warning-unranked').show();
       warn = true;
     }
-    if (inputView.summonerNames.filter(name => name != '' && (!(name in history) || history[name].length == 0)).length == 0) {
+    if (inputView && history && inputView.summonerNames.filter(name => name != '' && (!(name in history) || history[name].length == 0)).length == 0) {
       $('.cs-warning-missing-history').hide();
     } else {
       $('.cs-warning-missing-history').show();
@@ -488,24 +663,27 @@ export class CsTab {
     
   }
 
-  private updateSwaps(patchInfo: any, side: number, inputView: CsInput, rolePrediction: number[], lcuTiers: any) {
-    const roleToIdx = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
-    for (let i = 0; i < 10; i++) {
-      roleToIdx[Math.floor(i / 5) * 5 + rolePrediction[i]] = i;
-    }
+  private updateSwaps(patchInfo: any, side: number, inputView: CsInput, roleToIdx: number[], lcuTiers: any) {
+    if (!inputView || !roleToIdx) {
+      return;
+    } 
+
+    const swappedChampsView = CsManager.applyChampionSwaps(inputView);
 
     const swapElems = $('.cs-table-champion-swap-options').get();
     for (let role = 0; role < 5; ++role) {
       const idx0 = roleToIdx[role];
       const idx1 = roleToIdx[5 + role];
-      const lcuTier0 = lcuTiers[inputView.summonerNames[idx0]] || {};
-      const lcuTier1 = lcuTiers[inputView.summonerNames[idx1]] || {};
+      const lcuTier0 = (lcuTiers || {})[inputView.summonerNames[idx0]] || {};
+      const lcuTier1 = (lcuTiers || {})[inputView.summonerNames[idx1]] || {};
       const e0 = swapElems[2 * role + side];
       const e1 = swapElems[2 * role + 1 - side];
       let z = 0;
 
       const rImgElems0 = $(e0).find('.cs-table-champion-swap-role img').get();
       const rImgElems1 = $(e1).find('.cs-table-champion-swap-role img').get();
+      const cElems0 = $(e0).find('.cs-table-champion-swap-champion').get();
+      const cElems1 = $(e1).find('.cs-table-champion-swap-champion').get();
       const cImgElems0 = $(e0).find('.cs-table-champion-swap-champion img').get();
       const cImgElems1 = $(e1).find('.cs-table-champion-swap-champion img').get();
       for (let otherRole = 0; otherRole < 5; ++otherRole) {
@@ -514,10 +692,20 @@ export class CsTab {
         CsTab.setRoleImg($(rImgElems0[z]), otherRole, lcuTier0.tier, lcuTier0.division, lcuTier0.lp)
         CsTab.setRoleImg($(rImgElems1[z]), otherRole, lcuTier1.tier, lcuTier1.division, lcuTier1.lp)
 
-        const cId0 = inputView.championIds[roleToIdx[otherRole]];
-        CsTab.setChampionImg(patchInfo, $(cImgElems0[z]), cId0);
-        const cId1 = inputView.championIds[roleToIdx[5 + otherRole]];
-        CsTab.setChampionImg(patchInfo, $(cImgElems1[z]), cId1);
+        const cId0 = swappedChampsView[roleToIdx[otherRole]];
+        if (cId0 && cId0 != '' && cId0 != '0') {
+          CsTab.setChampionImg(patchInfo, $(cImgElems0[z]), cId0);
+          $(cElems0[z]).show();
+        } else {
+          $(cElems0[z]).hide();
+        }
+        const cId1 = swappedChampsView[roleToIdx[5 + otherRole]];
+        if (cId1 && cId1 != '' && cId1 != '0') {
+          CsTab.setChampionImg(patchInfo, $(cImgElems1[z]), cId1);
+          $(cElems1[z]).show();
+        } else {
+          $(cElems1[z]).hide();
+        }
 
         z++;
       }
@@ -525,49 +713,224 @@ export class CsTab {
     }
   }
 
-  private updateSummonersAndRoles(patchInfo: any, side: number, inputView: CsInput, rolePrediction: number[], lcuTiers: any) {
+  private updateSummonersAndRoles(patchInfo: any, side: number, inputView: CsInput, rolePrediction: number[], tiers: any) {
+    if (!inputView || !rolePrediction) return;
+
+    const swappedChampsView = CsManager.applyChampionSwaps(inputView);
     const championsImgs = $('.cs-table').find('.cs-table-champion-icon-cell .cs-table-champion-icon img').get();
-    const championNames = $('.cs-table').find('.cs-table-champion-name-cell .cs-table-cell').get();
     const summonerNames = $('.cs-table').find('.cs-table-summoner-name-cell .cs-table-cell').get();
+    const tierFields = $('.cs-table').find('.cs-table-summoner-tier-cell .cs-table-cell').get();
     const roleIcons = $('.cs-table').find('.role-icon img').get();
     const roleTooltips = $('.cs-table').find('.role-icon .translated-text').get();
     const roleNames = ['Top', 'Jungle', 'Mid', 'Bot', 'Support'];
     for (let i = 0; i < 5; ++i) {
       const role0 = rolePrediction[i];
       const role1 = rolePrediction[5 + i];
-      CsTab.setChampionImg(patchInfo, $(championsImgs[2 * role0 + side]), inputView.championIds[i])
-      CsTab.setChampionImg(patchInfo, $(championsImgs[2 * role1 + 1 - side]), inputView.championIds[5 + i])
+      CsTab.setChampionImg(patchInfo, $(championsImgs[2 * role0 + side]), swappedChampsView[i])
+      CsTab.setChampionImg(patchInfo, $(championsImgs[2 * role1 + 1 - side]), swappedChampsView[5 + i])
 
-      const cName0 = patchInfo.ChampionIdToName[inputView.championIds[i]] || "";
-      const cName1 = patchInfo.ChampionIdToName[inputView.championIds[5 + i]] || "";
-      championNames[2 * role0 + side].innerHTML = cName0;
-      championNames[2 * role1 + 1 - side].innerHTML = cName1;
+      const sName0 = inputView.summonerNames[i];
+      const sName1 = inputView.summonerNames[i + 5];
+      summonerNames[2 * role0 + side].innerHTML = !sName0 || sName0 == '' ? '❔' : sName0; //�
+      summonerNames[2 * role1 + 1 - side].innerHTML = !sName1 || sName1 == '' ? '❔' : sName1;
+      $(summonerNames[2 * role0 + side]).css('text-overflow', 'ellipsis');
+      $(summonerNames[2 * role1 + 1 - side]).css('text-overflow', 'ellipsis');
 
-      summonerNames[2 * role0 + side].innerHTML = inputView.summonerNames[i];
-      summonerNames[2 * role1 + 1 - side].innerHTML = inputView.summonerNames[5 + i];
+      const t0 = (tiers || {})[inputView.summonerNames[i]] || {};
+      const t1 = (tiers || {})[inputView.summonerNames[i + 5]] || {};
+      tierFields[2 * role0 + side].innerHTML = (!t0.tier || t0.tier == '' ? '' : Utils.capitalizeFirstLetter(t0.tier) + ' ' + t0.division + ' ' + t0.lp + ' LP ');
+      tierFields[2 * role1 + 1 - side].innerHTML = (!t1.tier || t1.tier == '' ? '' : Utils.capitalizeFirstLetter(t1.tier) + ' ' + t1.division + ' ' + t1.lp + ' LP ');
 
+      const tTeam = (tiers || {})[inputView.summonerNames[i + 5 * side]] || {};
       const teamRole = rolePrediction[i + 5 * side];
-      const lcuTier = lcuTiers[inputView.summonerNames[i + 5 * side]] || {};
-      CsTab.setRoleImg($(roleIcons[teamRole]), teamRole, lcuTier.tier, lcuTier.division, lcuTier.lp);
+      CsTab.setRoleImg($(roleIcons[teamRole]), teamRole, tTeam.tier, tTeam.division, tTeam.lp);
       roleTooltips[teamRole].innerHTML = roleNames[teamRole];
+    }
+  }
+
+  private updateHistory(patchInfo: any, side: number, rolePrediction: number[], inputView: CsInput, history: any, lcuTiers: any) {
+    if (!rolePrediction || !inputView || !history) {
+      $('.cs-table-history-border').hide();
+      $('.cs-table-history-separator').hide();
+      $('.cs-table-role-wr').hide();
+      $('.cs-table-role-win-lose-cell img').hide();
+      return;
+    }
+
+    const elements = $('.cs-table-history-border').get();
+    const separators = $('.cs-table-history-separator').get();
+    const roleWrElements = $('.cs-table-role-wr').get();
+    const roleImgElements = $('.cs-table-role-win-lose-cell img').get();
+
+    for (let i = 0; i < 10; ++i) {
+      const name = inputView.summonerNames[i];
+      const role = rolePrediction[i];
+      const team = Math.floor(i / 5);
+      const elemI = (2 * role + (team + side) % 2) % 10; //Good luck understanding this
+      const mainRoleI = 4 * role + (team + side) % 2;
+      const lcuTier = (lcuTiers || {})[name] || {};
+
+      const roleStats = {};
+      let totalGames = 0;
+      if (history[name]) {
+        for (let h of history[name]) {
+          if (!(h.Role in roleStats)) {
+            roleStats[h.Role] = { wins:0, games:0, timestamp: h.Timestamp };
+          }
+    
+          if (h.Victory) roleStats[h.Role].wins++;
+          roleStats[h.Role].games++;
+          totalGames++;
+        }
+      }
+
+      const mainRoles = Object.keys(roleStats).sort((a,b) => roleStats[a].games < roleStats[b].games ? 1 : roleStats[a].games > roleStats[b].games ? -1 : 
+        roleStats[a].timestamp < roleStats[b].timestamp ? 1 : -1);
+
+      if (mainRoles.length > 0) {
+        // $(roleWrElements[mainRoleI]).html(Math.round(100 * roleStats[mainRoles[0]].wins / roleStats[mainRoles[0]].games).toString() + '%');
+        // $(roleWrElements[mainRoleI]).html(roleStats[mainRoles[0]].wins + '/'  + roleStats[mainRoles[0]].games);
+        $(roleWrElements[mainRoleI]).html(Math.round(100 * roleStats[mainRoles[0]].games / totalGames).toString() + '%');
+        $(roleWrElements[mainRoleI]).show();
+        CsTab.setRoleImg($(roleImgElements[mainRoleI]), parseInt(mainRoles[0]), lcuTier.tier, lcuTier.division, lcuTier.lp);
+      } else {
+        $(roleWrElements[mainRoleI]).hide();
+        $(roleImgElements[mainRoleI]).hide();
+      }
+      if (mainRoles.length > 1) {
+        // $(roleWrElements[mainRoleI + 2]).html(Math.round(100 * roleStats[mainRoles[1]].wins / roleStats[mainRoles[1]].games).toString() + '%');
+        // $(roleWrElements[mainRoleI + 2]).html(roleStats[mainRoles[1]].wins + '/' + roleStats[mainRoles[1]].games);
+        $(roleWrElements[mainRoleI + 2]).html(Math.round(100 * roleStats[mainRoles[1]].games / totalGames).toString() + '%');
+        $(roleWrElements[mainRoleI + 2]).show();
+        CsTab.setRoleImg($(roleImgElements[mainRoleI + 2]), parseInt(mainRoles[1]), lcuTier.tier, lcuTier.division, lcuTier.lp);
+      } else {
+        $(roleWrElements[mainRoleI + 2]).hide();
+        $(roleImgElements[mainRoleI + 2]).hide();
+      }
+  
+      for (let h = 0; h < CsTab.NUM_HISTORY; ++h) {
+        const root = $(elements[elemI * CsTab.NUM_HISTORY + (elemI % 2 == 0 ? h : CsTab.NUM_HISTORY - 1 - h)]);
+        const separator = $(separators[elemI * CsTab.NUM_HISTORY + (elemI % 2 == 0 ? h : CsTab.NUM_HISTORY - 1 - h)]);
+        if (!history || !history[name] || history[name].length <= h) {
+          root.hide();
+          separator.hide();
+          continue;
+        }
+        
+        const hist = history[name][h];
+        CsTab.setChampionImg(patchInfo, root.find('.cs-table-history-champion img'), hist.ChampionId);
+        CsTab.setRoleImg(root.find('.cs-table-history-role img'), hist.Role, lcuTier.tier, lcuTier.division, lcuTier.lp);
+        root.find('.cs-table-stats-champion-name').html(patchInfo.ChampionIdToName[hist.ChampionId] || "");
+
+        if (
+          elemI % 2 == 0 && h < CsTab.NUM_HISTORY - 1 && h + 1 < history[name].length && (history[name][h].Timestamp - history[name][h + 1].Timestamp) > 1000 * 60 * 60 * 3 ||
+          elemI % 2 == 1 && h > 0 && (history[name][h - 1].Timestamp - history[name][h].Timestamp) > 1000 * 60 * 60 * 3
+          ) {
+          separator.show();
+        } else {
+          separator.hide();
+        }
+
+        root.removeClass('cs-table-history-border-win');
+        root.removeClass('cs-table-history-border-lose');
+        if (hist.Victory) {
+          root.addClass('cs-table-history-border-win');
+        } else {
+          root.addClass('cs-table-history-border-lose');
+        }
+
+        const rootElems = root.find('.cs-table-stats-value').get();
+        $(rootElems[0]).html(Math.floor((Date.now() - hist.Timestamp) / (1000 * 60 * 60 * 24)).toString());
+        $(rootElems[1]).html(hist.Assists);
+        $(rootElems[2]).html(hist.Deaths);
+        $(rootElems[3]).html(hist.Kills);
+
+        root.show();
+        // root.stop();
+        // root.css('opacity', 0.1);
+        // root.animate({ opacity: 1.0 }, 400);
+      }
     }
   }
 
   private updateTeamScores(side: number, inputView: CsInput, rolePrediction: number[], fullScore: number[], missingScore: any) {
     const elems = $('.cs-table-individuals-p').get();
+    if (!inputView || !rolePrediction || !fullScore || !missingScore) {
+      for (let i = 0; i < 5; ++i) {
+        $(elems[4 * i + 2]).css('opacity', 0.0);
+        $(elems[4 * i + 1 + 2]).css('opacity', 0.0);
+      }
+      return;
+    }
+
     for (let i = 0; i < 5; ++i) {
       const nameBlue = inputView.summonerNames[i];
       const nameRed = inputView.summonerNames[5 + i];
-      this.setSubScore($(elems[4 * rolePrediction[i] + side + 2]), nameBlue != '' && nameBlue in missingScore ? fullScore[0] - missingScore[nameBlue][0] : 0.0);
-      this.setSubScore($(elems[4 * rolePrediction[5 + i] + 1 - side + 2]), nameRed != '' && nameRed in missingScore ? fullScore[1] - missingScore[nameRed][1] : 0.0);
+      this.setSubScore($(elems[4 * rolePrediction[i] + side + 2]), nameBlue != '' && nameBlue in missingScore ? fullScore[0] - missingScore[nameBlue][0] : 0.0, side == 0);
+      this.setSubScore($(elems[4 * rolePrediction[5 + i] + 1 - side + 2]), nameRed != '' && nameRed in missingScore ? fullScore[1] - missingScore[nameRed][1] : 0.0, side != 0);
     }
   }
 
-  private updatePicks(i: number) {
-    //TODO
+  private updatePicks(patchInfo: any, side: number, fullScore: number[], participantI: number, recommendations: any[], history: any[]) {
+    if (!fullScore || !recommendations || !history) {
+      $('.cs-table-recommended-champion').hide();
+      // $('.lds-ring').hide();
+      return;
+    }
+    
+    const elements = $('.cs-table-recommended-champion').get();
+    const baseline = fullScore[0][Math.floor(participantI / 5)];
+    const role = participantI % 5;
+    const team = Math.floor(participantI / 5);
+    const champStats = {};
+    for (let h of history) {
+      if (h.Role != role) continue;
+      if (!(h.ChampionId in champStats)) {
+        champStats[h.ChampionId] = { wins:0, games:0, daysAgo: Math.floor((Date.now() - h.Timestamp) / (1000 * 60 * 60 * 24)), kills: 0, deaths: 0, assists: 0 };
+      }
+
+      if (h.Victory) champStats[h.ChampionId].wins++;
+      champStats[h.ChampionId].games++;
+      champStats[h.ChampionId].kills += h.Kills;
+      champStats[h.ChampionId].deaths += h.Deaths;
+      champStats[h.ChampionId].assists += h.Assists;
+    }
+
+    const partI = (2 * role + (team + side) % 2) % 10; //Good luck understanding this
+    for (let i = 0; i < CsTab.NUM_RECOMMENDATIONS; ++i) {
+      const root = $(elements[partI * CsTab.NUM_RECOMMENDATIONS + (team == side ? i : CsTab.NUM_RECOMMENDATIONS - 1 - i)]);
+      const rootElems = root.find('.cs-table-stats-value').get();
+      if (recommendations.length <= i) {
+        root.hide();
+        continue;
+      }
+      const cId = recommendations[i].championId;
+      const stats = champStats[cId];
+      if (!stats) {
+        ErrorReporting.report('updatePicks', '!stats');
+        return;
+      }
+      root.find('.cs-table-stats-champion-name').html(patchInfo.ChampionIdToName[cId] || "");
+      this.setSubScore($(rootElems[0]), recommendations[i].winRate - baseline, team == side);
+      CsTab.setChampionImg(patchInfo, root.find('.cs-table-recommended-champion-border img'), cId);
+      $(rootElems[1]).html(stats.games);
+      $(rootElems[2]).html(stats.daysAgo);
+      $(rootElems[3]).html(Math.round(100 * stats.wins / stats.games).toString() + '%');
+      $(rootElems[4]).html((Math.round(10 * stats.assists / stats.games) / 10).toString());
+      $(rootElems[5]).html((Math.round(10 * stats.deaths / stats.games) / 10).toString());
+      $(rootElems[6]).html((Math.round(10 * stats.kills / stats.games) / 10).toString());
+
+      root.show();
+      root.stop();
+      root.css('opacity', 0.1);
+      root.animate({ opacity: 1.0 }, 400);
+      root.find('.cs-table-recommended-champion-border img').css('opacity', 1.0);
+    }
+
+    $($('.lds-ring').get(partI)).hide();
   }
 
-  private dimAllScores() {
+  private setAllToLoading() {
     $('.cs-wr-total-result').css('opacity', '0.6');
     $('.cs-wr-total-left-result').css('opacity', '0.6');
     $('.cs-wr-total-right-result').css('opacity', '0.6');
@@ -577,6 +940,142 @@ export class CsTab {
     $('.cs-table-prio-p').css('opacity', '0.6');
     $('.cs-table-lane-winner-p').css('opacity', '0.6');
 
+    $('.cs-table-recommended-champion-border img').css('opacity', '0.6');
+    // $('.cs-table-history-border').css('opacity', '0.6'); //Too flickery
+
+    $('.lds-ring').show();
+  }
+
+  public swapRole(role: number, i: number) {
+    const manager = this.getActiveManager();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+      manager.getCsView();
+
+    const roleToIdx =  this.roleToIdx(rolePredictionView);
+    const blue = CsInput.getOwnerIdx(csInputView) < 5;
+    const swapped = CsInput.clone(csInputView);
+    for (const j in swapped.roleSwaps) {
+      if (swapped.roleSwaps[j] == i) swapped.roleSwaps[j] = -1;
+    }
+    swapped.roleSwaps[roleToIdx[(role + (blue ? 0 : 5)) % 10]] = i;
+    manager.manualCsChange(swapped);
+  }
+
+  public swapChampion(role: number, i: number) {
+    const manager = this.getActiveManager();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+      manager.getCsView();
+
+    const swappedChampsView = CsManager.applyChampionSwaps(csInputView);
+
+    const roleToIdx =  this.roleToIdx(rolePredictionView);
+    const blue = CsInput.getOwnerIdx(csInputView) < 5;
+    const swapped = CsInput.clone(csInputView);
+    const targetChampion = i == -1 ? null : swappedChampsView[roleToIdx[(i + (blue ? 0 : 5)) % 10]];
+    for (const j in swapped.championSwaps) {
+      if (swapped.championSwaps[j] == targetChampion) swapped.championSwaps[j] = null;
+    }
+    swapped.championSwaps[roleToIdx[(role + (blue ? 0 : 5)) % 10]] = targetChampion;
+    manager.manualCsChange(swapped);
+  }
+
+  public editSummoner(role: number) {
+    const manager = this.getActiveManager();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+      manager.getCsView();
+
+    const roleToIdx =  this.roleToIdx(rolePredictionView);
+    const blue = CsInput.getOwnerIdx(csInputView) < 5;
+    const idx = roleToIdx[(role + (blue ? 0 : 5)) % 10];
+    Popup.text('Edit Player', 'Enter player name', csInputView.summonerNames[idx], [], result => {
+      const edited = CsInput.clone(csInputView);
+      if (edited.ownerName == edited.summonerNames[idx]) {
+        edited.ownerName = result;
+      }
+      edited.summonerNames[idx] = result;
+      manager.manualCsChange(edited);
+    });
+  }
+
+  public editChampion(role: number) {
+    const manager = this.getActiveManager();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+      manager.getCsView();
+
+    const roleToIdx =  this.roleToIdx(rolePredictionView);
+    const blue = CsInput.getOwnerIdx(csInputView) < 5;
+    const idx = roleToIdx[(role + (blue ? 0 : 5)) % 10];
+    const currName = this.patchInfo.ChampionIdToName[csInputView.championIds[idx]] || "";
+    Popup.text('Edit Champion', 'Enter champion name', currName, Object.values(this.patchInfo.ChampionIdToName), result => {
+      const picked = Object.keys(this.patchInfo.ChampionIdToName).filter(k => this.patchInfo.ChampionIdToName[k] == result);
+      if (result.length > 0 && picked.length == 0) {
+        Popup.message('Error', 'Champion not found');
+        return;
+      }
+
+      const edited = CsInput.clone(csInputView);
+      edited.championIds[idx] = picked.length == 0 ? '' : picked[0];
+      manager.manualCsChange(edited);
+    });
+  }
+
+  public editRegion() {
+    const manager = this.getActiveManager();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+      manager.getCsView();
+
+    const currentRegion = (this.patchInfo.RegionIdToGg[csInputView.region] || '').toUpperCase();
+    const regions = Object.values(this.patchInfo.RegionIdToGg).map(x => (<string>x).toUpperCase());
+    Popup.text('Edit Region', 'Enter region initials', currentRegion, regions, result => {
+
+      const picked = Object.keys(this.patchInfo.RegionIdToGg).filter(k => this.patchInfo.RegionIdToGg[k].toUpperCase() == result.toUpperCase());
+      if (picked.length == 0) {
+        Popup.message('Error', 'Region not found<br/>Available: ' + regions.join(', '));
+        return;
+      }
+
+      const edited = CsInput.clone(csInputView);
+      edited.region = picked[0];
+      manager.manualCsChange(edited);
+    });
+  }
+
+  public editSide(blue: boolean) {
+    const manager = this.getActiveManager();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+      manager.getCsView();
+
+    const edited = CsInput.clone(csInputView);
+    if (edited.ownerName == null || !edited.summonerNames.includes(edited.ownerName)) {
+      edited.ownerName = edited.summonerNames[0];
+    }
+    const currBlue = CsInput.getOwnerIdx(csInputView) < 5;
+    if (currBlue != blue) {
+      
+      edited.summonerNames = this.flipArray(edited.summonerNames);
+      edited.championIds = this.flipArray(edited.championIds);
+      edited.picking = this.flipArray(edited.picking);
+      edited.summonerSpells = this.flipArray(edited.summonerSpells);
+      edited.assignedRoles = this.flipArray(edited.assignedRoles);
+      edited.roleSwaps = this.flipArray(edited.roleSwaps);
+      edited.championSwaps = this.flipArray(edited.championSwaps);
+    
+      manager.manualCsChange(edited);
+    }
+  }
+
+  private flipArray(arr: any[]) {
+    return [arr[5], arr[6], arr[7], arr[8], arr[9], arr[0], arr[1], arr[2], arr[3], arr[4]];
+  }
+
+  public editQueue(soloQueue: boolean) {
+    const manager = this.getActiveManager();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+      manager.getCsView();
+
+    const edited = CsInput.clone(csInputView);
+    edited.queueId = soloQueue ? '420' : '440';
+    manager.manualCsChange(edited);
   }
 
 

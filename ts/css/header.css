@@ -41,12 +41,12 @@
 }
 
 .s-lcu-status:hover {
-    filter: brightness(150%);
+    filter: brightness(180%);
     cursor: pointer;
 }
 
 .s-lcu-status-selected {
-    filter: brightness(130%);
+    filter: brightness(150%);
     cursor: pointer;
 }
 

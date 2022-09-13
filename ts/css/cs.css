@@ -41,15 +41,15 @@
     width: 100%;
     transform: translate(0px, 26px);
 											background: linear-gradient(90deg, rgba(185,143,50,0) 0%, rgba(185,143,50,1) 35%, rgba(185,143,50,0) 36%, rgba(185,143,50,0) 64%, rgba(185,143,50,1) 65%, rgba(185,143,50,0) 100%);}
-.cs-wr-total-frame-holes {                     background: linear-gradient(90deg, rgba(185,143,50,0) 0%, rgba(185,143,50,0.51) 18%, rgba(185,143,50,0) 19%, rgba(185,143,50,0) 28%, rgba(185,143,50,0.83) 29%, rgba(185,143,50,1) 35%, rgba(185,143,50,0) 36%, rgba(185,143,50,0) 64%, rgba(185,143,50,1) 65%, rgba(185,143,50,0.83) 71%, rgba(185,143,50,0) 72%, rgba(185,143,50,0) 81%, rgba(185,143,50,0.51) 82%, rgba(185,143,50,0) 100%);}
-.cs-wr-total-frame-little-success {            background: linear-gradient(90deg, rgba(95,154,55,0) 0%, rgba(95,154,55,1) 35%, rgba(95,154,55,0) 36%, rgba(95,154,55,0) 64%, rgba(95,154,55,1) 65%, rgba(95,154,55,0) 100%);}
-.cs-wr-total-frame-little-success-holes {      background: linear-gradient(90deg, rgba(95,154,55,0) 0%, rgba(95,154,55,0.51) 18%, rgba(95,154,55,0) 19%, rgba(95,154,55,0) 28%, rgba(95,154,55,0.83) 29%, rgba(95,154,55,1) 35%, rgba(95,154,55,0) 36%, rgba(95,154,55,0) 64%, rgba(95,154,55,1) 65%, rgba(95,154,55,0.83) 71%, rgba(95,154,55,0) 72%, rgba(95,154,55,0) 81%, rgba(95,154,55,0.51) 82%, rgba(95,154,55,0) 100%);}
-.cs-wr-total-frame-success {                   background: linear-gradient(90deg, rgba(6,166,60,0) 0%, rgba(6,166,60,1) 35%, rgba(6,166,60,0) 36%, rgba(6,166,60,0) 64%, rgba(6,166,60,1) 65%, rgba(6,166,60,0) 100%);}
-.cs-wr-total-frame-success-holes {             background: linear-gradient(90deg, rgba(6,166,60,0) 0%, rgba(6,166,60,0.51) 18%, rgba(6,166,60,0) 19%, rgba(6,166,60,0) 28%, rgba(6,166,60,0.83) 29%, rgba(6,166,60,1) 35%, rgba(6,166,60,0) 36%, rgba(6,166,60,0) 64%, rgba(6,166,60,1) 65%, rgba(6,166,60,0.83) 71%, rgba(6,166,60,0) 72%, rgba(6,166,60,0) 81%, rgba(6,166,60,0.51) 82%, rgba(6,166,60,0) 100%);}
-.cs-wr-total-frame-little-danger {             background: linear-gradient(90deg, rgba(170,96,34,0) 0%, rgba(170,96,34,1) 35%, rgba(170,96,34,0) 36%, rgba(170,96,34,0) 64%, rgba(170,96,34,1) 65%, rgba(170,96,34,0) 100%);}
-.cs-wr-total-frame-little-danger-holes {       background: linear-gradient(90deg, rgba(170,96,34,0) 0%, rgba(170,96,34,0.51) 18%, rgba(170,96,34,0) 19%, rgba(170,96,34,0) 28%, rgba(170,96,34,0.83) 29%, rgba(170,96,34,1) 35%, rgba(170,96,34,0) 36%, rgba(170,96,34,0) 64%, rgba(170,96,34,1) 65%, rgba(170,96,34,0.83) 71%, rgba(170,96,34,0) 72%, rgba(170,96,34,0) 81%, rgba(170,96,34,0.51) 82%, rgba(170,96,34,0) 100%);}
-.cs-wr-total-frame-danger {                    background: linear-gradient(90deg, rgba(156,50,19,0) 0%, rgba(156,50,19,1) 35%, rgba(156,50,19,0) 36%, rgba(156,50,19,0) 64%, rgba(156,50,19,1) 65%, rgba(156,50,19,0) 100%);}
-.cs-wr-total-frame-danger-holes {              background: linear-gradient(90deg, rgba(156,50,19,0) 0%, rgba(156,50,19,0.51) 18%, rgba(156,50,19,0) 19%, rgba(156,50,19,0) 28%, rgba(156,50,19,0.83) 29%, rgba(156,50,19,1) 35%, rgba(156,50,19,0) 36%, rgba(156,50,19,0) 64%, rgba(156,50,19,1) 65%, rgba(156,50,19,0.83) 71%, rgba(156,50,19,0) 72%, rgba(156,50,19,0) 81%, rgba(156,50,19,0.51) 82%, rgba(156,50,19,0) 100%);}
+.cs-wr-total-frame-holes {                  background: linear-gradient(90deg, rgba(185,143,50,0) 0%, rgba(185,143,50,0.51) 18%, rgba(185,143,50,0) 19%, rgba(185,143,50,0) 28%, rgba(185,143,50,0.83) 29%, rgba(185,143,50,1) 35%, rgba(185,143,50,0) 36%, rgba(185,143,50,0) 64%, rgba(185,143,50,1) 65%, rgba(185,143,50,0.83) 71%, rgba(185,143,50,0) 72%, rgba(185,143,50,0) 81%, rgba(185,143,50,0.51) 82%, rgba(185,143,50,0) 100%);}
+.cs-wr-total-frame-little-success {         background: linear-gradient(90deg, rgba(95,154,55,0) 0%, rgba(95,154,55,1) 35%, rgba(95,154,55,0) 36%, rgba(95,154,55,0) 64%, rgba(95,154,55,1) 65%, rgba(95,154,55,0) 100%);}
+.cs-wr-total-frame-little-success-holes {   background: linear-gradient(90deg, rgba(95,154,55,0) 0%, rgba(95,154,55,0.51) 18%, rgba(95,154,55,0) 19%, rgba(95,154,55,0) 28%, rgba(95,154,55,0.83) 29%, rgba(95,154,55,1) 35%, rgba(95,154,55,0) 36%, rgba(95,154,55,0) 64%, rgba(95,154,55,1) 65%, rgba(95,154,55,0.83) 71%, rgba(95,154,55,0) 72%, rgba(95,154,55,0) 81%, rgba(95,154,55,0.51) 82%, rgba(95,154,55,0) 100%);}
+.cs-wr-total-frame-success {                background: linear-gradient(90deg, rgba(6,166,60,0) 0%, rgba(6,166,60,1) 35%, rgba(6,166,60,0) 36%, rgba(6,166,60,0) 64%, rgba(6,166,60,1) 65%, rgba(6,166,60,0) 100%);}
+.cs-wr-total-frame-success-holes {          background: linear-gradient(90deg, rgba(6,166,60,0) 0%, rgba(6,166,60,0.51) 18%, rgba(6,166,60,0) 19%, rgba(6,166,60,0) 28%, rgba(6,166,60,0.83) 29%, rgba(6,166,60,1) 35%, rgba(6,166,60,0) 36%, rgba(6,166,60,0) 64%, rgba(6,166,60,1) 65%, rgba(6,166,60,0.83) 71%, rgba(6,166,60,0) 72%, rgba(6,166,60,0) 81%, rgba(6,166,60,0.51) 82%, rgba(6,166,60,0) 100%);}
+.cs-wr-total-frame-little-danger {          background: linear-gradient(90deg, rgba(170,96,34,0) 0%, rgba(170,96,34,1) 35%, rgba(170,96,34,0) 36%, rgba(170,96,34,0) 64%, rgba(170,96,34,1) 65%, rgba(170,96,34,0) 100%);}
+.cs-wr-total-frame-little-danger-holes {    background: linear-gradient(90deg, rgba(170,96,34,0) 0%, rgba(170,96,34,0.51) 18%, rgba(170,96,34,0) 19%, rgba(170,96,34,0) 28%, rgba(170,96,34,0.83) 29%, rgba(170,96,34,1) 35%, rgba(170,96,34,0) 36%, rgba(170,96,34,0) 64%, rgba(170,96,34,1) 65%, rgba(170,96,34,0.83) 71%, rgba(170,96,34,0) 72%, rgba(170,96,34,0) 81%, rgba(170,96,34,0.51) 82%, rgba(170,96,34,0) 100%);}
+.cs-wr-total-frame-danger {                 background: linear-gradient(90deg, rgba(156,50,19,0) 0%, rgba(156,50,19,1) 35%, rgba(156,50,19,0) 36%, rgba(156,50,19,0) 64%, rgba(156,50,19,1) 65%, rgba(156,50,19,0) 100%);}
+.cs-wr-total-frame-danger-holes {           background: linear-gradient(90deg, rgba(156,50,19,0) 0%, rgba(156,50,19,0.51) 18%, rgba(156,50,19,0) 19%, rgba(156,50,19,0) 28%, rgba(156,50,19,0.83) 29%, rgba(156,50,19,1) 35%, rgba(156,50,19,0) 36%, rgba(156,50,19,0) 64%, rgba(156,50,19,1) 65%, rgba(156,50,19,0.83) 71%, rgba(156,50,19,0) 72%, rgba(156,50,19,0) 81%, rgba(156,50,19,0.51) 82%, rgba(156,50,19,0) 100%);}
 
 /* Objectives */
 .cs-objectives-table {
@@ -167,8 +167,6 @@
     border-color: rgba(220, 217, 220, 0.5);
 } */
 
-
-
 /* Main table */
 
 .cs-table {
@@ -187,7 +185,6 @@
 }
 .cs-table .cs-table-cell {
     display: inline-block;
-    text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 }
@@ -242,6 +239,18 @@
     background-repeat: no-repeat; */
     cursor: pointer;
 }
+.cs-table-champion-icon-cell .cs-table-edit-button {
+    position: relative;
+    display: block;
+    top: 25px;
+    right: 48px;
+    height: 0px;
+    width: 0px;
+}
+.cs-table-champion-icon-cell:nth-child(7) .cs-table-edit-button {
+    right: -35px;
+}
+
 /* Winrates */
 .cs-table-main-role-win-lose-cell .cs-table-cell {
     width: 60px;
@@ -272,26 +281,37 @@
     position: relative;
     top: -3px;
     margin: 0px 2px 0px 2px;
-}
-
-/* Champion Name */
-.cs-table-champion-name-cell .cs-table-cell {
-    width: 138px;
-    height: 17px;
-    vertical-align: top;
-}
-.cs-table-champion-name-cell:nth-child(6) .cs-table-cell {
-    text-align: right;
+    display: inline-block;
+    width: 39px;
 }
 
 /* Summoner Name */
 .cs-table-summoner-name-cell .cs-table-cell {
     width: 138px;
     height: 17px;
+    vertical-align: top;
+}
+.cs-table-summoner-name-cell:nth-child(6) .cs-table-cell {
+    text-align: right;
+}
+
+.cs-table-summoner-name-cell .cs-table-edit-button {
+    position: relative;
+    display: block;
+    top: -24px;
+    right: -120px;
+    height: 0px;
+    width: 0px;
+}
+
+/* Summoner Tier */
+.cs-table-summoner-tier-cell .cs-table-cell {
+    width: 138px;
+    height: 17px;
     color: rgb(110, 107, 99);
     vertical-align: top;
 }
-.cs-table-summoner-name-cell:nth-child(4) .cs-table-cell {
+.cs-table-summoner-tier-cell:nth-child(4) .cs-table-cell {
     text-align: right;
 }
 
@@ -358,14 +378,18 @@
 }
 .cs-table-history-border {
     display: inline-block;
-    padding: 1px 1px 0px 1px;
-    background: linear-gradient(to bottom right, rgba(205, 190, 145, 0) 0%, rgba(205, 190, 145, 0) 40%, rgba(205, 190, 145, 1) 100%);
+    /* padding: 1px 1px 0px 1px; */
+    margin: 1px 1px 0px 1px;
+    /* background: linear-gradient(to bottom right, rgba(205, 190, 145, 0) 0%, rgba(205, 190, 145, 0) 40%, rgba(205, 190, 145, 1) 100%); */
+    background: radial-gradient(rgba(205, 190, 145, 1) 0%, rgba(205, 190, 145, 1) 40%, rgba(205, 190, 145, 0) 100%);
 }
 .cs-table-history-border-win {
-    background: linear-gradient(to bottom right, rgba(6, 166, 60, 0) 0%, rgba(6, 166, 60, 0) 40%, rgba(6, 166, 60, 1) 100%);
+    /* background: linear-gradient(to bottom right, rgba(6, 166, 60, 0) 0%, rgba(6, 166, 60, 0) 40%, rgba(6, 166, 60, 1) 100%); */
+    background: radial-gradient(rgba(6, 166, 60, 1) 0%, rgba(6, 166, 60, 1) 40%, rgba(6, 166, 60, 0) 100%);
 }
 .cs-table-history-border-lose {
-    background: linear-gradient(to bottom right, rgba(156, 50, 19, 0) 0%, rgba(156, 50, 19, 0) 40%, rgba(156, 50, 19, 1) 100%);
+    /* background: linear-gradient(to bottom right, rgba(156, 50, 19, 0) 0%, rgba(156, 50, 19, 0) 40%, rgba(156, 50, 19, 1) 100%); */
+    background: radial-gradient(rgba(156, 50, 19, 1) 0%, rgba(156, 50, 19, 1) 40%, rgba(156, 50, 19, 0) 100%);
 }
 .cs-table-history {
     background-color: #121A21;
@@ -379,7 +403,7 @@
     border-left: 1px solid rgba(120,90,40,1);
     display: inline-block;
     position: relative;
-    margin: 0px -1px 0px -1px;
+    margin: 0px 2px 0px -1px;
 }
 .cs-table-history-champion {
     background: rgba(30, 40, 45, 1);
@@ -482,6 +506,9 @@
 .cs-table-stats-table {
     border-spacing: 0px;
 }
+.cs-table-stats-value-manual-color {
+    float: right;
+}
 .cs-table-stats-value {
     color: rgb(240, 234, 217);
     float: right;
@@ -580,8 +607,24 @@
     left: 223px;
 }
 
-.cs-region {
-    float: right;
-    margin-right: 10px;
-    font-size: 12px;
+.cs-footer {
+    width: 100%;
+    font-size: 13px;
+}
+
+.cs-region-edit-button {
+    position: relative;
+    display: block;
+    top: -11px;
+    right: 19px;
+    height: 0px;
+    width: 0px;
+}
+
+.cs-side-red + .translated-text {
+    color: rgba(188, 96, 71, 1);
+}
+
+.cs-side-blue + .translated-text {
+    color: rgba(50, 134, 202, 1);
 }

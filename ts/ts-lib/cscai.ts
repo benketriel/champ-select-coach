@@ -45,17 +45,17 @@ export class CSCAI {
     return JSON.parse(json);
   }
 
-  public static async getRolePredictions(csInput: CsInput) {
+  public static async getRolePredictions(csInput: CsInput, swappedChampions: string[]) {
     const ai = await this.instance();
     const inputJSON = JSON.stringify(csInput);
-    return await new Promise<any>(resolve => ai.GetRolePredictions(inputJSON, resolve));
+    return await new Promise<any>(resolve => ai.GetRolePredictions(inputJSON, swappedChampions, resolve));
   }
 
-  public static async prepareData(csInput: CsInput, csData: CsData) {
+  public static async prepareData(csInput: CsInput, csData: CsData, roles: number[], swappedChampions: string[]) {
     const ai = await this.instance();
     const inputJSON = JSON.stringify(csInput);
     const dataJSON = JSON.stringify(csData);
-    return await new Promise<any>(resolve => ai.PrepareData(inputJSON, dataJSON, resolve));
+    return await new Promise<any>(resolve => ai.PrepareData(inputJSON, dataJSON, roles, swappedChampions, resolve));
   }
 
   public static async getBans() {

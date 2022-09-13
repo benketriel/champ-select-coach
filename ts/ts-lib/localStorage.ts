@@ -16,9 +16,11 @@ export class LocalStorage {
   public static setProgressBarStats(stats: any) { LocalStorage.set('progress-bar-stats', JSON.stringify(stats)); }
 
   public static async getCsHistory() { 
-    const x = LocalStorage.get('cs-history');
-    if (!x) return {};
-    return JSON.parse(await CSCAI.unzip(x));
+    const zipped = LocalStorage.get('cs-history');
+    if (!zipped) return [];
+    const h = JSON.parse(await CSCAI.unzip(zipped));
+    if (!h || !Array.isArray(h)) return [];
+    return h;
   }
   public static async setCsHistory(history: any[]) { 
     LocalStorage.set('cs-history', await CSCAI.zip(JSON.stringify(history)));

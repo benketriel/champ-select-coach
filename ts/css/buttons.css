@@ -21,8 +21,11 @@
   height: 30px;
   transition: fill 150ms ease;
 }
-.s-icon-svg-20-by-20 {
+.s-icon-svg-small {
   transform: scale(0.67);
+}
+.s-icon-svg-smaller {
+  transform: scale(0.5);
 }
 .s-icon-svg-larger {
   transform: scale(1.67);
@@ -38,6 +41,10 @@
   background-color: #332E4D;
 }
 .s-icon-button-fill {
+  fill: #958FB2;
+  stroke: none;
+}
+.s-icon-button-fill-no-hover {
   fill: #958FB2;
   stroke: none;
 }

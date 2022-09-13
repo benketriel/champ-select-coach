@@ -2,93 +2,125 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="stylesheet" href="../../css/cs.css" />
   <link rel="stylesheet" href="../../css/general.css" />
-  <link rel="stylesheet" href="../../css/homeInfo.css" />
   <link rel="stylesheet" href="../../css/tooltips.css" />
   <link rel="stylesheet" href="../../css/toggle2020.css" />
   <link rel="stylesheet" href="../../css/buttons.css" />
   <link rel="stylesheet" href="../../css/header.css" />
   <link rel="stylesheet" href="../../css/sideMenu.css" />
-  <link rel="stylesheet" href="../../css/cs.css" />
   <link rel="stylesheet" href="../../css/championStats.css" />
   <link rel="stylesheet" href="../../css/personal.css" />
+  <link rel="stylesheet" href="../../css/popup.css" />
   <title>Champ Select Coach</title>
 </head>
 <body>
   <div class="window-container">
-      <header class="window-header drags-window">
-          <div class="logo-container">
-              <div class="app-logo">
-                  <img class="app-logo-icon" src="/img/logo/professor_white_32.png"></img>
-                  <span class="app-name">Champ Select Coach</span>
-              </div>
-          </div>
-          <div class="actions-container">
-            <div class="s-lcu-status">
-              <img class="s-lcu-status-light lcuStatusLightConnected" style="display: none;" src="/img/icons/green-light.png"></img>
-              <img class="s-lcu-status-light lcuStatusLightDisconnected" src="/img/icons/red-light.png"></img>
-              <svg class="s-lcu-status-logo"><use href="/img/icons/LoL_logo.svg#Layer_1"></use></svg>
-              <span class="s-lcu-status-text s-lcu-status-text-disconnected">Disconnected</span>
-            </div>
-            <button class="s-icon-button s-icon-button-fill infoButton">
-                <svg class="s-icon-button-svg s-icon-svg-20-by-20"><use href="/img/icons/icons.svg#more-info"></use></svg>
-            </button>
-            <button class="settings-window s-icon-button-fill s-icon-button settingsButton">
-              <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#window-settings"></use></svg>
-            </button>
-            <button class="s-icon-button s-icon-button-fill feedbackButton">
-                <svg class="s-icon-button-svg s-icon-svg-20-by-20"><use href="/img/icons/icons.svg#feedback"></use></svg>
-            </button>
-            <button class="s-icon-button s-icon-button-no-fill feedbackButton">
-                <svg class="s-icon-button-svg s-icon-svg-20-by-20"><use href="/img/icons/icons.svg#news"></use></svg>
-            </button>
-            <button class="s-icon-button s-icon-button-fill minimizeButton">
-                <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#window-minimize"></use></svg>
-            </button>
-            <button class="close-window s-icon-button-fill s-icon-button closeButton">
-                <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#window-close"></use></svg>
-            </button>
+    <header class="window-header drags-window">
+      <div class="logo-container">
+        <div class="app-logo">
+          <img class="app-logo-icon" src="/img/logo/professor_white_32.png"></img>
+          <span class="app-name">Champ Select Coach</span>
         </div>
-      </header>
+      </div>
+      <div class="actions-container">
+        <div class="s-lcu-status">
+          <img class="s-lcu-status-light lcuStatusLightConnected" style="display: none;" src="/img/icons/green-light.png"></img>
+          <img class="s-lcu-status-light lcuStatusLightDisconnected" src="/img/icons/red-light.png"></img>
+          <svg class="s-lcu-status-logo"><use href="/img/icons/LoL_logo.svg#Layer_1"></use></svg>
+          <span class="s-lcu-status-text s-lcu-status-text-disconnected">Disconnected</span>
+        </div>
+        <button class="s-icon-button s-icon-button-fill infoButton">
+          <svg class="s-icon-button-svg s-icon-svg-small"><use href="/img/icons/icons.svg#more-info"></use></svg>
+        </button>
+        <button class="settings-window s-icon-button-fill s-icon-button settingsButton">
+          <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#window-settings"></use></svg>
+        </button>
+        <button class="s-icon-button s-icon-button-fill feedbackButton">
+          <svg class="s-icon-button-svg s-icon-svg-small"><use href="/img/icons/icons.svg#feedback"></use></svg>
+        </button>
+        <button class="s-icon-button s-icon-button-no-fill feedbackButton">
+          <svg class="s-icon-button-svg s-icon-svg-small"><use href="/img/icons/icons.svg#news"></use></svg>
+        </button>
+        <button class="s-icon-button s-icon-button-fill minimizeButton">
+          <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#window-minimize"></use></svg>
+        </button>
+        <button class="close-window s-icon-button-fill s-icon-button closeButton">
+          <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#window-close"></use></svg>
+        </button>
+      </div>
+    </header>
+    
+    <main>
+      <div class="progress-bar-value"></div>
+      <div class="side-menu"></div>
+      <div class="faq-tab"></div>
+      <div class="settings-tab"></div>
+      <div class="feedback-tab"></div>
+      <div class="news-tab"></div>
+      <div class="cs-tab" style="display: none;"></div>
+      <div class="personal-tab" style="display: none;"></div>
+      <div class="main-ad-container"><span class="main-ad"></span></div>
+      <div class="popup-bg drags-window" style="display: none;"></div>
+      <div class="popup-content" style="display: none;">
+        <div class="popup-title drags-window">
+          <span class="popup-title-text translated-text"></span>
+          <button class="close-window s-icon-button-fill s-icon-button popupCloseButton">
+            <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#window-close"></use></svg>
+          </button>
+        </div>
+        <div class="popup-content-text translated-text"></div>
+        <div class="popup-input-text">
+          <input class="popup-input-text-input" type="text" maxlength="50" size="10">
+        </div>
+        <div class="popup-buttons">
+          <span class="popup-button popup-button-yes">✓</span>
+          <span class="popup-button popup-button-no">✗</span>
+        </div>
+        <div class="popup-flags">
+          <span class="popup-flag popup-flag-english"><img src="/img/flags/english.png"/><span class="translated-text">English</span></span>
+          <span class="popup-flag popup-flag-french"><img src="/img/flags/french.png"/><span class="translated-text">French</span></span>
+          <span class="popup-flag popup-flag-german"><img src="/img/flags/german.png"/><span class="translated-text">German</span></span>
+          <!-- <span class="popup-flag popup-flag-greek"><img src="/img/flags/greek.png"/><span class="translated-text">Greek</span></span> -->
+          <!-- <span class="popup-flag popup-flag-hebrew"><img src="/img/flags/hebrew.png"/><span class="translated-text">Hebrew</span></span> -->
+          <!-- <span class="popup-flag popup-flag-japanese"><img src="/img/flags/japanese.png"/><span class="translated-text">Japanese</span></span> -->
+          <!-- <span class="popup-flag popup-flag-korean"><img src="/img/flags/korean.png"/><span class="translated-text">Korean</span></span> -->
+          <span class="popup-flag popup-flag-polish"><img src="/img/flags/polish.png"/><span class="translated-text">Polish</span></span>
+          <!-- <span class="popup-flag popup-flag-portuguese"><img src="/img/flags/portuguese.png"/><span class="translated-text">Portuguese</span></span> -->
+          <span class="popup-flag popup-flag-russian"><img src="/img/flags/russian.png"/><span class="translated-text">Russian</span></span>
+          <span class="popup-flag popup-flag-spanish"><img src="/img/flags/spanish.png"/><span class="translated-text">Spanish</span></span>
+          <span class="popup-flag popup-flag-swedish"><img src="/img/flags/swedish.png"/><span class="translated-text">Swedish</span></span>
+          <span class="popup-flag popup-flag-turkish"><img src="/img/flags/turkish.png"/><span class="translated-text">Turkish</span></span>
+        </div>
+      </div>
       
-      <main>
-        <div class="progress-bar-value"></div>
-        <div class="side-menu"></div>
-        <div class="faq-tab"></div>
-        <div class="settings-tab"></div>
-        <div class="feedback-tab"></div>
-        <div class="news-tab"></div>
-        <div class="cs-tab" style="display: none;"></div>
-        <div class="personal-tab" style="display: none;"></div>
-        <div class="main-ad-container"><span class="main-ad"></span></div>
-          
-      </main>
+    </main>
 
-      <footer>
-        <span class="s-community-links">
-          <a href="https://discord.gg/YGcWxhyXmn" title="Discord">
-            <button class="s-icon-button s-icon-button-fill">
-              <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#discord"></use></svg>
-            </button>
-          </a>
-          <a href="https://www.linkedin.com/in/samuel-blad-133782172" title="LinkedIn">
-            <button class="s-icon-button s-icon-button-fill">
-              <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#linkdin"></use></svg>
-            </button>
-          </a>
-          <span class="rateApp">
-            <button class="s-icon-button s-icon-button-fill" title="Rate App">
-              <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#heart" class="scale-icon-24"></use></svg>
-            </button>
-          </span>
-          <a href="https://www.overwolf.com/app/Samuel_Blad-Champ_Select_Coach" title="Share">
-            <button class="s-icon-button s-icon-button-fill">
-              <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#share" class="scale-icon-24"></use></svg>
-            </button>
-          </a>
+    <footer>
+      <span class="s-community-links">
+        <a href="https://discord.gg/YGcWxhyXmn" title="Discord">
+          <button class="s-icon-button s-icon-button-fill">
+            <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#discord"></use></svg>
+          </button>
+        </a>
+        <a href="https://www.linkedin.com/in/samuel-blad-133782172" title="LinkedIn">
+          <button class="s-icon-button s-icon-button-fill">
+            <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#linkdin"></use></svg>
+          </button>
+        </a>
+        <span class="rateApp">
+          <button class="s-icon-button s-icon-button-fill" title="Rate App">
+            <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#heart" class="scale-icon-24"></use></svg>
+          </button>
         </span>
-        <span class="version">v0.3.0 (2022-08-08)</span>
-      </footer>
+        <a href="https://www.overwolf.com/app/Samuel_Blad-Champ_Select_Coach" title="Share">
+          <button class="s-icon-button s-icon-button-fill">
+            <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#share" class="scale-icon-24"></use></svg>
+          </button>
+        </a>
+      </span>
+      <span class="version">v0.3.0 (2022-08-08)</span>
+    </footer>
   </div>
 
 </body>

@@ -6,7 +6,7 @@ import { Updates } from "../../ts-lib/updates";
 import { ErrorReporting } from "../../ts-lib/errorReporting";
 import { Logger } from "../../ts-lib/logger";
 import { Settings } from "../../ts-lib/settings";
-import { MainWindow } from "../mainWindow/mainWindow";
+import { Timer } from "../../ts-lib/timer";
 
 class BackgroundController {
   private static _instance: BackgroundController;
@@ -17,6 +17,7 @@ class BackgroundController {
   }
 
   private constructor() {
+    Logger.log("BackgroundController begin");
     this._windows[windowNames.background] = new OWWindow(windowNames.background);
     this._windows[windowNames.mainWindow] = new OWWindow(windowNames.mainWindow);
 
@@ -83,10 +84,17 @@ class BackgroundController {
     const scoreWinState = (await this._windows[windowNames.mainWindow].getWindowState()).window_state_ex;
     if (scoreWinState == 'closed' || scoreWinState == 'hidden') { //(but not if minimized)
       this._windows[windowNames.mainWindow].restore();
-      await MainWindow.waitForWindowToOpen(this._windows[windowNames.mainWindow]);
+      await BackgroundController.waitForWindowToOpen(this._windows[windowNames.mainWindow]);
     }
 
     this._windows[windowNames.mainWindow].setTopmost();
+  }
+
+  public static async waitForWindowToOpen(w: OWWindow) {
+    let i = 0;
+    while (++i < 500 && (await w.getWindowState()).window_state_ex == 'closed') {
+      await Timer.wait(100);
+    }
   }
 
   private _inChampSelect = false; //Need this in case they manually close window, don't want it to pop up until next champ select

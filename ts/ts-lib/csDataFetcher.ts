@@ -1,4 +1,5 @@
 import { Aws } from "./aws";
+import { CSCAI } from "./cscai";
 import { CsData, CsInput } from "./csManager";
 import { Lcu } from "./lcu";
 import { Utils } from "./utils";
@@ -147,14 +148,17 @@ export class CsDataFetcher {
       else res[k] = x;
     }
     if (missing.length > 0) {
-      let fetched = (await fetch(region, missing)).result;
-      for (let k in fetched) {
-        let item = fetched[k];
-        if (jsonParse) {
-          item = JSON.parse(item);
+      const obj = (await fetch(region, missing));
+      if (obj && obj.result) {
+        const fetched = obj.result;
+        for (let k in fetched) {
+          let item = fetched[k];
+          if (jsonParse) {
+            item = JSON.parse(item);
+          }
+          res[k] = item;
+          await cache.insert(region + k, item);
         }
-        res[k] = item;
-        await cache.insert(region + k, item);
       }
     }
     return res;

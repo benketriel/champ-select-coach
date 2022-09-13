@@ -192,7 +192,6 @@ export class Lcu {
       newCsInput.ownerName = prevCsInput == null ? '' : prevCsInput.ownerName;
       newCsInput.queueId = prevCsInput == null ? '' : prevCsInput.queueId;
       newCsInput.region = prevCsInput == null ? '' : prevCsInput.region;
-      newCsInput.blueSide = blueSide;
       newCsInput.summonerNames = (blueTeam.map(x => x.name).concat(["", "", "", "", ""])).slice(0, 5).concat((redTeam.map(x => x.name).concat(["", "", "", "", ""])).slice(0, 5));
 
       newCsInput.championIds = (blueTeam.map(x => x.champion).concat(["", "", "", "", ""])).slice(0, 5).concat((redTeam.map(x => x.champion).concat(["", "", "", "", ""])).slice(0, 5));

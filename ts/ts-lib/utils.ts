@@ -1,5 +1,5 @@
 import { Timer } from "./timer";
-
+import * as $ from "jquery"; //npm install --save-dev @types/jquery
 
 
 export class Utils {
@@ -90,14 +90,21 @@ export class Utils {
 
   public static async smoothChangeNumber(elem: HTMLElement, targetN: number, ms: number = 500) {
     const fromN = parseFloat(elem.innerHTML) || 0;
-    for (let t = 0; true; t += 30) {
+    const myI = ($(elem).data('i') || 0) + 1;
+    $(elem).data('i', myI);
+    for (let t = 0; true; t += 60) {
       t = Math.min(t, ms);
       let currN = fromN + (targetN - fromN) * (0.5 - 0.5 * Math.cos(t / ms * Math.PI));
       elem.innerHTML = (Math.round(currN * 10) / 10).toFixed(1); // Digits to show after comma, forces .0 if such
       const w = Math.min(30, ms - t);
       if (w > 0) await Timer.wait(w);
-      if (t == ms) break;
+      if (t == ms || $(elem).data('i') != myI) break;
     }
+  }
+
+  public static async stopSmoothChangeNumberAnimation(elem: HTMLElement) {
+    const myI = ($(elem).data('i') || 0) + 1;
+    $(elem).data('i', myI);
   }
 
 }

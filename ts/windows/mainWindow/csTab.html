@@ -92,7 +92,7 @@
       <td>
         <span class="tooltip">
           <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Mid</span></span>  
-          <span class="cs-table-recommended-bans-role"><img src="/img/ranked-positions/Position_Challenger-Mid.png"></span>
+          <span class="cs-table-recommended-bans-role"><img src=""></span>
         </span>
       </td>
       <td>
@@ -187,7 +187,9 @@
     <span class="cs-wr-total-left tooltip"><span class="cs-wr-total-left-result"></span><span class="cs-wr-total-left-tooltip tooltiptext tooltiptext-lg" style="font-size: 20px;">
       <span class="translated-text">Score if only your team's players are known</span>
     </span></span>
-    <span class="cs-wr-total tooltip"><span class="cs-wr-total-result">5.0</span><span class="cs-wr-total-tooltip tooltiptext tooltiptext-lg"></span></span>
+    <span class="cs-wr-total tooltip"><span class="cs-wr-total-result">5.0</span><span class="cs-wr-total-tooltip tooltiptext tooltiptext-lg">
+      <span class="translated-text">Total score given by the AI</span>
+    </span></span>
     <span class="cs-wr-total-right tooltip"><span class="cs-wr-total-right-result"></span><span class="cs-wr-total-right-tooltip tooltiptext tooltiptext-lg" style="font-size: 20px;">
       <span class="translated-text">Opponent score if only their team's players are known (higher means harder to win for your team)</span>
     </span></span>
@@ -214,7 +216,7 @@
       </span>
     </td><td></td><td class="cs-objective-timer-cell">
       <span class="tooltip">
-        <svg class="s-icon-svg s-icon-fill s-icon-svg-20-by-20"><use href="/img/icons/icons.svg#timer"></use></svg><br/>
+        <svg class="s-icon-svg s-icon-fill s-icon-svg-small"><use href="/img/icons/icons.svg#timer"></use></svg><br/>
         <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Predicted game length</span></span>
         <span class="cs-objective-timer-cell-value">30m</span>
       </span>
@@ -415,7 +417,45 @@
       ⚠️
     </span>
   </span>
-  <span class="cs-region"></span>
+  <table class="cs-footer">
+    <tr>
+      <td style="text-align: left; width: 33%;">
+        <span class="cs-side">
+          <span class="tooltip">
+            <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Side</span></span>  
+            <input class="cs-side-blue" type="radio" checked>
+            <span class="translated-text">Blue</span>
+            <input class="cs-side-red" type="radio">
+            <span class="translated-text">Red</span>
+          </span>
+        </span>
+      </td>
+      <td style="text-align: center; width: 33%;">
+        <span class="cs-queue">
+          <span class="tooltip">
+            <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Queue</span></span>  
+            <input class="cs-queue-solo" type="radio" checked>
+            <span class="translated-text">SoloQ</span>
+            <input class="cs-queue-flex" type="radio">
+            <span class="translated-text">Flex</span>
+          </span>
+        </span>
+      </td>
+      <td style="text-align: right; width: 33%;">
+        <span class="cs-region">
+          <span class="tooltip">
+            <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Region</span></span>  
+            <span class="cs-region-edit-button" style="display: none;">
+              <button class="s-icon-button-fill-no-hover s-icon-button">
+                <svg class="s-icon-button-svg s-icon-svg-smaller"><use href="/img/icons/icons.svg#pencil"></use></svg>
+              </button>
+            </span>
+            <span class="cs-region-value"></span>
+          </span>
+        </span>
+      </td>
+    </tr>
+  </table>
 
 </span>
 

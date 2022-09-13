@@ -35,7 +35,7 @@
 }
 
 .side-menu-hover-effect:hover {
-    background-image: radial-gradient(rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0) 100%);
+    background-image: radial-gradient(rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.2) 30%, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0) 100%);
     background-position-y: 5px;
     background-repeat: no-repeat;
     cursor: pointer;
@@ -46,7 +46,7 @@
 }
 
 .side-menu-selected-effect {
-    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.05) 30%, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0) 100%);
+    background-image: radial-gradient(rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.15) 30%, rgba(255, 255, 255, 0) 60%, rgba(255, 255, 255, 0) 100%);
     background-position-y: 5px;
     background-repeat: no-repeat;
     cursor: pointer;
@@ -121,11 +121,20 @@
     left: 57px;
 }
 
+.side-menu-old-cs-edit {
+    font-size: x-small;
+    vertical-align: bottom;
+    position: relative;
+    display: inline-block;
+    top: 6px;
+    left: 59px;
+}
+
 .side-menu-old-cs-close {
     position: relative;
     display: inline-block;
     top: 7px;
-    left: 68px;
+    left: 65px;
     overflow: hidden;
     border-radius: 30px;
     width: 22px;
@@ -151,19 +160,3 @@
     margin: -6px;
 }
 
-.main-ad-container {
-    bottom: 30px;
-    height: 300px;
-    display: block;
-    right: 5px;
-    position: absolute;
-}
-
-.main-ad {
-    width: 400px;
-    height: 300px;
-    background-color: white;
-    display: block;
-    left: calc(50% - 200px);
-    position: relative;
-}

@@ -130,6 +130,7 @@ button:focus {
     position: relative;
     width: 17px;
     height: 17px;
+    margin: 0px 1px 0px 1px;
 }
 .lds-ring span {
     box-sizing: border-box;
@@ -158,40 +159,7 @@ button:focus {
     100% { transform: rotate(360deg); }
 }
 
-/* Home
-.home-tab {
-    margin: 10px 10px 10px 10px;
-    color: rgb(205, 190, 145);
-    text-align: center;
-}
-.home-table {
-    width: calc(100% - 50px);
-    margin: 5px 25px 25px 5px;
-}
-.home-logo {
-    color: #F4F2FF;
-    fill: currentColor;    
-    
-    transform: scale(0.35);
-    margin: -83px;
-    height: 256px;
-    width: 256px;
-    
-}
-.home-title {
-    font-family: 'Friz Quadrata Std';
-    font-size: 26px;
-    color: white;
-    display: block;
-    height: 70px;
-    padding-top: 9px;
-}
-
-.centered-table {
-    margin-left: auto;
-    margin-right: auto;
-} */
-
+/* Footer */
 
 .s-community-links {
     position: absolute; 
@@ -371,4 +339,21 @@ a:hover, a:active {
     
     /* height: 90px;
     width: 90px; */
+}
+
+.main-ad-container {
+    bottom: 30px;
+    height: 300px;
+    display: block;
+    right: 5px;
+    position: absolute;
+}
+
+.main-ad {
+    width: 400px;
+    height: 300px;
+    background-color: white;
+    display: block;
+    left: calc(50% - 200px);
+    position: relative;
 }

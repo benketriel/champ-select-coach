@@ -6,6 +6,7 @@ import { CsTab } from "../../ts-lib/csTab";
 import { PersonalTab } from "../../ts-lib/personalTab";
 import { Logger } from "../../ts-lib/logger";
 import { CSCAI } from "../../ts-lib/cscai";
+import { Popup } from "../../ts-lib/popup";
 
 export class MainWindow {
   private static _instance: MainWindow;
@@ -20,6 +21,8 @@ export class MainWindow {
   public static MAX_MENU_HISTORY_SIZE: number = 10;
 
   constructor() {
+    Logger.log("MainWindow begin");
+
     this.window = new OWWindow(windowNames.mainWindow);
     this.initWindow();
   }
@@ -35,35 +38,44 @@ export class MainWindow {
     const bodyWidth = $('body').width();
     for(var tt of $('.tooltiptext')) {
       const currPos = $(tt).offset();
-      let originalTop = $(tt).attr('data-original-top');
-      let originalLeft = $(tt).attr('data-original-left');
-      if (!originalTop || ! originalLeft) {
-        originalTop = currPos.top.toString();
-        originalLeft = currPos.left.toString();
-        $(tt).attr('data-original-top', originalTop);
-        $(tt).attr('data-original-left', originalLeft);
+      const currTrans = $(tt).css('transform');
+      let currTx = 0;
+      let currTy = 0;
+      if (currTrans && currTrans != 'none') {
+        const arr = $(tt).css('transform').split('(')[1].split(')')[0].split(', ').map(x => parseFloat(x));
+        currTx = arr[4];
+        currTy = arr[5];
       }
-      const offsetX = $(tt).outerWidth() + parseInt(originalLeft) - (bodyWidth - 2);
-      const offsetY = $(tt).outerHeight() + parseInt(originalTop) - (bodyHeight - 2);
-      if (offsetY > 0 || offsetX > 0) {
-        $(tt).offset({ left: Math.min(parseInt(originalLeft), parseInt(originalLeft) - offsetX), top: Math.min(parseInt(originalTop), parseInt(originalTop) - offsetY) });
+
+      const offsetX = $(tt).outerWidth() + currPos.left - currTx - (bodyWidth - 2);
+      const offsetY = $(tt).outerHeight() + currPos.top - currTy - (bodyHeight - 2);
+      const newTx = Math.min(0, -Math.round(offsetX));
+      const newTy = Math.min(0, -Math.round(offsetY));
+
+      if (currTx != newTx || currTy != newTy) {
+        $(tt).css('transform', 'translate(' + newTx + 'px, ' + newTy + 'px)');
       }
     }
   }
 
   public async initWindow() {
     this.patchInfo = await CSCAI.getPatchInfo();
-    this.csTab = new CsTab(this.patchInfo);
-    this.personalTab = new PersonalTab();
     await this.loadHTML();
     await this.setCallbacks();
+    this.csTab = new CsTab(this.patchInfo);
+    this.personalTab = new PersonalTab();
 
     this.personalTab.canvasDraw();
 
-    this.csTab.show();
-    this.personalTab.hide();
+    //this.csTab.show();
+    //this.personalTab.hide();
     this.repositionOverflowingPopups();
 
+    // const options = ["Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua &amp; Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia &amp; Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Cayman Islands","Central Arfrican Republic","Chad","Chile","China","Colombia","Congo","Cook Islands","Costa Rica","Cote D Ivoire","Croatia","Cuba","Curacao","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Falkland Islands","Faroe Islands","Fiji","Finland","France","French Polynesia","French West Indies","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guam","Guatemala","Guernsey","Guinea","Guinea Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Isle of Man","Israel","Italy","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macau","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia","Nauro","Nepal","Netherlands","Netherlands Antilles","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","North Korea","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Puerto Rico","Qatar","Reunion","Romania","Russia","Rwanda","Saint Pierre &amp; Miquelon","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","St Kitts &amp; Nevis","St Lucia","St Vincent","Sudan","Suriname","Swaziland","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor L'Este","Togo","Tonga","Trinidad &amp; Tobago","Tunisia","Turkey","Turkmenistan","Turks &amp; Caicos","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States of America","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Virgin Islands (US)","Yemen","Zambia","Zimbabwe"];
+    // Popup.text("Select Champion", "Enter the champion name", options, console.log);
+
+    // Popup.selectLanguage(console.log);
+    
   }
 
   private async loadHTML() {
@@ -96,10 +108,17 @@ export class MainWindow {
     for (let i = 0; i < 5; ++i) {
       $('.cs-table').append(await (await fetch('csTabRow.html')).text());
     }
-    for (let i = 0; i < 6; ++i) {
-      $('.cs-table-recommended-champions-cell .cs-table-cell').append(await (await fetch('csTabRecommendationItem.html')).text());
+    for (let i = 0; i < CsTab.NUM_RECOMMENDATIONS; ++i) {
+      const places = $('.cs-table-recommended-champions-cell .cs-table-cell').get();
+      for (let j = 0; j < places.length; ++j) {
+        if (j % 2 == 0) {
+          $(places[j]).prepend(await (await fetch('csTabRecommendationItem.html')).text());
+        } else {
+          $(places[j]).append(await (await fetch('csTabRecommendationItem.html')).text());
+        }
+      }
     }
-    for (let i = 0; i < 8; ++i) {
+    for (let i = 0; i < CsTab.NUM_HISTORY; ++i) {
       $('.cs-table-history-cell .cs-table-cell').append(await (await fetch('csTabHistoryItem.html')).text());
     }
 
@@ -112,6 +131,14 @@ export class MainWindow {
     $('.side-menu-current-cs').on('click', MainWindow.selectCurrentCS);
     for (let i = 0; i < 10; ++i) {
       $($('.side-menu-old-cs')[i]).on('click', () => MainWindow.selectHistoryCS(i));
+      $($('.deleteHistoryItem')[i]).on('click', event => { 
+        Popup.prompt(
+          "Delete history",
+          "This will remove this champion select lobby from your history<br>Are you sure?", 
+          () => MainWindow.deleteHistoryCS(i), 
+          () => null);
+        event.stopPropagation(); 
+      });
     }
     $('.side-menu-add-manual-cs').on('click', () => MainWindow.selectHistoryCS(null));
     $('.s-lcu-status').on('click', MainWindow.selectPersonal);
@@ -138,13 +165,79 @@ export class MainWindow {
     $('.backButton').on('click', () => { 
       $('.slide-overlay').animate({ left: '100%' });
     });
+    
+    $('.popupCloseButton').on('click', () => { Popup.close(); });
+    $('.popup-button-yes').on('click', () => { Popup.yes(); });
+    $('.popup-button-no').on('click', () => { Popup.no(); });
 
+    $('.popup-input-text-input').on('input', () => { Popup.textChange(); });
+    $('.popup-input-text-input').on('keypress', event => { if (event.key === "Enter") { Popup.yes(); event.preventDefault(); } });
+    
+    $('.popup-flag').on('click', event => { Popup.flagClick(event); });
+
+    //CS
+    const that = this;
+    const roleSwappers = $('.cs-table-champion-swap-role').get();
+    for (const i in roleSwappers) {
+      const idx = Math.round(parseInt(i) % 4);
+      const team = Math.floor((parseInt(i) / 4) % 2);
+      const role = Math.floor(parseInt(i) / 8);
+      $(roleSwappers[i]).on('click', () => that.csTab.swapRole(5 * team + role, idx + (role <= idx ? 1 : 0)));
+    }
+
+    const champSwappers = $('.cs-table-champion-swap-champion').get();
+    for (const i in champSwappers) {
+      const idx = Math.round(parseInt(i) % 4);
+      const team = Math.floor((parseInt(i) / 4) % 2);
+      const role = Math.floor(parseInt(i) / 8);
+      $(champSwappers[i]).on('click', () => that.csTab.swapChampion(5 * team + role, 5 * team + idx + (role <= idx ? 1 : 0)));
+    }
+
+    const defaultSwappers = $('.cs-table-champion-swap-default').get();
+    for (const i in defaultSwappers) {
+      const idx = Math.round(parseInt(i) % 2);
+      const team = Math.floor((parseInt(i) / 2) % 2);
+      const role = Math.floor(parseInt(i) / 4);
+      if (idx == 0) {
+        $(defaultSwappers[i]).on('click', () => that.csTab.swapRole(5 * team + role, -1));
+      } else {
+        $(defaultSwappers[i]).on('click', () => that.csTab.swapChampion(5 * team + role, -1));
+      }
+    }
+
+    const editIcons = $('.cs-table-edit-button').get();
+    for (const i in editIcons) {
+      const idx = Math.round(Math.floor((parseInt(i) + 1) / 2) % 2);
+      const team = Math.floor((parseInt(i) / 2) % 2);
+      const role = Math.floor(parseInt(i) / 4);
+
+      const elm = editIcons[i]
+      $(elm).parent().on('mouseenter', () => { if (that.csTab.getActiveManager().getCsView().editable) $(elm).show(); });
+      $(elm).parent().on('mouseleave', () => $(elm).hide());
+      if (idx == 0) {
+        $(elm).on('click', () => that.csTab.editChampion(role + 5 * team));
+      } else {
+        $(elm).on('click', () => that.csTab.editSummoner(role + 5 * team));
+      }
+    }
+    const regionEditIcon = $('.cs-region-edit-button').get(0);
+    $('.cs-region').on('mouseenter', () => { if (that.csTab.getActiveManager().getCsView().editable) $(regionEditIcon).show(); });
+    $('.cs-region').on('mouseleave', () => $(regionEditIcon).hide());
+    $(regionEditIcon).on('click', () => that.csTab.editRegion());
+
+    $('.cs-side-blue').on('change', () => { that.csTab.editSide(true); });
+    $('.cs-side-red').on('change', () => { that.csTab.editSide(false); });
+
+    $('.cs-queue-solo').on('change', () => { that.csTab.editQueue(true); });
+    $('.cs-queue-flex').on('change', () => { that.csTab.editQueue(false); });
+    
     //Global
     $('.drags-window').each((index, elem) => { this.setDrag(elem); });
     $('.closeButton').on('click', async () => { overwolf.windows.sendMessage(windowNames.background, 'close', '', () => {}); });
     $('.minimizeButton').on('click', () => { this.window.minimize(); });
     $('.rateApp').on('click', () => { overwolf.utils.openStore({ page:overwolf.utils.enums.eStorePage.ReviewsPage, uid:"ljkaeojllenacnoipfcdpdllhcfndmohikaiphgi"}); });
 
+    $('body').on('keyup', e => { if (e.key === "Escape") Popup.close(); });
   }
 
   //Make callbacks static since the 'this' is confusing to pass to a callback, use MainWindow.instance() instead
@@ -163,15 +256,22 @@ export class MainWindow {
     $('.side-menu-current-cs').addClass('side-menu-selected-effect');
   }
 
-  public static selectHistoryCS(i: number) {
+  public static async selectHistoryCS(i: number) {
     const main = MainWindow.instance();
-    if (main.selectedView == 'hist' + i) return;
-    main.selectedView = 'hist' + i;
-
-    if (i = null) {
+    if (null == i) {
       main.csTab.addManualCs();
       i = 0;
+    } else if (main.selectedView == 'hist' + i) return;
+
+    //Hack for better percieved responsiveness, the swapToManual takes some noticeable time and we want feedback from the menu before that time
+    {
+      $('.s-lcu-status-selected').removeClass('s-lcu-status-selected');
+      $('.side-menu-selected-effect').removeClass('side-menu-selected-effect');
+      $($('.side-menu-old-cs')[i]).addClass('side-menu-selected-effect');
+      await Timer.wait(1);
     }
+
+    main.selectedView = 'hist' + i;
     main.csTab.swapToManual(i);
     main.personalTab.hide();
     main.csTab.show();
@@ -179,6 +279,21 @@ export class MainWindow {
     $('.s-lcu-status-selected').removeClass('s-lcu-status-selected');
     $('.side-menu-selected-effect').removeClass('side-menu-selected-effect');
     $($('.side-menu-old-cs')[i]).addClass('side-menu-selected-effect');
+  }
+
+  public static deleteHistoryCS(i: number) {
+    const main = MainWindow.instance();
+
+    main.csTab.deleteCSHistory(i);
+
+    if (main.selectedView.startsWith('hist')) {
+      let currI = parseInt(main.selectedView.substring('hist'.length));
+      if (currI > i) currI--;
+      else if (currI == i) currI = Math.min(currI, main.csTab.getCSHistoryLength() - 1);
+      main.selectedView = '';
+      if (currI >= 0) MainWindow.selectHistoryCS(currI);
+      else MainWindow.showBackground();
+    }
   }
 
   public static selectPersonal() {
@@ -193,12 +308,11 @@ export class MainWindow {
     $('.s-lcu-status').addClass('s-lcu-status-selected');
   }
 
-
-  public static async waitForWindowToOpen(w: OWWindow) {
-    let i = 0;
-    while (++i < 500 && (await w.getWindowState()).window_state_ex == 'closed') {
-      await Timer.wait(100);
-    }
+  public static showBackground() {
+    const main = MainWindow.instance();
+    main.personalTab.hide();
+    main.csTab.hide();
+    main.selectedView = '';
   }
 
   public async getWindowState() {
