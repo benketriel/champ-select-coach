@@ -119,6 +119,7 @@
     display: inline-block;
     top: 0px;
     left: 57px;
+    width: 30px;
 }
 
 .side-menu-old-cs-edit {
@@ -128,6 +129,7 @@
     display: inline-block;
     top: 6px;
     left: 59px;
+    width: 30px;
 }
 
 .side-menu-old-cs-close {

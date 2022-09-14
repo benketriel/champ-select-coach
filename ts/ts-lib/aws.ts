@@ -18,9 +18,9 @@ export class Aws {
       Logger.log({
         name: 'getSummoners',
         millisTaken: r.millis,
-        queried: summonerNames,
-        returned: Object.keys(r.result),
-        missing: summonerNames.length - Object.keys(r.result).length,
+        queriedAmount: summonerNames.length,
+        returnedAmount: Object.keys(r.result).length,
+        missing: summonerNames.filter(x => r.result[x] === undefined),
       });
       return true;
     });
@@ -34,25 +34,25 @@ export class Aws {
       Logger.log({
         name: 'getMasteries',
         millisTaken: r.millis,
-        queried: summonerIds,
-        returned: Object.keys(r.result),
-        missing: summonerIds.length - Object.keys(r.result).length,
+        queriedAmount: summonerIds.length,
+        returnedAmount: Object.keys(r.result).length,
+        missing: summonerIds.filter(x => r.result[x] === undefined),
       });
       return true;
     });
     return res;
   }
 
-  public static async getTiers(region: string, queueId: string, summonerIds: string[]) {
-    const msg = JSON.stringify({Action:"RubyGetTiers", Arguments:{region, queueId, summonerIds:summonerIds.join(',')}});
+  public static async getTiers(region: string, soloQueue: boolean, summonerIds: string[]) {
+    const msg = JSON.stringify({Action:"RubyGetTiers", Arguments:{region, soloQueue: soloQueue ? 'true' : 'false', summonerIds:summonerIds.join(',')}});
     const res = await Aws.retrying('getTiers', 10, () => Aws.get(msg), r => {
       if (!r || !r.result) return false;
       Logger.log({
         name: 'getTiers',
         millisTaken: r.millis,
-        queried: summonerIds,
-        returned: Object.keys(r.result),
-        missing: summonerIds.length - Object.keys(r.result).length,
+        queriedAmount: summonerIds.length,
+        returnedAmount: Object.keys(r.result).length,
+        missing: summonerIds.filter(x => r.result[x] === undefined),
       });
       return true;
     });
@@ -66,9 +66,9 @@ export class Aws {
       Logger.log({
         name: 'getHistories',
         millisTaken: r.millis,
-        queried: puuids,
-        returned: Object.keys(r.result),
-        missing: puuids.length - Object.keys(r.result).length,
+        queriedAmount: puuids.length,
+        returnedAmount: Object.keys(r.result).length,
+        missing: puuids.filter(x => r.result[x] === undefined),
       });
       return true;
     });
@@ -81,8 +81,9 @@ export class Aws {
       if (!r || !r.result) return false;
       Logger.log({
         name: 'getMatches',
-        queried: matchIds,
-        returned: Object.keys(r.result),
+        queriedAmount: matchIds.length,
+        returnedAmount: Object.keys(r.result).length,
+        missing: matchIds.filter(x => r.result[x] === undefined),
         apiReadMillis: r.apiReadMillis,
         dbReadMillis: r.dbReadMillis,
         dbWriteMillis: r.dbWriteMillis,

@@ -6,7 +6,7 @@
 
       --active: rgb(136, 128, 99); /*Checkmark/Dot bg*/
       --active-inner: #F4F2FF; /*Checkmark/Dot */
-      --focus: 2px rgba(205, 190, 145, .7);/*2px border around selected*/
+      --focus: 1px rgba(205, 190, 145, .7); /* border around selected*/
       --border: rgb(136, 128, 99);/*Dot when unactive, and border */
       --border-hover: rgb(136, 128, 99);
       --background: #F4F2FF;
@@ -138,7 +138,7 @@
       transform: scale(var(--s, 0.7));
     }
     input[type=radio]:checked {
-      --s: .5;
+      --s: .4;
     }
   }
   ul {

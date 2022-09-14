@@ -18,14 +18,13 @@ export class Popup {
   public static message(title: string, content: string) {
     $('.popup-title-text').html(title);
     $('.popup-content-text').html(content);
-
-    Popup.adjustPosition();
     
     $('.popup-content-text').show();
     $('.popup-input-text').hide();
     $('.popup-buttons').hide();
     $('.popup-flags').hide();
     Popup.show();
+    Popup.adjustPosition();
   }
 
   private static adjustPosition() {
@@ -44,13 +43,12 @@ export class Popup {
     $('.popup-title-text').html(title);
     $('.popup-content-text').html(content);
 
-    Popup.adjustPosition();
-    
     $('.popup-content-text').show();
     $('.popup-input-text').hide();
     $('.popup-buttons').show();
     $('.popup-flags').hide();
     Popup.show();
+    Popup.adjustPosition();
     $('.popup-input-text-input').trigger('focus');
   }
 
@@ -69,8 +67,8 @@ export class Popup {
   private static prevTyped: string = '';
   public static text(title: string, content: string, currentText: string, options: string[], onText: any) {
     Popup.autocompleteOptions = options;
-    Popup.currText = '';
-    Popup.prevTyped = '';
+    Popup.currText = currentText;
+    Popup.prevTyped = currentText;
     Popup.onYes = () => onText(Popup.currText);
     Popup.onNo = () => null;
     const elmn = <any>$('.popup-input-text-input').get(0);
@@ -79,13 +77,12 @@ export class Popup {
     $('.popup-title-text').html(title);
     $('.popup-content-text').html(content);
 
-    Popup.adjustPosition();
-    
     $('.popup-content-text').show();
     $('.popup-input-text').show();
     $('.popup-buttons').show();
     $('.popup-flags').hide();
     Popup.show();
+    Popup.adjustPosition();
     $(elmn).trigger('focus');
     if (elmn.value.length > 0) {
       elmn.setSelectionRange(0, elmn.value.length);
@@ -120,13 +117,12 @@ export class Popup {
     $('.popup-title-text').html('Language');
     $('.popup-content-text').html('Select your preferred language');
 
-    Popup.adjustPosition();
-    
     $('.popup-content-text').show();
     $('.popup-input-text').hide();
     $('.popup-buttons').hide();
     $('.popup-flags').show();
     Popup.show();
+    Popup.adjustPosition();
   }
 
   public static flagClick(e: any) {

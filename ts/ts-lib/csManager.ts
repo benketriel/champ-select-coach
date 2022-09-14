@@ -99,7 +99,7 @@ export class CsManager {
   public connectedToLcu: boolean = false;
   public swappableCs: boolean = false;
   public editableCs: boolean = false;
-  public date: Date = null;
+  public date: number = null;
   public onNewCs: any;
   public onCsUpdate: any;
 
@@ -115,7 +115,7 @@ export class CsManager {
   private currCsMissingScores = null;
   private currCsHistory = null;
   private currCsRecommendations = null;
-  private currCsFirstRunComplete = false;
+  public currCsFirstRunComplete = false;
 
   private newCsInput: CsInput = null;
   private ongoingRolePred = false;
@@ -126,7 +126,7 @@ export class CsManager {
 
   public ongoingProgressBar = new ProgressBar([], []);
 
-  constructor(patchInfo: any, connectedToLcu: boolean, onNewCs: any, onCsUpdate: any, csView: any, swappable: boolean, editable: boolean, date: Date) {
+  constructor(patchInfo: any, connectedToLcu: boolean, onNewCs: any, onCsUpdate: any, csView: any, swappable: boolean, editable: boolean) {
     this.patchInfo = patchInfo;
     this.connectedToLcu = connectedToLcu;
     this.onNewCs = onNewCs;
@@ -150,25 +150,21 @@ export class CsManager {
 
     this.swappableCs = swappable;
     this.editableCs = editable;
-    this.date = date;
     this.init(csView);
 
     this.debug();
   }
 
   private async debug() {
-    //TODO
-    await Timer.wait(2000);
-
   }
 
   private init(csView: any) {
     if (!csView) return;
 
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable } = csView;
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = csView;
 
-    this.currCsInputView = csInputView;
-    this.currCsRolePredictionView = rolePredictionView;
+    this.currCsInputView = csInput;
+    this.currCsRolePredictionView = rolePrediction;
     this.currCsInput = csInput;
     this.currCsRolePrediction = rolePrediction;
     this.currCsApiTiers = apiTiers;
@@ -179,6 +175,7 @@ export class CsManager {
     this.currCsMissingScores = missingScore;
     this.currCsHistory = history;
     this.currCsRecommendations = recommendations;
+    this.date = date;
   }
 
   public manualCsChange(newCsInput: CsInput) {
@@ -357,6 +354,7 @@ export class CsManager {
             this.onCsUpdate('picks' + i);
           }
           this.currCsFirstRunComplete = true;
+          this.onCsUpdate('finished');
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
 
           if (!this.pendingCsChange && this.connectedToLcu && CsInput.readyToBeUploaded(this.currCsInput)) {

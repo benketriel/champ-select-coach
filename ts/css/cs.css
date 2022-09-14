@@ -423,6 +423,12 @@
 .cs-table-horizontal-separator:nth-last-child(1) {
     display: none;
 }
+.cs-table-history-cell-warning {
+    color: rgb(110, 107, 99);
+    font-style: italic;
+    /* font-size: 12px; */
+    margin: 35px;
+}
 
 
 /* Role */

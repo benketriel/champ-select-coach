@@ -27,9 +27,9 @@ export class CsTab {
     const that = this;
     const onNewCsLcu = () => that.onNewCsLcu();
     const onCsUpdateLcu = (change: string) => that.onCsUpdateLcu(change);
-    this.lcuCsManager = new CsManager(patchInfo, true, onNewCsLcu, onCsUpdateLcu, null, true, false, null);
+    this.lcuCsManager = new CsManager(patchInfo, true, onNewCsLcu, onCsUpdateLcu, null, true, false);
     this.manualCsManagers = [];
-    this.staticCsManager = new CsManager(patchInfo, false, null, null, null, false, false, null);
+    this.staticCsManager = new CsManager(patchInfo, false, () => {}, () => {}, null, false, false);
 
     this.init();
   }
@@ -42,7 +42,7 @@ export class CsTab {
     const history = await LocalStorage.getCsHistory();
     for (let i in history) {
       const h = history[i];
-      this.manualCsManagers.push(new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, h, h.swappable, h.editable, h.date));
+      this.manualCsManagers.push(new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, h, h.swappable, h.editable));
     }
     this.updateCSHistory();
 
@@ -53,6 +53,7 @@ export class CsTab {
   }
 
   private onNewCsLcu() {
+    this.addHistoryCs();
     this.onCsUpdateLcu('');
     MainWindow.selectCurrentCS();
   }
@@ -106,7 +107,7 @@ export class CsTab {
     const onNewCsManual = () => that.onNewCsManual();
     const onCsUpdateManual = (change: string) => that.onCsUpdateManual(change);
 
-    this.staticCsManager = new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, csView, false, false, null);
+    this.staticCsManager = new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, csView, false, false);
     this.staticCsManager.ongoingProgressBar.setActive();
     this.updateView('');
   }
@@ -117,14 +118,13 @@ export class CsTab {
     return this.manualCsManagers[this.currHistoryIndex];
   }
 
-  public addManualCs() {
-    const manager = this.getActiveManager();
-    const csView = JSON.parse(JSON.stringify(manager.getCsView()));
+  public addHistoryCs() {
+    const manager = this.lcuCsManager;
+    if (!manager.currCsFirstRunComplete) return;
 
-    const that = this;
-    const onNewCsManual = () => that.onNewCsManual();
-    const onCsUpdateManual = (change: string) => that.onCsUpdateManual(change);
-    const newManager = new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, csView, true, true, null);
+    const csView = JSON.parse(JSON.stringify(manager.getCsView()));
+    csView.date = new Date().getTime();
+    const newManager = new CsManager(this.patchInfo, false, () => {}, () => {}, csView, false, false);
 
     this.manualCsManagers.unshift(newManager);
     newManager.refreshView();
@@ -133,6 +133,27 @@ export class CsTab {
       this.manualCsManagers.pop();
     }
     this.updateCSHistory();
+    Popup.close();
+  }
+
+  public addManualCs() {
+    const manager = this.getActiveManager();
+    const csView = JSON.parse(JSON.stringify(manager.getCsView()));
+
+    const that = this;
+    const onNewCsManual = () => that.onNewCsManual();
+    const onCsUpdateManual = (change: string) => that.onCsUpdateManual(change);
+    csView.date = null;
+    const newManager = new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, csView, true, true);
+
+    this.manualCsManagers.unshift(newManager);
+    newManager.refreshView();
+
+    while (this.manualCsManagers.length > MainWindow.MAX_MENU_HISTORY_SIZE) {
+      this.manualCsManagers.pop();
+    }
+    this.updateCSHistory();
+    Popup.close();
   }
 
   public deleteCSHistory(i: number) {
@@ -148,6 +169,8 @@ export class CsTab {
   }
 
   private updateCurrentCSMenu() {
+    this.saveHistory();
+
     const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
       this.lcuCsManager.getCsView();
 
@@ -171,7 +194,7 @@ export class CsTab {
     this.hasBeenInCS = true;
   }
 
-  private updateHistoryCSMenu(index: number, championId: string, role: number, tier: string, division: string, lp: string, score: number, date: Date) {
+  private updateHistoryCSMenu(index: number, championId: string, role: number, tier: string, division: string, lp: string, score: number, date: number) {
     const patchInfo = MainWindow.instance().patchInfo;
 
     CsTab.setChampionImg(patchInfo, $($('.side-menu-champion-old img')[index]), championId);
@@ -179,8 +202,19 @@ export class CsTab {
 
     $($('.side-menu-old-cs-score')[index]).html(Utils.probabilityToScore(score));
 
-    const dateString = date == null ? '' : (date.getMonth()+1) + '/' + date.getDate() + '<br/>' + date.getHours() + ":" + date.getMinutes();
-    $($('.side-menu-old-cs-date')[index]).html(dateString);
+    const editElm = $($('.side-menu-old-cs-edit').get(index));
+    const dateElm = $($('.side-menu-old-cs-date').get(index));
+    if (date == null) {
+      editElm.show();
+      dateElm.hide();
+    } else {
+      const dateObj = new Date(date);
+      const dateString = (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '<br/>' + dateObj.getHours() + ":" + dateObj.getMinutes();
+      dateElm.html(dateString);
+        
+      editElm.hide();
+      dateElm.show();
+    }
 
     $($('.side-menu-old-cs')[index]).show();
   }
@@ -189,9 +223,20 @@ export class CsTab {
     $($('.side-menu-old-cs')[index]).hide();
   }
 
-  public updateCSHistory() {
+  public saveHistory() {
     const history = this.manualCsManagers.map(m => m.getCsView());
+    if (this.lcuCsManager.currCsFirstRunComplete) {
+      const csView = this.lcuCsManager.getCsView();
+      csView.date = new Date().getTime();
+      csView.editable = false;
+      csView.swappable = false;
+      history.unshift(csView);
+    }
     LocalStorage.setCsHistory(history);
+  }
+
+  public updateCSHistory() {
+    this.saveHistory();
 
     for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
       if (i >= this.manualCsManagers.length) {
@@ -254,6 +299,7 @@ export class CsTab {
     element.on('load', function() { element.show(); });
   }
 
+  // Heart of this class
   private updateView(change: string) {
     let time = new Date().getTime();
     const timeStats = {};
@@ -333,9 +379,9 @@ export class CsTab {
       }
     }
     timeStats['picks'] = new Date().getTime() - time; time = new Date().getTime();
-
-    MainWindow.instance().repositionOverflowingPopups();
-    timeStats['popups'] = new Date().getTime() - time; time = new Date().getTime();
+    if (!change || change == '' || change == 'finished') {
+      //Do nothing, this is for registering into history
+    }
     Logger.debug(JSON.stringify(timeStats));
   }
 
@@ -612,9 +658,7 @@ export class CsTab {
     $('.cs-side-blue').prop("checked", blue);
     $('.cs-side-red').prop("checked", !blue);
 
-    const isRanked = patchInfo.RankedQueueTypeIds.includes(parseInt(inputView.queueId));
-    const isSolo = patchInfo.SoloQueueTypeIds.includes(parseInt(inputView.queueId));
-    const isFlex = isRanked && !isSolo;
+    const isFlex = CsTab.isFlex(patchInfo, inputView.queueId);
     $('.cs-queue-solo').prop("checked", !isFlex);
     $('.cs-queue-flex').prop("checked", isFlex);
 
@@ -637,6 +681,12 @@ export class CsTab {
     $('.cs-side-red').attr('disabled', <any>!editableCs);
     $('.cs-queue-solo').attr('disabled', <any>!editableCs);
     $('.cs-queue-flex').attr('disabled', <any>!editableCs);
+  }
+
+  public static isFlex(patchInfo: any, queueId: any) {
+    const isRanked = patchInfo.RankedQueueTypeIds.includes(parseInt(queueId));
+    const isSolo = patchInfo.SoloQueueTypeIds.includes(parseInt(queueId));
+    return isRanked && !isSolo;
   }
 
   private updateWarnings(patchInfo: any, inputView: CsInput, history: any) {
@@ -758,6 +808,7 @@ export class CsTab {
     }
 
     const elements = $('.cs-table-history-border').get();
+    const historyWarningElements = $('.cs-table-history-cell-warning').get();
     const separators = $('.cs-table-history-separator').get();
     const roleWrElements = $('.cs-table-role-wr').get();
     const roleImgElements = $('.cs-table-role-win-lose-cell img').get();
@@ -769,20 +820,19 @@ export class CsTab {
       const elemI = (2 * role + (team + side) % 2) % 10; //Good luck understanding this
       const mainRoleI = 4 * role + (team + side) % 2;
       const lcuTier = (lcuTiers || {})[name] || {};
+      const currHistory = history[name] || [];
 
       const roleStats = {};
       let totalGames = 0;
-      if (history[name]) {
-        for (let h of history[name]) {
-          if (!(h.Role in roleStats)) {
-            roleStats[h.Role] = { wins:0, games:0, timestamp: h.Timestamp };
-          }
-    
-          if (h.Victory) roleStats[h.Role].wins++;
-          roleStats[h.Role].games++;
-          totalGames++;
+      for (let h of currHistory) {
+        if (!(h.Role in roleStats)) {
+          roleStats[h.Role] = { wins:0, games:0, timestamp: h.Timestamp };
         }
-      }
+  
+        if (h.Victory) roleStats[h.Role].wins++;
+        roleStats[h.Role].games++;
+        totalGames++;
+      } 
 
       const mainRoles = Object.keys(roleStats).sort((a,b) => roleStats[a].games < roleStats[b].games ? 1 : roleStats[a].games > roleStats[b].games ? -1 : 
         roleStats[a].timestamp < roleStats[b].timestamp ? 1 : -1);
@@ -808,23 +858,29 @@ export class CsTab {
         $(roleImgElements[mainRoleI + 2]).hide();
       }
   
+      if (currHistory.length == 0 && name.length > 0) {
+        $(historyWarningElements[elemI]).show();
+      } else {
+        $(historyWarningElements[elemI]).hide();
+      }
+
       for (let h = 0; h < CsTab.NUM_HISTORY; ++h) {
         const root = $(elements[elemI * CsTab.NUM_HISTORY + (elemI % 2 == 0 ? h : CsTab.NUM_HISTORY - 1 - h)]);
         const separator = $(separators[elemI * CsTab.NUM_HISTORY + (elemI % 2 == 0 ? h : CsTab.NUM_HISTORY - 1 - h)]);
-        if (!history || !history[name] || history[name].length <= h) {
+        if (currHistory.length <= h) {
           root.hide();
           separator.hide();
           continue;
         }
         
-        const hist = history[name][h];
+        const hist = currHistory[h];
         CsTab.setChampionImg(patchInfo, root.find('.cs-table-history-champion img'), hist.ChampionId);
         CsTab.setRoleImg(root.find('.cs-table-history-role img'), hist.Role, lcuTier.tier, lcuTier.division, lcuTier.lp);
         root.find('.cs-table-stats-champion-name').html(patchInfo.ChampionIdToName[hist.ChampionId] || "");
 
         if (
-          elemI % 2 == 0 && h < CsTab.NUM_HISTORY - 1 && h + 1 < history[name].length && (history[name][h].Timestamp - history[name][h + 1].Timestamp) > 1000 * 60 * 60 * 3 ||
-          elemI % 2 == 1 && h > 0 && (history[name][h - 1].Timestamp - history[name][h].Timestamp) > 1000 * 60 * 60 * 3
+          elemI % 2 == 0 && h < CsTab.NUM_HISTORY - 1 && h + 1 < currHistory.length && (currHistory[h].Timestamp - currHistory[h + 1].Timestamp) > 1000 * 60 * 60 * 3 ||
+          elemI % 2 == 1 && h > 0 && (currHistory[h - 1].Timestamp - currHistory[h].Timestamp) > 1000 * 60 * 60 * 3
           ) {
           separator.show();
         } else {

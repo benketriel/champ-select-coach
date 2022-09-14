@@ -1,6 +1,7 @@
 import { Aws } from "./aws";
 import { CSCAI } from "./cscai";
 import { CsData, CsInput } from "./csManager";
+import { CsTab } from "./csTab";
 import { Lcu } from "./lcu";
 import { Utils } from "./utils";
 
@@ -54,7 +55,8 @@ export class CsDataFetcher {
 
   private static historyCache = new Cache(100, 5);
   private static masteryCache = new Cache(100, 24 * 60);
-  private static awsTierCache = new Cache(100, 24 * 60);
+  private static awsSoloQTierCache = new Cache(100, 24 * 60);
+  private static awsFlexTierCache = new Cache(100, 24 * 60);
   private static lcuTierCache = new Cache(100, 5);
 
   public static async getSummoner(region: string, name: string) {
@@ -69,8 +71,10 @@ export class CsDataFetcher {
     const puuids = csInput.summonerNames.map(x => (currCsData.summonerInfo[x] || {}).puuid || "");
     const summonerIds = csInput.summonerNames.map(x => (currCsData.summonerInfo[x] || {}).id || "");
 
+    const isFlex = CsTab.isFlex(patchInfo, csInput.queueId);
     const masteriesTask = this.cacheAndFetch(csInput.region, summonerIds, false, this.masteryCache, Aws.getMasteries); //DB
-    const tiersTask = this.cacheAndFetch(csInput.region, summonerIds, false, this.awsTierCache, (region: string, sIds: string[]) => Aws.getTiers(region, csInput.queueId, sIds)); //DB
+    const tiersTask = this.cacheAndFetch(csInput.region, summonerIds, false, isFlex ? this.awsFlexTierCache : this.awsSoloQTierCache, 
+      (region: string, sIds: string[]) => Aws.getTiers(region, !isFlex, sIds)); //DB
     
     const historiesByPuuid = await this.cacheAndFetch(csInput.region, puuids, true, this.historyCache, Aws.getHistories); //API call (slow)
     const matchIds = <string[]>[...new Set(Utils.flattenArray(Object.keys(historiesByPuuid).map(x => historiesByPuuid[x])))];
