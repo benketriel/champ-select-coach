@@ -47,7 +47,6 @@ export class Cache {
 
 }
 
-
 export class CsDataFetcher {
   
   private static summonerCache = new Cache(100, 24 * 60);
@@ -59,8 +58,63 @@ export class CsDataFetcher {
   private static awsFlexTierCache = new Cache(100, 24 * 60);
   private static lcuTierCache = new Cache(100, 5);
 
-  public static async getSummoner(region: string, name: string) {
-    return null;
+  public static async getPuuidByRegionAndName(region: string, name: string) {
+    const summonerInfos = await this.cacheAndFetch(region, [name], true, this.summonerCache, Aws.getSummoners);  //API call (slow)
+    const puuid = (summonerInfos[name] || {}).puuid || null;
+
+    return puuid;
+  }
+
+  public static async getSummonerIdByRegionAndName(region: string, name: string) {
+    const summonerInfos = await this.cacheAndFetch(region, [name], true, this.summonerCache, Aws.getSummoners);  //API call (slow)
+    const summonerId = (summonerInfos[name] || {}).id || null;
+
+    return summonerId;
+  }
+
+  public static async getPersonalData(region: string, name: string, soloQueue: boolean) {
+    const csData = new CsData();
+
+    //Group calls to make less calls to AWS?
+    csData.summonerInfo = await this.cacheAndFetch(region, [name], true, this.summonerCache, Aws.getSummoners);  //API call (slow)
+    const puuids = [(csData.summonerInfo[name] || {}).puuid || ""];
+    const summonerIds = [(csData.summonerInfo[name] || {}).id || ""];
+
+    const masteriesTask = this.cacheAndFetch(region, summonerIds, false, this.masteryCache, Aws.getMasteries); //DB
+    const tiersTask = this.cacheAndFetch(region, summonerIds, false, soloQueue ? this.awsSoloQTierCache : this.awsFlexTierCache, 
+      (region: string, sIds: string[]) => Aws.getTiers(region, soloQueue, sIds)); //DB
+    
+    const historiesByPuuid = await this.cacheAndFetch(region, puuids, true, this.historyCache, Aws.getHistories); //API call (slow)
+    const matchIds = <string[]>[...new Set(Utils.flattenArray(Object.keys(historiesByPuuid).map(x => historiesByPuuid[x])))];
+
+    csData.matches =  await this.cacheAndFetch(region, matchIds, false, this.matchCache, Aws.getMatches); //API+DB (slow)
+    const masteriesBySummonerId =  await masteriesTask;
+    const tiersBySummonerId =  await tiersTask;
+
+    //Make the dictionaries by name instead
+    csData.histories = {};
+    csData.masteries = {};
+    csData.tiers = {};
+    
+    if (name in csData.summonerInfo) {
+      const info = csData.summonerInfo[name];
+      csData.histories[name] = historiesByPuuid[info.puuid];
+      csData.masteries[name] = masteriesBySummonerId[info.id];
+      csData.tiers[name] = tiersBySummonerId[info.id];
+    } else {
+      csData.histories[name] = [];
+      csData.masteries[name] = {};
+      csData.tiers[name] = [];
+    }
+
+    //Get LCU tiers
+    const lcuTiers = await this.cacheAndFetch(region, [name], false, this.lcuTierCache, (region: string, sIds: string[]) => Lcu.getSummonersTierByName(sIds));
+    csData.lcuTiers = {};
+    for (let name in lcuTiers) {
+      csData.lcuTiers[name] = CsDataFetcher.parseLCUTier(lcuTiers[name], soloQueue);
+    }
+
+    return csData;
   }
 
   public static async getCsData(patchInfo:any, csInput: CsInput) {
@@ -105,31 +159,30 @@ export class CsDataFetcher {
     const lcuTiers = await this.cacheAndFetch(csInput.region, csInput.summonerNames, false, this.lcuTierCache, (region: string, sIds: string[]) => Lcu.getSummonersTierByName(sIds));
     currCsData.lcuTiers = {};
     for (let name in lcuTiers) {
-      currCsData.lcuTiers[name] = CsDataFetcher.parseLCUTier(patchInfo, lcuTiers[name], csInput.queueId);
+      currCsData.lcuTiers[name] = CsDataFetcher.parseLCUTier(lcuTiers[name], !isFlex);
     }
 
     return currCsData;
   }
 
-  public static parseLCUTier(patchInfo:any, lcuTier: any, queueId: string) {
+  public static parseLCUTier(lcuTier: any, soloQueue: boolean) {
     let tier = '';
     let division = '';
     let lp = '';
     if (lcuTier) {
       const hasSoloTier = lcuTier.queueMap && lcuTier.queueMap.RANKED_SOLO_5x5 && lcuTier.queueMap.RANKED_SOLO_5x5.tier;
       const hasFlexTier = lcuTier.queueMap && lcuTier.queueMap.RANKED_FLEX_SR && lcuTier.queueMap.RANKED_FLEX_SR.tier;
-      const isSoloGame = queueId in patchInfo.SoloQueueTypeIds;
   
-      if (!isSoloGame && hasFlexTier) {
+      if (soloQueue && hasSoloTier) {
         tier = lcuTier.queueMap.RANKED_SOLO_5x5.tier.toLocaleLowerCase();
         division = lcuTier.queueMap.RANKED_SOLO_5x5.division;
         lp = lcuTier.queueMap.RANKED_SOLO_5x5.leaguePoints;
-      } else if (isSoloGame && hasSoloTier) {
+      } else if (!soloQueue && hasFlexTier) {
         tier = lcuTier.queueMap.RANKED_FLEX_SR.tier.toLocaleLowerCase();
         division = lcuTier.queueMap.RANKED_FLEX_SR.division;
         lp = lcuTier.queueMap.RANKED_FLEX_SR.leaguePoints;
       }
-      if (lcuTier && lcuTier.highestRankedEntry && lcuTier.highestRankedEntry.tier && ["iron", "bronze", "silver", "gold", "platinum", "diamond", "master", "grandmaster", "challenger"].includes(tier)) {
+      if (["iron", "bronze", "silver", "gold", "platinum", "diamond", "master", "grandmaster", "challenger"].includes(tier)) {
         if (["master", "grandmaster", "challenger"].includes(tier)) {
           division = '';
         }

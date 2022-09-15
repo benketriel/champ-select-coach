@@ -19,7 +19,7 @@ export class MainWindow {
 
   public patchInfo: any;
 
-  public static MAX_MENU_HISTORY_SIZE: number = 10;
+  public static MAX_MENU_HISTORY_SIZE: number = 13;
 
   constructor() {
     Logger.log("MainWindow begin");
@@ -64,19 +64,7 @@ export class MainWindow {
     await this.loadHTML();
     await this.setCallbacks();
     this.csTab = new CsTab(this.patchInfo);
-    this.personalTab = new PersonalTab();
-
-    this.personalTab.canvasDraw();
-
-    //this.csTab.show();
-    //this.personalTab.hide();
-    // this.repositionOverflowingPopups();
-
-    // const options = ["Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua &amp; Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia &amp; Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Cayman Islands","Central Arfrican Republic","Chad","Chile","China","Colombia","Congo","Cook Islands","Costa Rica","Cote D Ivoire","Croatia","Cuba","Curacao","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Falkland Islands","Faroe Islands","Fiji","Finland","France","French Polynesia","French West Indies","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guam","Guatemala","Guernsey","Guinea","Guinea Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Isle of Man","Israel","Italy","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macau","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia","Nauro","Nepal","Netherlands","Netherlands Antilles","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","North Korea","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Puerto Rico","Qatar","Reunion","Romania","Russia","Rwanda","Saint Pierre &amp; Miquelon","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","St Kitts &amp; Nevis","St Lucia","St Vincent","Sudan","Suriname","Swaziland","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor L'Este","Togo","Tonga","Trinidad &amp; Tobago","Tunisia","Turkey","Turkmenistan","Turks &amp; Caicos","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States of America","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Virgin Islands (US)","Yemen","Zambia","Zimbabwe"];
-    // Popup.text("Select Champion", "Enter the champion name", options, console.log);
-
-    // Popup.selectLanguage(console.log);
-    
+    this.personalTab = new PersonalTab(this.patchInfo);
   }
 
   private async loadHTML() {
@@ -235,6 +223,19 @@ export class MainWindow {
     $('.cs-queue-solo').on('change', () => { that.csTab.editQueue(true); });
     $('.cs-queue-flex').on('change', () => { that.csTab.editQueue(false); });
     
+    //Personal
+    $('.personal-champions-left-arrow').on('click', () => { that.personalTab.scrollChampRole(-1); });
+    $('.personal-champions-right-arrow').on('click', () => { that.personalTab.scrollChampRole(1); });
+    $('.personal-champions-options-sort-most-played').on('change', () => { that.personalTab.setSortByMostPlayed(true); });
+    $('.personal-champions-options-sort-score').on('change', () => { that.personalTab.setSortByMostPlayed(false); });
+    $('.personal-champions-options-performance-solo-queue').on('change', () => { that.personalTab.setSoloQueue(true); });
+    $('.personal-champions-options-performance-flex').on('change', () => { that.personalTab.setSoloQueue(false); });
+
+    $('.personal-history-left-arrow').on('click', () => { that.personalTab.scrollCscHistory(-1); });
+    $('.personal-history-right-arrow').on('click', () => { that.personalTab.scrollCscHistory(1); });
+    $('.personal-history-options-score-pre-game').on('change', () => { that.personalTab.setCscHistoryPreGame(true); });
+    $('.personal-history-options-score-in-game').on('change', () => { that.personalTab.setCscHistoryPreGame(false); });
+
     //Global
     $('.drags-window').each((index, elem) => { this.setDrag(elem); });
     $('.closeButton').on('click', async () => { overwolf.windows.sendMessage(windowNames.background, 'close', '', () => {}); });

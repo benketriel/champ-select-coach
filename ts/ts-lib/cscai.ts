@@ -45,6 +45,12 @@ export class CSCAI {
     return JSON.parse(json);
   }
 
+  public static async analyzePersonalData(summonerName: string, region: string, soloQueue: boolean, data: CsData) {
+    const ai = await this.instance();
+    const dataJSON = JSON.stringify(data);
+    return await new Promise<any>(resolve => ai.AnalyzePersonalData(summonerName, region, soloQueue, dataJSON, resolve));
+  }
+
   public static async getRolePredictions(csInput: CsInput, swappedChampions: string[]) {
     const ai = await this.instance();
     const inputJSON = JSON.stringify(csInput);
@@ -72,11 +78,6 @@ export class CSCAI {
   public static async getPartialScore(blue: boolean) {
     const ai = await this.instance();
     return await new Promise<any>(resolve => ai.GetPartialScore(blue, resolve));
-  }
-  
-  public static async getSoloScore(i: number) {
-    const ai = await this.instance();
-    return await new Promise<any>(resolve => ai.GetSoloScore(i, resolve));
   }
   
   public static async getMissingScore(i: number) {

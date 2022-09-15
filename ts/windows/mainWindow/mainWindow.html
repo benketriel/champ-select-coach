@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="stylesheet" href="../../css/cs.css" />
+  <link rel="stylesheet" href="../../css/personal.css" />
   <link rel="stylesheet" href="../../css/general.css" />
   <link rel="stylesheet" href="../../css/tooltips.css" />
   <link rel="stylesheet" href="../../css/toggle2020.css" />
@@ -10,7 +11,6 @@
   <link rel="stylesheet" href="../../css/header.css" />
   <link rel="stylesheet" href="../../css/sideMenu.css" />
   <link rel="stylesheet" href="../../css/championStats.css" />
-  <link rel="stylesheet" href="../../css/personal.css" />
   <link rel="stylesheet" href="../../css/popup.css" />
   <title>Champ Select Coach</title>
 </head>
@@ -25,8 +25,15 @@
       </div>
       <div class="actions-container">
         <div class="s-lcu-status">
-          <img class="s-lcu-status-light lcuStatusLightConnected" style="display: none;" src="/img/icons/green-light.png"></img>
-          <img class="s-lcu-status-light lcuStatusLightDisconnected" src="/img/icons/red-light.png"></img>
+          <!-- <span class="tooltip">
+            <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Connected to LoL client</span></span>   -->
+            <img class="s-lcu-status-light lcuStatusLightConnected" style="display: none;" src="/img/icons/green-light.png"></img>
+          <!-- </span> -->
+          <!-- <span class="tooltip">
+            <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Could not connect to LoL client, try restarting LoL</span></span>   -->
+            <img class="s-lcu-status-light lcuStatusLightDisconnected" src="/img/icons/red-light.png"></img>
+          <!-- </span> -->
+    
           <svg class="s-lcu-status-logo"><use href="/img/icons/LoL_logo.svg#Layer_1"></use></svg>
           <span class="s-lcu-status-text s-lcu-status-text-disconnected">Disconnected</span>
         </div>

@@ -15,13 +15,15 @@
 </span>
 
 <span class="personal-champions-container">
-    <span class="personal-title">A very long user name like the wind</span>
+    <span class="personal-title"></span>
     <span class="personal-champions-left-arrow">
         <button class="s-icon-button s-icon-button-fill">
             <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#left"></use></svg>
         </button>
     </span>
-    <span class="personal-champions-list"></span>
+    <span class="personal-champions-list">
+        <span class="personal-champions-list-warning translated-text">Play more games to unlock this view</span>
+    </span>
     <span class="personal-champions-right-arrow">
         <button class="s-icon-button s-icon-button-fill">
             <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#right"></use></svg>
@@ -29,39 +31,63 @@
     </span>
     <span class="personal-champions-options">
         <span class="personal-champions-options-sort">
-            <span class="translated-text">Sort by</span>
-            <input id="" type="radio" checked>
-            <span class="translated-text">most played</span>
-            <input id="" type="radio">
-            <span class="translated-text">solo score</span>
+            <span class="tooltip">
+                <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Sorting</span></span>
+                <input class="personal-champions-options-sort-most-played" type="radio" checked>
+                <span class="translated-text">Games</span>
+                <input class="personal-champions-options-sort-score" type="radio">
+                <span class="translated-text">Solo Score</span>
+            </span>
+        </span>
+        <span class="personal-champions-options-legend">
+            <span class="personal-champions-options-legend-bar personal-champions-options-legend-bar-upper"></span>
+            <span class="translated-text">VS Opponent Role</span>
+            <span class="personal-champions-options-legend-bar personal-champions-options-legend-bar-lower"></span>
+            <span class="translated-text">VS Team Best</span>
         </span>
         <span class="personal-champions-options-performance">
-            <span class="translated-text">Relative to</span>
-            <input id="" type="radio" checked>
-            <span class="translated-text">team averages</span>
-            <input id="" type="radio">
-            <span class="translated-text">opposing role</span>
+            <span class="tooltip">
+                <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Queue</span></span>
+                <input class="personal-champions-options-performance-solo-queue" type="radio" checked>
+                <span class="translated-text">SoloQ</span>
+                <input class="personal-champions-options-performance-flex" type="radio">
+                <span class="translated-text">Flex</span>
+            </span>
         </span>
     </span>
 </span>
 
 <span class="personal-summary-container">
     <span class="personal-title"><span class="translated-text">Average Solo Scores</span></span>
-    <span class="personal-container personal-summary-panel personal-summary-general"><span class="translated-text">Total</span><br/><img src="/img/icons/solo.png"> <span class="personal-summary-value">+0.2</span></span>
+    <span class="personal-container personal-summary-panel personal-summary-general">
+        <span class="tooltip">
+            <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Average solo score of all games</span></span>
+            <span class="translated-text">Total</span><br/><img src="/img/icons/solo.png"> <span class="personal-summary-value">+0.0</span>
+        </span>
+    </span>
     <span class="personal-container personal-summary-panel personal-summary-mains">
-        <span class="personal-summary-champion-icon"><img src="/img/champion-sprites/champion0.png"></span>
-        <span class="personal-summary-champion-icon"><img src="/img/champion-sprites/champion1.png"></span>
-        <span class="personal-summary-champion-icon"><img src="/img/champion-sprites/champion2.png"></span>
-        <br/>
-        <img src="/img/icons/solo.png"> <span class="personal-summary-value">+0.4</span>
+        <span class="tooltip">
+            <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Average solo score on 3 most played champions</span></span>
+            <span class="personal-summary-champion-icon"><img src=""></span>
+            <span class="personal-summary-champion-icon"><img src=""></span>
+            <span class="personal-summary-champion-icon"><img src=""></span>
+            <br/>
+            <img src="/img/icons/solo.png"> <span class="personal-summary-value">+0.0</span>
+        </span>
     </span>
     <span class="personal-container personal-summary-panel personal-summary-primary">
-        <span class="personal-summary-role-icon"><img src="/img/ranked-positions/Position_Challenger-Mid.png"></span><br/>
-        <img src="/img/icons/solo.png"> <span class="personal-summary-value">+0.2</span>
+        <span class="tooltip">
+            <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Average solo score on main role</span></span>
+            <span class="personal-summary-role-icon"><img src=""></span><br/>
+            <img src="/img/icons/solo.png"> <span class="personal-summary-value">+0.0</span>
+        </span>
     </span>
     <span class="personal-container personal-summary-panel personal-summary-secondary">
-        <span class="personal-summary-role-icon"><img src="/img/ranked-positions/Position_Challenger-Mid.png"></span><br/>
-        <img src="/img/icons/solo.png"> <span class="personal-summary-value">-0.2</span>
+        <span class="tooltip">
+            <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Average solo score on secondary role</span></span>
+            <span class="personal-summary-role-icon"><img src=""></span><br/>
+            <img src="/img/icons/solo.png"> <span class="personal-summary-value">+0.0</span>
+        </span>
     </span>
 </span>
 
@@ -79,18 +105,22 @@
             <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#left"></use></svg>
         </button>
     </span>
-    <span class="personal-history-list"></span>
+    <span class="personal-history-list">
+        <span class="personal-history-list-warning translated-text">Play more games to unlock this view</span>
+    </span>
     <span class="personal-history-right-arrow">
         <button class="s-icon-button s-icon-button-fill">
             <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#right"></use></svg>
         </button>
     </span>
     <span class="personal-history-options-score">
-        <span class="translated-text">Use scores from</span>
-        <input id="" type="radio" checked>
-        <span class="translated-text">champion select</span>
-        <input id="" type="radio">
-        <span class="translated-text">in-game</span>
+        <span class="tooltip">
+            <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Which score to show</span></span>
+            <input class="personal-history-options-score-pre-game" type="radio" checked>
+            <span class="translated-text">Champion Select</span>
+            <input class="personal-history-options-score-in-game" type="radio">
+            <span class="translated-text">In-Game</span>
+        </span>
     </span>
 </span>
 

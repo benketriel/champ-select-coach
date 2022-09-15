@@ -39,6 +39,11 @@
     line-height: 13px;
 }
 
+.personal-champions-list-warning {
+    top: 100px;
+    position: relative;
+}
+
 .personal-champions-left-arrow {
     display: block;
     position: absolute;
@@ -118,13 +123,26 @@
     color: rgb(240, 234, 217);
     float: right;
 }
-.personal-champions-bar {
-    height: 10px;
-    display: inline-block;
-    background: linear-gradient(135deg, rgba(5, 149, 169, 1) 0%, rgba(6, 111, 128, 1) 50%, rgba(5, 149, 169, 1) 100%);
-    background-size: 400% 400%;
-    border: rgba(6, 111, 128, 1);
-    border-width: 1px;
+.personal-champions-bar-upper {
+    height: 6px;
+    float: left;
+    background: linear-gradient(135deg, rgba(5, 149, 169, 1) 0%, rgba(6, 111, 128, 0.99) 50%, rgba(5, 149, 169, 1) 100%);
+    /* background-size: 400% 400%; */
+    /* border: rgba(6, 111, 128, 1); */
+    border-width: 0px;
+    border-style: solid;
+}
+.personal-champions-bar-buffer {
+    height: 6px;
+    float: left;
+}
+.personal-champions-bar-lower {
+    height: 6px;
+    float: left;
+    background: linear-gradient(135deg, rgba(149, 169, 5, 1) 0%, rgba(111, 128, 6, 0.99) 50%, rgba(149, 169, 5, 1) 100%);
+    /* background-size: 400% 400%; */
+    /* border: rgba(111, 128, 6, 1); */
+    border-width: 0px;
     border-style: solid;
 }
 .personal-champions-bar-container {
@@ -149,6 +167,28 @@
 .personal-champions-options-performance {
     float: right;
 }
+
+.personal-champions-options-legend-bar {
+    height: 10px;
+    display: inline-block;
+    border-width: 1px;
+    border-style: solid;
+    margin: 0px 5px 0px 5px;
+    width: 10px;
+}
+
+.personal-champions-options-legend-bar-upper {
+    background: rgba(5, 149, 169, 1);
+    border-width: 0px;
+    border-style: solid;
+}
+
+.personal-champions-options-legend-bar-lower {
+    background: rgba(149, 169, 5, 1);
+    border-width: 0px;
+    border-style: solid;
+}
+
 
 /* Summary */
 
@@ -207,12 +247,11 @@
 }
 
 .personal-history-options-score {
-    display: block;
+    display: inline-block;
     position: absolute;
-    top: 172px;
+    top: 10px;
     font-size: 12px;
-    left: 0px;
-    width: 582px;
+    right: 40px;
 }
 
 

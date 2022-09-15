@@ -175,7 +175,7 @@ export class CsTab {
       this.lcuCsManager.getCsView();
 
     const ownerIdx = CsInput.getOwnerIdx(csInputView);
-    const mergedTier = this.mergeTiers(lcuTiers, apiTiers)[csInputView.summonerNames[ownerIdx]] || {};
+    const mergedTier = CsTab.mergeTiers(lcuTiers, apiTiers)[csInputView.summonerNames[ownerIdx]] || {};
     let fullScore = score && score['full'] ? score['full'][0][0] : 0.5;
     fullScore = ownerIdx < 5 ? fullScore : 1 - fullScore;
 
@@ -246,7 +246,7 @@ export class CsTab {
       const csView = this.manualCsManagers[i].getCsView();
       const csInput: CsInput = csView.csInput;
       const ownerIdx = CsInput.getOwnerIdx(csInput);
-      const mergedTier = this.mergeTiers(csView.lcuTiers, csView.apiTiers);
+      const mergedTier = CsTab.mergeTiers(csView.lcuTiers, csView.apiTiers);
 
       const tier = mergedTier[csInput.summonerNames[ownerIdx]] || {};
       let score = csView.score && csView.score['full'] ? csView.score['full'][0][0] : 0.5;
@@ -257,7 +257,7 @@ export class CsTab {
     }
   }
 
-  private static setChampionImg(patchInfo: any, element: any, championId: string) {
+  public static setChampionImg(patchInfo: any, element: any, championId: string) {
     const championName = patchInfo.ChampionIdToName[championId] || "";
     const currName = element.attr('title');
     if (currName == championName) return;
@@ -276,7 +276,7 @@ export class CsTab {
     element.hide();
   }
 
-  private static setRoleImg(element: any, role: number, tier: string, division: string, lp: string) {
+  public static setRoleImg(element: any, role: number, tier: string, division: string, lp: string) {
     tier = tier || '';
     division = division || '';
     lp = lp || '';
@@ -308,7 +308,7 @@ export class CsTab {
     const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
-    const mergedTier = this.mergeTiers(lcuTiers, apiTiers);
+    const mergedTier = CsTab.mergeTiers(lcuTiers, apiTiers);
     //csInputView and rolePredictionView are always available
     const ownerIdx = CsInput.getOwnerIdx(csInputView);
     const side = Math.floor(ownerIdx/5);
@@ -393,7 +393,7 @@ export class CsTab {
     return res;
   }
 
-  private mergeTiers(lcuTiers: any, apiTiers: any[]) {
+  public static mergeTiers(lcuTiers: any, apiTiers: any[]) {
     const res = {};
     if (lcuTiers) {
       for (const name in lcuTiers) {
@@ -610,19 +610,19 @@ export class CsTab {
       const earlyXp = scores[IOUT_ROLE_EARLY_XP + i * 3][side];
       const xp = scores[IOUT_ROLE_XP + i * 3][side];
       const gold = scores[IOUT_ROLE_GOLD + i * 3][side];
-      this.setSubScore($(prioElems[i]), earlyXp - 0.5, true);
-      this.setSubScore($(winnerElems[i]), (xp + gold) / 2 - 0.5, true);
+      CsTab.setSubScore($(prioElems[i]), earlyXp - 0.5, true);
+      CsTab.setSubScore($(winnerElems[i]), (xp + gold) / 2 - 0.5, true);
     }
 
     //Solo scores
     const elems = $('.cs-table-individuals-p').get();
     for (let i = 0; i < 5; ++i) {
-      this.setSubScore($(elems[4 * i + side]), scores[1 + i][0] - 0.5, side == 0);
-      this.setSubScore($(elems[4 * i + 1 - side]), scores[1 + 5 + i][0] - 0.5, side != 0);
+      CsTab.setSubScore($(elems[4 * i + side]), scores[1 + i][0] - 0.5, side == 0);
+      CsTab.setSubScore($(elems[4 * i + 1 - side]), scores[1 + 5 + i][0] - 0.5, side != 0);
     }
   }
 
-  private setSubScore(elem: any, score: number, isMyTeam: boolean) {
+  public static setSubScore(elem: any, score: number, isMyTeam: boolean, fadeIn: boolean = true) {
     const signedScore = (Math.round(score * 100) >= 0 ? "+" : "") + (Math.round(score * 100) / 10).toFixed(1);
 
     elem.html(signedScore);
@@ -646,8 +646,12 @@ export class CsTab {
     }
 
     elem.stop();
-    elem.css('opacity', 0.1);
-    elem.animate({ opacity: 1.0 }, 400);
+    if (fadeIn) {
+      elem.css('opacity', 0.1);
+      elem.animate({ opacity: 1.0 }, 400);
+    } else {
+      elem.css('opacity', 1.0);
+    }
   }
 
   private updateFooter(patchInfo: any, inputView: CsInput, editableCs: boolean) {
@@ -922,8 +926,8 @@ export class CsTab {
     for (let i = 0; i < 5; ++i) {
       const nameBlue = inputView.summonerNames[i];
       const nameRed = inputView.summonerNames[5 + i];
-      this.setSubScore($(elems[4 * rolePrediction[i] + side + 2]), nameBlue != '' && nameBlue in missingScore ? fullScore[0] - missingScore[nameBlue][0] : 0.0, side == 0);
-      this.setSubScore($(elems[4 * rolePrediction[5 + i] + 1 - side + 2]), nameRed != '' && nameRed in missingScore ? fullScore[1] - missingScore[nameRed][1] : 0.0, side != 0);
+      CsTab.setSubScore($(elems[4 * rolePrediction[i] + side + 2]), nameBlue != '' && nameBlue in missingScore ? fullScore[0] - missingScore[nameBlue][0] : 0.0, side == 0);
+      CsTab.setSubScore($(elems[4 * rolePrediction[5 + i] + 1 - side + 2]), nameRed != '' && nameRed in missingScore ? fullScore[1] - missingScore[nameRed][1] : 0.0, side != 0);
     }
   }
 
@@ -967,7 +971,7 @@ export class CsTab {
         return;
       }
       root.find('.cs-table-stats-champion-name').html(patchInfo.ChampionIdToName[cId] || "");
-      this.setSubScore($(rootElems[0]), recommendations[i].winRate - baseline, team == side);
+      CsTab.setSubScore($(rootElems[0]), recommendations[i].winRate - baseline, team == side);
       CsTab.setChampionImg(patchInfo, root.find('.cs-table-recommended-champion-border img'), cId);
       $(rootElems[1]).html(stats.games);
       $(rootElems[2]).html(stats.daysAgo);

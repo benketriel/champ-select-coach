@@ -467,7 +467,7 @@ export class CsManager {
       ErrorReporting.report('pollForSpectator', 'Lcu.getCurrentNameAndRegion');
       return;
     }
-    const sId = (await CsDataFetcher.getSummoner(nr.region, nr.name)).summonerId; //Typically cached already
+    const sId = await CsDataFetcher.getSummonerIdByRegionAndName(nr.region, nr.name); //Typically cached already
     await Timer.wait(msBeforePollingStart);
     while (Date.now() < this.pollingUntil) {
       try {
@@ -514,7 +514,7 @@ export class CsManager {
       ErrorReporting.report('uploadCurrentCS', 'Lcu.getCurrentNameAndRegion');
       return;
     }
-    const puuid = (await CsDataFetcher.getSummoner(nr.region, nr.name)).puuid;
+    const puuid = await CsDataFetcher.getPuuidByRegionAndName(nr.region, nr.name);
     const data = this.getCsView(); //Need the full view to be able to load an old CS from personal tab
 
     //TODO: Add more data to view such as usage statistics here
