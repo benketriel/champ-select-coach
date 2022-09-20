@@ -156,12 +156,20 @@ export class CsManager {
   }
 
   private async debug() {
+    //TODO
+    await Timer.wait(5000);
+
+    if (this.connectedToLcu) {
+      while (true) {
+        break;
+      }
+    }
   }
 
   private init(csView: any) {
     if (!csView) return;
 
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = csView;
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = csView;
 
     this.currCsInputView = csInput;
     this.currCsRolePredictionView = rolePrediction;
@@ -170,6 +178,7 @@ export class CsManager {
     this.currCsApiTiers = apiTiers;
     this.currCsData = new CsData();
     this.currCsData.lcuTiers = lcuTiers;
+    this.currCsData.summonerInfo = summonerInfo;
     this.currCsBans = bans;
     this.currCsScore = score;
     this.currCsMissingScores = missingScore;
@@ -195,6 +204,7 @@ export class CsManager {
     await this.handleCsChange(this.currCsInputView);
   }
 
+  //Main function of CsManager
   private async handleCsChange(newCsInput: CsInput) {
     if (!CsInput.anyVisibleChange(this.newCsInput, newCsInput)) {
       return;
@@ -226,7 +236,7 @@ export class CsManager {
     
     this.currCsInputView = newCsInput;
     this.currCsRolePredictionView = newRolePred;
-    this.onCsUpdate('instant');
+    this.onCsUpdate('instant', this);
 
     if (this.ongoingCsChange) {
       this.pendingCsChange = true;
@@ -244,7 +254,7 @@ export class CsManager {
       try {
         this.ongoingCsChange = true;
         const newCs = CsInput.triggerNewCs(this.currCsInput, newCsInput);
-        if (this.connectedToLcu && newCs) this.onNewCs();
+        if (this.connectedToLcu && newCs) this.onNewCs(this);
 
         //Find out what needs to be done
         const loadData = !this.currCsFirstRunComplete || CsInput.triggerLoadCsData(this.currCsInput, newCsInput);
@@ -285,7 +295,7 @@ export class CsManager {
       
         if (loadData) {
           this.currCsFirstRunComplete = false;
-          this.onCsUpdate('clearData');
+          this.onCsUpdate('clearData', this);
 
           this.currCsData = await CsDataFetcher.getCsData(this.patchInfo, this.currCsInput);
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
@@ -306,7 +316,7 @@ export class CsManager {
           
           this.currCsApiTiers = apiTiers;
           this.currCsHistory = this.reverseRoleSortIntoDict(historySortedByRoles);
-          this.onCsUpdate('data');
+          this.onCsUpdate('data', this);
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
 
           if (this.currCsFirstRunComplete && this.pendingCsChange) continue;
@@ -318,7 +328,7 @@ export class CsManager {
           if (!isTeamPartial) {
             this.currCsScore['partial'] = [ await bluePartialTask, await redPartialTask ];
           }
-          this.onCsUpdate('score');
+          this.onCsUpdate('score', this);
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
 
           if (individualScoresNeedUpdate) {
@@ -333,12 +343,12 @@ export class CsManager {
             }
             if (useProgressBar) this.ongoingProgressBar.taskCompleted();
           }
-          this.onCsUpdate('missing');
+          this.onCsUpdate('missing', this);
 
           if (computeBans) {
             if (this.currCsFirstRunComplete && this.pendingCsChange) continue;
             this.currCsBans = await CSCAI.getBans();
-            this.onCsUpdate('bans');
+            this.onCsUpdate('bans', this);
             if (useProgressBar) this.ongoingProgressBar.taskCompleted();
           }
 
@@ -351,10 +361,10 @@ export class CsManager {
           this.currCsRecommendations = {};
           for (let i = 0; i < 10; ++i) {
             this.currCsRecommendations[i] = await recommendationTasks[i];
-            this.onCsUpdate('picks' + i);
+            this.onCsUpdate('picks' + i, this);
           }
           this.currCsFirstRunComplete = true;
-          this.onCsUpdate('finished');
+          this.onCsUpdate('finished', this);
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
 
           if (!this.pendingCsChange && this.connectedToLcu && CsInput.readyToBeUploaded(this.currCsInput)) {
@@ -430,6 +440,7 @@ export class CsManager {
       rolePrediction: this.currCsRolePrediction,
       apiTiers: this.currCsApiTiers,
       lcuTiers: (this.currCsData || {}).lcuTiers,
+      summonerInfo: (this.currCsData || {}).summonerInfo,
       bans: this.currCsBans,
       score: this.currCsScore,
       missingScore: this.currCsMissingScores,
@@ -514,15 +525,16 @@ export class CsManager {
       ErrorReporting.report('uploadCurrentCS', 'Lcu.getCurrentNameAndRegion');
       return;
     }
+    
     const puuid = await CsDataFetcher.getPuuidByRegionAndName(nr.region, nr.name);
     const data = this.getCsView(); //Need the full view to be able to load an old CS from personal tab
-
     //TODO: Add more data to view such as usage statistics here
     //TODO: Wrap this in error reporting
 
-    const partialPrediction = CsInput.getOwnerIdx(data.csInputView) < 5 ? data.score.bluePartialScore : data.score.redPartialScore;
-    const fullPrediction = CsInput.getOwnerIdx(data.csInputView) < 5 ? data.score.totalScore : 1 - data.score.totalScore;
-    Aws.uploadPrediction(nr.region, puuid, JSON.stringify(data), partialPrediction, fullPrediction);
+    const side = CsInput.getOwnerIdx(data.csInputView) < 5 ? 0 : 1;
+    const partialPrediction = data.score.partial ? data.score.partial[side][0][side] : 0.5;
+    const fullPrediction = data.score.full ? data.score.full[0][side] : 0.5;
+    await Aws.uploadPrediction(nr.region, puuid, JSON.stringify(data), partialPrediction.toString(), fullPrediction.toString());
   }
 
 }

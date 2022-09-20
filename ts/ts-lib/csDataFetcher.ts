@@ -117,6 +117,16 @@ export class CsDataFetcher {
     return csData;
   }
 
+  public static async getCscHistoryData(region: string, puuid: string) {
+    const t0 = Aws.getCscHistory(region, puuid);
+    const t1 = Aws.getCscHistogram();
+
+    const personalHistory = (await t0 || {}).result || [];
+    const globalHistogram = (await t1 || {}).result || [];
+
+    return { personalHistory, globalHistogram };
+  }
+
   public static async getCsData(patchInfo:any, csInput: CsInput) {
     const currCsData = new CsData();
     

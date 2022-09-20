@@ -42,6 +42,8 @@
 .personal-champions-list-warning {
     top: 100px;
     position: relative;
+    font-style: italic;
+    font-size: 13px;
 }
 
 .personal-champions-left-arrow {
@@ -201,34 +203,38 @@
     text-align: center;
 }
 
-.personal-summary-panel {
+.personal-summary-list {
     display: block;
-    position: absolute;
+    width: 100%;
+}
+
+.personal-summary-warning {
+    position: relative;
+    top: 30px;
+    font-style: italic;
+    font-size: 13px;
+}
+
+.personal-summary-panel {
+    display: inline-block;
     width: 94px;
     height: 45px;
     top: 35px;
     padding: 3px;
+    margin: 12px 3px 0px 3px;
 }
 
 .personal-summary-general {
     line-height: 26px;
-    left: 110px;
 }
 
 .personal-summary-value {
     color: rgb(240, 234, 217);
 }
 
-.personal-summary-mains {
-    left: 224px;
-}
-
-.personal-summary-primary {
-    left: 338px;
-}
-
-.personal-summary-secondary {
-    left: 452px;
+.personal-summary-role-icon {
+    display: inline-block;
+    height: 28px;
 }
 
 .personal-summary-role-icon img {
@@ -281,6 +287,14 @@
     font-size: 25px;
 }
 
+.personal-history-list-warning {
+    position: absolute;
+    width: 500px;
+    top: 65px;
+    font-style: italic;
+    font-size: 13px;
+}
+
 .personal-history-left-arrow {
     display: block;
     position: absolute;
@@ -306,6 +320,7 @@
     width: 40px;
     display: inline-block;
     margin: 0px 1px 0px 1px;
+    cursor: pointer;
 }
 
 .personal-history-table {
@@ -366,6 +381,18 @@
     position: absolute;
     top: 40px;
     left: 50px;
+}
+
+.personal-graph-canvas-mouseover { 
+    display: inline-block;
+    position: absolute;
+    top: 229px;
+    left: 318px;
+    width: 0;
+    height: 0;
+    font-size: 11px;
+    overflow: visible;
+    white-space: nowrap;
 }
 
 .personal-graph-title {
@@ -437,6 +464,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    width: 100%;
 }
 
 .personal-graph-legend-color {

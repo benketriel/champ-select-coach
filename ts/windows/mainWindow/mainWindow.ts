@@ -236,6 +236,14 @@ export class MainWindow {
     $('.personal-history-options-score-pre-game').on('change', () => { that.personalTab.setCscHistoryPreGame(true); });
     $('.personal-history-options-score-in-game').on('change', () => { that.personalTab.setCscHistoryPreGame(false); });
 
+    const historyElems = $('.personal-history-table-container').get();
+    for (const i in historyElems) {
+      $(historyElems[i]).on('click', () => { that.personalTab.showCscHistoryCs(parseInt(i)); });
+    }
+
+    $('.personal-graph-canvas').on('mousemove', e => { that.personalTab.mouseOverCanvas(e); });
+    $('.personal-graph-canvas').on('mouseleave', () => { that.personalTab.mouseLeaveCanvas(); });
+
     //Global
     $('.drags-window').each((index, elem) => { this.setDrag(elem); });
     $('.closeButton').on('click', async () => { overwolf.windows.sendMessage(windowNames.background, 'close', '', () => {}); });
@@ -251,14 +259,12 @@ export class MainWindow {
     const main = MainWindow.instance();
     if (!main.csTab.hasBeenInCS) return;
     if (main.selectedView == 'lcu') return;
-    main.selectedView = 'lcu';
+    MainWindow.showBackground();
 
+    main.selectedView = 'lcu';
     main.csTab.swapToLcu();
-    main.personalTab.hide();
     main.csTab.show();
 
-    $('.s-lcu-status-selected').removeClass('s-lcu-status-selected');
-    $('.side-menu-selected-effect').removeClass('side-menu-selected-effect');
     $('.side-menu-current-cs').addClass('side-menu-selected-effect');
   }
 
@@ -269,21 +275,16 @@ export class MainWindow {
       i = 0;
     } else if (main.selectedView == 'hist' + i) return;
 
-    //Hack for better percieved responsiveness, the swapToManual takes some noticeable time and we want feedback from the menu before that time
     {
-      $('.s-lcu-status-selected').removeClass('s-lcu-status-selected');
-      $('.side-menu-selected-effect').removeClass('side-menu-selected-effect');
+      //Hack for better percieved responsiveness, the swapToManual takes some noticeable time and we want feedback from the menu before that time
       $($('.side-menu-old-cs')[i]).addClass('side-menu-selected-effect');
       await Timer.wait(1);
     }
 
+    MainWindow.showBackground();
     main.selectedView = 'hist' + i;
     main.csTab.swapToManual(i);
-    main.personalTab.hide();
     main.csTab.show();
-
-    $('.s-lcu-status-selected').removeClass('s-lcu-status-selected');
-    $('.side-menu-selected-effect').removeClass('side-menu-selected-effect');
     $($('.side-menu-old-cs')[i]).addClass('side-menu-selected-effect');
   }
 
@@ -305,13 +306,20 @@ export class MainWindow {
   public static selectPersonal() {
     const main = MainWindow.instance();
     if (main.selectedView == 'personal') return;
+    MainWindow.showBackground();
+
     main.selectedView = 'personal';
-
-    main.csTab.hide();
     main.personalTab.show();
-
-    $('.side-menu-selected-effect').removeClass('side-menu-selected-effect');
     $('.s-lcu-status').addClass('s-lcu-status-selected');
+  }
+
+  public static selectStatic(csView: any) {
+    const main = MainWindow.instance();
+    MainWindow.showBackground();
+    main.selectedView = 'static';
+
+    main.csTab.show();
+    main.csTab.swapToStatic(csView);
   }
 
   public static showBackground() {
@@ -319,6 +327,10 @@ export class MainWindow {
     main.personalTab.hide();
     main.csTab.hide();
     main.selectedView = '';
+
+    $('.side-menu-current-cs').removeClass('side-menu-selected-effect');
+    $('.side-menu-selected-effect').removeClass('side-menu-selected-effect');
+    $('.s-lcu-status').removeClass('s-lcu-status-selected');
   }
 
   public async getWindowState() {

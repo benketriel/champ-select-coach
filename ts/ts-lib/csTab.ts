@@ -25,8 +25,8 @@ export class CsTab {
     this.patchInfo = patchInfo;
     //if mode matches then handle their callbacks and set view
     const that = this;
-    const onNewCsLcu = () => that.onNewCsLcu();
-    const onCsUpdateLcu = (change: string) => that.onCsUpdateLcu(change);
+    const onNewCsLcu = (managerAsking: any) => that.onNewCsLcu();
+    const onCsUpdateLcu = (change: string, managerAsking: any) => that.onCsUpdateLcu(change);
     this.lcuCsManager = new CsManager(patchInfo, true, onNewCsLcu, onCsUpdateLcu, null, true, false);
     this.manualCsManagers = [];
     this.staticCsManager = new CsManager(patchInfo, false, () => {}, () => {}, null, false, false);
@@ -36,8 +36,8 @@ export class CsTab {
 
   private async init() {
     const that = this;
-    const onNewCsManual = () => that.onNewCsManual();
-    const onCsUpdateManual = (change: string) => that.onCsUpdateManual(change);
+    const onNewCsManual = (managerAsking: any) => that.onNewCsManual(managerAsking);
+    const onCsUpdateManual = (change: string, managerAsking: any) => that.onCsUpdateManual(change, managerAsking);
 
     const history = await LocalStorage.getCsHistory();
     for (let i in history) {
@@ -61,19 +61,19 @@ export class CsTab {
   private onCsUpdateLcu(change: string) {
     this.updateCurrentCSMenu();
 
-    if (this.lcuManagerActive) {
+    if (this.getActiveManager() === this.lcuCsManager) {
       this.updateView(change);
     }
   }
 
-  private onNewCsManual() {
-    this.onCsUpdateManual('');
+  private onNewCsManual(managerAsking: any) {
+    this.onCsUpdateManual('', managerAsking);
   }
 
-  private onCsUpdateManual(change: string) {
+  private onCsUpdateManual(change: string, managerAsking: any) {
     this.updateCSHistory();
 
-    if (!this.lcuManagerActive) {
+    if (this.getActiveManager() === managerAsking) {
       this.updateView(change);
     }
   }
@@ -103,9 +103,8 @@ export class CsTab {
     this.lcuManagerActive = false;
     this.currHistoryIndex = -1;
     
-    const that = this;
-    const onNewCsManual = () => that.onNewCsManual();
-    const onCsUpdateManual = (change: string) => that.onCsUpdateManual(change);
+    const onNewCsManual = () => {};
+    const onCsUpdateManual = () => {};
 
     this.staticCsManager = new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, csView, false, false);
     this.staticCsManager.ongoingProgressBar.setActive();
@@ -141,8 +140,8 @@ export class CsTab {
     const csView = JSON.parse(JSON.stringify(manager.getCsView()));
 
     const that = this;
-    const onNewCsManual = () => that.onNewCsManual();
-    const onCsUpdateManual = (change: string) => that.onCsUpdateManual(change);
+    const onNewCsManual = (managerAsking: any) => that.onNewCsManual(managerAsking);
+    const onCsUpdateManual = (change: string, managerAsking: any) => that.onCsUpdateManual(change, managerAsking);
     csView.date = null;
     const newManager = new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, csView, true, true);
 
@@ -171,7 +170,7 @@ export class CsTab {
   private updateCurrentCSMenu() {
     this.saveHistory();
 
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
       this.lcuCsManager.getCsView();
 
     const ownerIdx = CsInput.getOwnerIdx(csInputView);
@@ -305,7 +304,7 @@ export class CsTab {
     const timeStats = {};
     //Updates the html view, change is for optimization, if empty reset everything
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const mergedTier = CsTab.mergeTiers(lcuTiers, apiTiers);
@@ -1008,7 +1007,7 @@ export class CsTab {
 
   public swapRole(role: number, i: number) {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const roleToIdx =  this.roleToIdx(rolePredictionView);
@@ -1023,7 +1022,7 @@ export class CsTab {
 
   public swapChampion(role: number, i: number) {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const swappedChampsView = CsManager.applyChampionSwaps(csInputView);
@@ -1041,7 +1040,7 @@ export class CsTab {
 
   public editSummoner(role: number) {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const roleToIdx =  this.roleToIdx(rolePredictionView);
@@ -1059,7 +1058,7 @@ export class CsTab {
 
   public editChampion(role: number) {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const roleToIdx =  this.roleToIdx(rolePredictionView);
@@ -1081,7 +1080,7 @@ export class CsTab {
 
   public editRegion() {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const currentRegion = (this.patchInfo.RegionIdToGg[csInputView.region] || '').toUpperCase();
@@ -1102,7 +1101,7 @@ export class CsTab {
 
   public editSide(blue: boolean) {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const edited = CsInput.clone(csInputView);
@@ -1130,7 +1129,7 @@ export class CsTab {
 
   public editQueue(soloQueue: boolean) {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const edited = CsInput.clone(csInputView);

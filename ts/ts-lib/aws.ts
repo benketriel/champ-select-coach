@@ -123,7 +123,34 @@ export class Aws {
     return res;
   }
 
-  private static async retrying(name: string, tries: number, generate, validate, waitMs: number = 1000) {
+  public static async getCscHistory(region: string, puuid: string) {
+    const msg = JSON.stringify({Action:"RubyGetCscHistory", Arguments:{ region, puuid }});
+    const res = await Aws.retrying('getCscHistory', 10, () => Aws.get(msg), r => {
+      if (!r || !r.result) return false;
+      Logger.log({
+        name: 'getCscHistory',
+        millisTaken: r.millis,
+        queried: puuid,
+      });
+      return true;
+    });
+    return res;
+  }
+
+  public static async getCscHistogram() {
+    const msg = JSON.stringify({Action:"RubyGetHistogram", Arguments:{}});
+    const res = await Aws.retrying('getCscHistogram', 10, () => Aws.get(msg), r => {
+      if (!r || !r.result) return false;
+      Logger.log({
+        name: 'getCscHistogram',
+        millisTaken: r.millis,
+      });
+      return true;
+    });
+    return res;
+  }
+
+  public static async retrying(name: string, tries: number, generate, validate, waitMs: number = 1000) {
     while (tries-- > 0) {
       const res = await generate();
       if (await validate(res)){
