@@ -8,7 +8,16 @@ export class Lcu {
   private static _featureRetries = 100000;
   //http://static.developer.riotgames.com/docs/lol/queues.json
   public static BLACKLISTED_QUEUES = ['1090', '1100', '1110', '1111'];
-  public static WHITELISTED_QUEUES = ['-1', '400', '420', '430', '440', '700', '0'];
+  public static WHITELISTED_QUEUES = [
+    '-1', 
+    '400', 
+    '420', 
+    '430', 
+    '440', 
+    '700', 
+    '0',
+    //'450', //ARAM
+  ];
 
   public static MaxHistoryAgeDays = 90; //This variable is in APIStructs.cs as well
   public static MaxHistoryLen = 100; //This variable is in APIStructs.cs as well

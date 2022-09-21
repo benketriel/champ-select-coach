@@ -27,7 +27,7 @@
 }
 
 .popup-title {
-    height: 40px;
+    min-height: 40px;
     border-bottom: 1px solid #1E282D;
     background-color: rgba(5,14,23,1);
 
@@ -41,6 +41,7 @@
 
 .popup-title-text {
     margin: 0px 40px 0px 40px;
+    display: block;
 }
 
 .popup-content-text {

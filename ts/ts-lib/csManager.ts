@@ -21,7 +21,8 @@ export class CsInput {
   public championIds = ['', '', '', '', '', '', '', '', '', ''];
   public picking = [false, false, false, false, false, false, false, false, false, false];
   public summonerSpells = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
-  public assignedRoles: any[] = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4];
+  // public assignedRoles: any[] = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //Pros: when making an empty manual lobby, they don't jump around as you pick champs
+  public assignedRoles: any[] = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]; //Pros: when opening CSC from ongoing game, the spectator will arrange according to champs guessing
 
   public roleSwaps = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
   public championSwaps: string[] = [null, null, null, null, null, null, null, null, null, null];
@@ -40,7 +41,7 @@ export class CsInput {
   
   public static readyToBeUploaded(csInput: CsInput) {
     //Returns true for both pre-game and in-game
-    return (csInput.queueId == '420' || csInput.queueId == '440') && 
+    return (csInput.queueId == '420' || csInput.queueId == '410' || csInput.queueId == '440') && 
       csInput.region != '' && 
       csInput.summonerNames.filter(x => x == null || x == '' ).length <= 5 &&
       csInput.championIds.filter(x => x == null || x == '' || x == '0').length == 0 && 
@@ -146,6 +147,8 @@ export class CsManager {
       overwolf.games.launchers.events.onInfoUpdates.addListener(handleLcuEvent);
       overwolf.games.launchers.events.onNewEvents.removeListener(handleLcuEvent);
       overwolf.games.launchers.events.onNewEvents.addListener(handleLcuEvent);
+      
+      this.pollForSpectator(1000, 10000);
     }
 
     this.swappableCs = swappable;
@@ -312,8 +315,6 @@ export class CsManager {
           CsManager.cscaiOwner = this;
           const { historySortedByRoles, apiTiers } = prepData;
 
-          // const TODOdebug = await CSCAI.debugView();
-          
           this.currCsApiTiers = apiTiers;
           this.currCsHistory = this.reverseRoleSortIntoDict(historySortedByRoles);
           this.onCsUpdate('data', this);
@@ -456,7 +457,7 @@ export class CsManager {
     try {
       if (!info || !info.info || !info.info.champ_select || !info.info.champ_select.raw) return;
       const lcuInfo = JSON.parse(info.info.champ_select.raw);
-      if (!lcuInfo || !lcuInfo.timer || lcuInfo.timer.phase != "GAME_STARTING") return;
+      if (!lcuInfo || !lcuInfo.timer || lcuInfo.timer.phase != 'GAME_STARTING' && lcuInfo.timer.phase != 'FINALIZATION') return;
       
       this.pollForSpectator(lcuInfo.timer.adjustedTimeLeftInPhase);
 
@@ -490,21 +491,22 @@ export class CsManager {
           Logger.log("Active game not found = " + JSON.stringify(spect));
           continue;
         }
-        //Use this in the upload prediction?
+        //Not currently used:
         //spect.gameId;
         //spect.gameStartTime;
 
         const csInput = new CsInput();
-        csInput.queueId = spect.result.gameQueueConfigId;
+        csInput.queueId = spect.result.gameQueueConfigId.toString();
         csInput.region = nr.region;
         csInput.ownerName = nr.name;
         csInput.summonerNames = spect.result.participants.map(x => x.summonerName);
 
-        csInput.championIds = spect.result.participants.map(x => x.championId);
+        csInput.championIds = spect.result.participants.map(x => x.championId.toString());
         csInput.picking = [false, false, false, false, false, false, false, false, false, false];
         csInput.summonerSpells = spect.result.participants.map(x => [x.spell1Id || -1, x.spell2Id || -1]);
-        csInput.assignedRoles = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]; //TODO roles not in the data here??
-        // csInput.assignedRoles = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //TODO maybe it's like this??
+        csInput.assignedRoles = this.currCsInputView.assignedRoles; //roles not in the data here
+        // csInput.assignedRoles = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]; //alt
+        // csInput.assignedRoles = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //or maybe it's like this? TODO check
         
         csInput.roleSwaps = this.currCsInputView.roleSwaps;
         csInput.championSwaps = this.currCsInputView.championSwaps;

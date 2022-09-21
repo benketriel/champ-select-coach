@@ -47,7 +47,7 @@ export class PersonalTab {
     {
       const that = this; //Need this trick else this will be window inside the callbacks
       const setRequiredFeatures = async () => { 
-        await Lcu.setRequiredFeatures([interestingFeatures.lcu_info]);
+        await Lcu.setRequiredFeatures([interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]);
         this.delayedSync();
       };
       overwolf.games.launchers.onLaunched.removeListener(setRequiredFeatures);
@@ -89,6 +89,10 @@ export class PersonalTab {
       $('.lcuStatusLightConnected').hide();
       $('.s-lcu-status-text').addClass('s-lcu-status-text-disconnected');
     }
+  }
+
+  public readyToBeDisplayed() {
+    return this.summonerName != null && this.region != null;
   }
 
   private clearView() {

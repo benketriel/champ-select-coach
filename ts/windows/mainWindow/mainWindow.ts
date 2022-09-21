@@ -306,6 +306,10 @@ export class MainWindow {
   public static selectPersonal() {
     const main = MainWindow.instance();
     if (main.selectedView == 'personal') return;
+    if (!main.personalTab.readyToBeDisplayed()) {
+      Popup.message('LoL disconnected', 'CSC wasn\'t able to connect to the League of Legends app. Try restarting <u>League of Legends</u>.');
+      return;
+    }
     MainWindow.showBackground();
 
     main.selectedView = 'personal';
