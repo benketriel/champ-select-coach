@@ -218,7 +218,7 @@ export class Lcu {
           -1;
       }
 
-      if (newCsInput.region == '' || newCsInput.queueId == '' || newCsInput.ownerName == '' || CsInput.triggerNewCs(prevCsInput, newCsInput)) {
+      if (newCsInput.region == '' || newCsInput.queueId == '' || newCsInput.ownerName == '' || CsInput.triggersNewCs(prevCsInput, newCsInput)) {
         const all_info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
         if (!all_info || !all_info.res || !all_info.res.summoner_info || !all_info.res.summoner_info.platform_id || !all_info.res.summoner_info.display_name || 
           !all_info.res.lobby_info || !all_info.res.lobby_info.queueId || !Lcu.WHITELISTED_QUEUES.includes(all_info.res.lobby_info.queueId)) { 

@@ -57,8 +57,6 @@ export class PersonalTab {
       const handleLcuEvent = (event: any) => that.syncWithLCU();
       overwolf.games.launchers.onTerminated.removeListener(handleLcuEvent);
       overwolf.games.launchers.onTerminated.addListener(handleLcuEvent);
-
-      this.delayedSync();
     }
   }
 

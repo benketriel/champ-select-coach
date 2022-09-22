@@ -19,7 +19,7 @@ export class CsTab {
   public hasBeenInCS: boolean = false;
   public static NUM_RECOMMENDATIONS: number = 6;
   public static NUM_HISTORY: number = 8;
-  private patchInfo;
+  private patchInfo: any;
 
   constructor(patchInfo: any) {
     this.patchInfo = patchInfo;
@@ -46,9 +46,8 @@ export class CsTab {
     }
     this.updateCSHistory();
 
-    if (this.manualCsManagers.length > 0) {
-      MainWindow.selectHistoryCS(0);
-    }
+    if (this.manualCsManagers.length > 0) MainWindow.selectHistoryCS(0);
+    else MainWindow.selectHome();
 
   }
 
@@ -170,7 +169,7 @@ export class CsTab {
   private updateCurrentCSMenu() {
     this.saveHistory();
 
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
       this.lcuCsManager.getCsView();
 
     const ownerIdx = CsInput.getOwnerIdx(csInputView);
@@ -304,7 +303,7 @@ export class CsTab {
     const timeStats = {};
     //Updates the html view, change is for optimization, if empty reset everything
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const mergedTier = CsTab.mergeTiers(lcuTiers, apiTiers);
@@ -334,7 +333,7 @@ export class CsTab {
     timeStats['instant'] = new Date().getTime() - time; time = new Date().getTime();
     if (!change || change == '' || change == 'data') {
       this.updateWarnings(patchInfo, csInput, history);
-      this.updateHistory(patchInfo, side, rolePrediction, csInput, history, mergedTier);
+      this.updateHistory(patchInfo, side, rolePrediction, csInput, history, historyStats, mergedTier);
       if (change == 'data') {
         const roleToIdx =  this.roleToIdx(rolePrediction);
         this.updateSwaps(patchInfo, side, csInput, roleToIdx, mergedTier); //Now the tiers are updated
@@ -371,10 +370,15 @@ export class CsTab {
 
         for (let pickI of (change == '' ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : [parseInt(change.substring(5))])) {
           const name = csInput.summonerNames[roleToIdx[pickI]];
-          this.updatePicks(patchInfo, side, score.full, pickI, (recommendations || {})[pickI], (history || {})[name]);
+          const role = pickI % 5;
+          const currRecommendations = (recommendations || {})[pickI] || [];
+          const currHistory = (history || {})[name] || [];
+          const currHistoryStats = (((historyStats || {}).champStats || {})[name] || {})[role] || [];
+    
+          this.updatePicks(patchInfo, side, score.full, pickI, currRecommendations, currHistory, currHistoryStats);
         }
       } else {
-        this.updatePicks(patchInfo, side, null, null, null, null);
+        this.updatePicks(patchInfo, side, null, null, null, null, null);
       }
     }
     timeStats['picks'] = new Date().getTime() - time; time = new Date().getTime();
@@ -801,7 +805,7 @@ export class CsTab {
     }
   }
 
-  private updateHistory(patchInfo: any, side: number, rolePrediction: number[], inputView: CsInput, history: any, lcuTiers: any) {
+  private updateHistory(patchInfo: any, side: number, rolePrediction: number[], inputView: CsInput, history: any, historyStats: any, lcuTiers: any) {
     if (!rolePrediction || !inputView || !history) {
       $('.cs-table-history-border').hide();
       $('.cs-table-history-separator').hide();
@@ -823,27 +827,18 @@ export class CsTab {
       const elemI = (2 * role + (team + side) % 2) % 10; //Good luck understanding this
       const mainRoleI = 4 * role + (team + side) % 2;
       const lcuTier = (lcuTiers || {})[name] || {};
-      const currHistory = history[name] || [];
+      const currHistory = (history || {})[name] || [];
+      const currRoleStats = ((historyStats || {}).roleStats || {})[name] || [];
 
-      const roleStats = {};
-      let totalGames = 0;
-      for (let h of currHistory) {
-        if (!(h.Role in roleStats)) {
-          roleStats[h.Role] = { wins:0, games:0, timestamp: h.Timestamp };
-        }
-  
-        if (h.Victory) roleStats[h.Role].wins++;
-        roleStats[h.Role].games++;
-        totalGames++;
-      } 
+      const totalGames = <number>Object.values(currRoleStats).map((x: any) => x.games).reduce((a, b) => <number>a + <number>b, 0);
 
-      const mainRoles = Object.keys(roleStats).sort((a,b) => roleStats[a].games < roleStats[b].games ? 1 : roleStats[a].games > roleStats[b].games ? -1 : 
-        roleStats[a].timestamp < roleStats[b].timestamp ? 1 : -1);
+      const mainRoles = Object.keys(currRoleStats).sort((a,b) => currRoleStats[a].games < currRoleStats[b].games ? 1 : currRoleStats[a].games > currRoleStats[b].games ? -1 : 
+        currRoleStats[a].timestamp < currRoleStats[b].timestamp ? 1 : -1);
 
       if (mainRoles.length > 0) {
         // $(roleWrElements[mainRoleI]).html(Math.round(100 * roleStats[mainRoles[0]].wins / roleStats[mainRoles[0]].games).toString() + '%');
         // $(roleWrElements[mainRoleI]).html(roleStats[mainRoles[0]].wins + '/'  + roleStats[mainRoles[0]].games);
-        $(roleWrElements[mainRoleI]).html(Math.round(100 * roleStats[mainRoles[0]].games / totalGames).toString() + '%');
+        $(roleWrElements[mainRoleI]).html(Math.round(100 * currRoleStats[mainRoles[0]].games / totalGames).toString() + '%');
         $(roleWrElements[mainRoleI]).show();
         CsTab.setRoleImg($(roleImgElements[mainRoleI]), parseInt(mainRoles[0]), lcuTier.tier, lcuTier.division, lcuTier.lp);
       } else {
@@ -853,7 +848,7 @@ export class CsTab {
       if (mainRoles.length > 1) {
         // $(roleWrElements[mainRoleI + 2]).html(Math.round(100 * roleStats[mainRoles[1]].wins / roleStats[mainRoles[1]].games).toString() + '%');
         // $(roleWrElements[mainRoleI + 2]).html(roleStats[mainRoles[1]].wins + '/' + roleStats[mainRoles[1]].games);
-        $(roleWrElements[mainRoleI + 2]).html(Math.round(100 * roleStats[mainRoles[1]].games / totalGames).toString() + '%');
+        $(roleWrElements[mainRoleI + 2]).html(Math.round(100 * currRoleStats[mainRoles[1]].games / totalGames).toString() + '%');
         $(roleWrElements[mainRoleI + 2]).show();
         CsTab.setRoleImg($(roleImgElements[mainRoleI + 2]), parseInt(mainRoles[1]), lcuTier.tier, lcuTier.division, lcuTier.lp);
       } else {
@@ -930,8 +925,8 @@ export class CsTab {
     }
   }
 
-  private updatePicks(patchInfo: any, side: number, fullScore: number[], participantI: number, recommendations: any[], history: any[]) {
-    if (!fullScore || !recommendations || !history) {
+  private updatePicks(patchInfo: any, side: number, fullScore: number[], participantI: number, recommendations: any[], history: any[], champStats: any[]) {
+    if (!fullScore || !recommendations || !history || !champStats) {
       $('.cs-table-recommended-champion').hide();
       // $('.lds-ring').hide();
       return;
@@ -941,19 +936,6 @@ export class CsTab {
     const baseline = fullScore[0][Math.floor(participantI / 5)];
     const role = participantI % 5;
     const team = Math.floor(participantI / 5);
-    const champStats = {};
-    for (let h of history) {
-      if (h.Role != role) continue;
-      if (!(h.ChampionId in champStats)) {
-        champStats[h.ChampionId] = { wins:0, games:0, daysAgo: Math.floor((Date.now() - h.Timestamp) / (1000 * 60 * 60 * 24)), kills: 0, deaths: 0, assists: 0 };
-      }
-
-      if (h.Victory) champStats[h.ChampionId].wins++;
-      champStats[h.ChampionId].games++;
-      champStats[h.ChampionId].kills += h.Kills;
-      champStats[h.ChampionId].deaths += h.Deaths;
-      champStats[h.ChampionId].assists += h.Assists;
-    }
 
     const partI = (2 * role + (team + side) % 2) % 10; //Good luck understanding this
     for (let i = 0; i < CsTab.NUM_RECOMMENDATIONS; ++i) {
@@ -1007,7 +989,7 @@ export class CsTab {
 
   public swapRole(role: number, i: number) {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const roleToIdx =  this.roleToIdx(rolePredictionView);
@@ -1022,7 +1004,7 @@ export class CsTab {
 
   public swapChampion(role: number, i: number) {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const swappedChampsView = CsManager.applyChampionSwaps(csInputView);
@@ -1040,7 +1022,7 @@ export class CsTab {
 
   public editSummoner(role: number) {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const roleToIdx =  this.roleToIdx(rolePredictionView);
@@ -1058,7 +1040,7 @@ export class CsTab {
 
   public editChampion(role: number) {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const roleToIdx =  this.roleToIdx(rolePredictionView);
@@ -1080,7 +1062,7 @@ export class CsTab {
 
   public editRegion() {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const currentRegion = (this.patchInfo.RegionIdToGg[csInputView.region] || '').toUpperCase();
@@ -1101,7 +1083,7 @@ export class CsTab {
 
   public editSide(blue: boolean) {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const edited = CsInput.clone(csInputView);
@@ -1129,7 +1111,7 @@ export class CsTab {
 
   public editQueue(soloQueue: boolean) {
     const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = 
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
     const edited = CsInput.clone(csInputView);

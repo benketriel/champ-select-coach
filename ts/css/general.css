@@ -159,6 +159,116 @@ button:focus {
     100% { transform: rotate(360deg); }
 }
 
+/* Home */
+.home-tab {
+    display: block;
+    position: absolute;
+    top: 164px;
+    left: 211px;
+    width: 523px;
+    height: 657px;
+    text-align: center;
+    padding: 40px 80px 40px 80px;
+}
+
+.home-title {
+    font-size: 50px;
+    font-family: 'Friz Quadrata Std';
+    display: block;
+}
+
+.home-intro-message {
+    font-size: 20px;
+}
+
+.home-personal {
+    top: -119px;
+    left: 695px;
+}
+.home-personal-text {
+    width: 258px;
+}
+.home-personal-text::after {
+    left: calc(12px + 3px);
+    top: -8px;
+}
+
+.home-lcu {
+    top: -119px;
+    left: 7px;
+}
+.home-lcu-text {
+    width: 270px;
+}
+.home-lcu-text::after {
+    left: -9px;
+    top: 20px;
+    transform: rotate(270deg);
+}
+
+.home-menu {
+    top: 351px;
+    left: 7px;
+}
+.home-menu-text {
+    width: 270px;
+}
+.home-menu-text::after {
+    left: -9px;
+    top: 20px;
+    transform: rotate(270deg);
+}
+
+.talk-bubble {
+    display: block;
+    position: absolute;
+}
+
+.talk-bubble-container {
+    display: block;
+}
+.talk-bubble-text {
+    cursor: help;
+    display: block;
+    background: white;
+    color: black;
+
+    position: absolute;
+    /* z-index: 2; */
+    transition: opacity 0.5s ease;
+
+    border: 1px solid black;
+    border-radius: 7px;
+    text-align: left;
+    padding: 8px;
+}
+.talk-bubble-text::after {
+    content: attr(arrow);
+    position: absolute;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 8px solid white;
+}
+.talk-bubble-msg-title {
+    font-family: 'Friz Quadrata Std';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 19px;
+}
+.talk-bubble-msg-text {
+    font-family: "Lato", sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    margin-top: 5px;
+}
+.talk-bubble-msg-highlight {
+    text-decoration: underline;
+}
+
+
+
 /* Footer */
 
 .s-community-links {
@@ -181,179 +291,32 @@ button:focus {
     font-style: italic;
 }
 
-/* Alt windows */
-.slide-overlay {
-    position: fixed;
-    top: 50px;
-    left: 100%;
-    height: calc(100% - 120px);
-    width: calc(100% - 41px);
-    margin: 10px 10px 10px 10px;
-    padding: 10px 10px 10px 10px;
-    
-    /* background: linear-gradient(145deg, rgba(5,14,23,1) 0%, rgba(22,30,36,1) 100%); */
-    background-color: #121A21;
-    background-size: 100% 100%;
-    /* color: rgb(240, 234, 217); */
-    color: #E7D5AE;
-    /* animation: zoombg 5s ease infinite; */
-    overflow: hidden;
-
-    border-bottom: 1px solid #1E282D;
-    /* border: 1px solid #1E282D; */
-    /* box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.5); */
-}
-
-.slide-overlay-title {
-    font-family: 'Friz Quadrata Std';
-    color: #F4F2FF;
-    font-size: 26px;
-    text-align: center;
-}
-.slide-overlay-content {
-    padding-left: 10px;
-    /* margin: 0px 0px 0px 0px; */
-    padding-top: 14px;
-    padding-right: 20px;
-    /* overflow-y: auto; */
-    overflow-y: hidden;
-    overflow-x: hidden;
-    height: calc(100% - 30px);
-}
-
-.backButton {
-    position: absolute;
-    left: 10px;
-}
-
-.faq-highlight {
-    /* color: rgb(240, 234, 217); */
-    color: #F4F2FF;
-    font-weight: bold;
-}
-
-.settings-sub-title {
-    font-size: 22px;
-    font-weight: bold;
-    line-height: 26px;
-}
-
-.faq-accordeon-title {
-    cursor: pointer;
-    border-top: 1px solid #1E282D;
-    background-color: rgba(5,14,23,0.1);
-    padding: 4px;
-    margin-bottom: -1px;
-}
-
-a, a:visited {
-    /* color: rgb(240, 234, 217); */
-    color: #E7D5AE;
-    cursor: pointer;
-}
-
-a:hover, a:active {
-    color: rgb(190, 148, 58);
-}
-
-.prediction-graph {
-    border: 1px solid #1E282D;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    /* float: right; */
-}
-
-.ow-settings-icon {
-    position: relative;
-    top: 6px;
-    right: 6px;
-}
-
-.scale-icon-24 {
-    transform: scale(0.7) translate(6px, 6px);
-}
-
-/* Feedback */
-.feedback-textbox {
-    float: right;
-}
-
-.feedback-textarea {
-    resize: none;
-    width: 100%;
-    height: 130px;
-}
-
-.submitFeedback {
-    margin-right: 12px;
-}
-
-.feedback-error {
-    color: rgb(170, 96, 34);
-    vertical-align: super;
-}
-
-.feedback-success {
-    color: rgb(95, 154, 55);
-    vertical-align: super;
-}
-
-
 /* Ads */
-.ad-area {
+.owad-container {
     text-align: center;
-    padding: 64px;
-    position: relative;
-    margin-top: -0px;
-}
-
-#owad {
-    position: absolute;
-    
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    margin: 6px 9px 0px 9px;
-    width: 400px;
-    height: 300px;
-    /* background-color: gray; */
-}
-
-#owad.small {
-    left: 50px;
-    right: 50px;
-    margin: 2px 9px 0px 9px;
-    width: 300px;
-    height: 250px;
-}
-
-.ad-logo {
-    color: #F4F2FF;
-    fill: currentColor;    
-    
-    transform: scale(0.5);
-    margin: -92px;
-    height: 256px;
-    width: 256px;
-    
-    /* height: 90px;
-    width: 90px; */
-}
-
-.main-ad-container {
     bottom: 30px;
     height: 300px;
+    width: 400px;
     display: block;
     right: 5px;
     position: absolute;
 }
 
-.main-ad {
+.owad-logo {
+    color: #F4F2FF;
+    fill: currentColor;
+    transform: scale(0.5);
+    margin: 30px;
+    height: 256px;
+    width: 256px;
+}
+
+#owad {
+    position: absolute;
+    top: 0px;
+    /* left: calc(50% - 200px); */
     width: 400px;
     height: 300px;
-    background-color: white;
-    display: block;
-    left: calc(50% - 200px);
-    position: relative;
+    /* background-color: gray; */
+    right: 0px;
 }

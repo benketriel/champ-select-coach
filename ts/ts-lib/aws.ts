@@ -150,6 +150,49 @@ export class Aws {
     return res;
   }
 
+  public static async feedback(json: string) {
+    const msg = JSON.stringify({Action:"RubyFeedback", Arguments:{ json }});
+    const res = await Aws.retrying('feedback', 1, () => Aws.get(msg), r => {
+      if (!r || r != 'OK') return false;
+      Logger.log({
+        name: 'feedback',
+        result: r,
+        json,
+      });
+      return true;
+    });
+    return res;
+  }
+
+  public static async getSetting(name: string) {
+    const msg = JSON.stringify({Action:"RubyGetDynamicSettings", Arguments:{ name }});
+    const res = await Aws.retrying('getSetting', 1, () => Aws.get(msg), r => {
+      if (!r) return false;
+      Logger.log({
+        name: 'getSetting',
+        result: r,
+        settingName: name,
+      });
+      return true;
+    });
+    return res;
+  }
+
+  public static async reportError(json: string, region: string, reporterSummonerId: string) {
+    const msg = JSON.stringify({Action:"RubyReportError", Arguments:{ json, region, reporterSummonerId }});
+    const res = await Aws.retrying('reportError', 1, () => Aws.get(msg), r => {
+      if (!r || r != 'OK') return false;
+      Logger.log({
+        name: 'reportError',
+        json,
+        region,
+        reporterSummonerId,
+      });
+      return true;
+    });
+    return res;
+  }
+
   public static async retrying(name: string, tries: number, generate, validate, waitMs: number = 1000) {
     while (tries-- > 0) {
       const res = await generate();

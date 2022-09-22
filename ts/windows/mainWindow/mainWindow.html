@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="stylesheet" href="../../css/cs.css" />
+  <link rel="stylesheet" href="../../css/smallWindows.css" />
   <link rel="stylesheet" href="../../css/personal.css" />
   <link rel="stylesheet" href="../../css/general.css" />
   <link rel="stylesheet" href="../../css/tooltips.css" />
@@ -24,6 +25,13 @@
         </div>
       </div>
       <div class="actions-container">
+        <span class="announcement-scrolling-text">
+          <span class="tooltip">
+            <span class="tooltiptext tooltiptext-sm"><span class="announcement-scrolling-text-tooltip"></span></span>  
+            <span class="announcement-scrolling-text-slider-overflow-clip"><span class="announcement-scrolling-text-slider"></span></span>
+          </span>
+        </span>
+
         <div class="s-lcu-status">
           <!-- <span class="tooltip">
             <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Connected to LoL client</span></span>   -->
@@ -37,7 +45,7 @@
           <svg class="s-lcu-status-logo"><use href="/img/icons/LoL_logo.svg#Layer_1"></use></svg>
           <span class="s-lcu-status-text s-lcu-status-text-disconnected">Disconnected</span>
         </div>
-        <button class="s-icon-button s-icon-button-fill infoButton">
+        <button class="s-icon-button s-icon-button-fill faqButton">
           <svg class="s-icon-button-svg s-icon-svg-small"><use href="/img/icons/icons.svg#more-info"></use></svg>
         </button>
         <button class="settings-window s-icon-button-fill s-icon-button settingsButton">
@@ -46,7 +54,7 @@
         <button class="s-icon-button s-icon-button-fill feedbackButton">
           <svg class="s-icon-button-svg s-icon-svg-small"><use href="/img/icons/icons.svg#feedback"></use></svg>
         </button>
-        <button class="s-icon-button s-icon-button-no-fill feedbackButton">
+        <button class="s-icon-button s-icon-button-no-fill newsButton">
           <svg class="s-icon-button-svg s-icon-svg-small"><use href="/img/icons/icons.svg#news"></use></svg>
         </button>
         <button class="s-icon-button s-icon-button-fill minimizeButton">
@@ -61,13 +69,72 @@
     <main>
       <div class="progress-bar-value"></div>
       <div class="side-menu"></div>
+
+      <div class="home-tab" style="display: none;">
+        <span class="home-title">Champion Select Coach</span>
+        <br/>
+        <br/>
+        <span class="home-intro-message translated-text">
+          Welcome to Champion Select Coach (CSC)<br/><br/>
+          This app delivers advanced machine learning techniques applied to League of Legends data<br/><br/>
+          All the provided results are trained, tested and validated on millions of ranked games to give you as trustworthy information as possible
+        </span>
+
+        <span class="talk-bubble home-lcu">
+          <span class="talk-bubble-container">
+            <span class="talk-bubble-text home-lcu-text">
+              <div class="talk-bubble-msg-title translated-text">
+                CURRENT LOBBY
+              </div>
+              <div class="talk-bubble-msg-text translated-text">
+                When connected to the League of Legends client, CSC will automatically sync with the champion select lobby for normal or ranked games.
+              </div>
+            </span>
+          </span>
+        </span>
+
+        <span class="talk-bubble home-menu">
+          <span class="talk-bubble-container">
+            <span class="talk-bubble-text home-menu-text">
+              <div class="talk-bubble-msg-title translated-text">
+                PAST LOBBIES
+              </div>
+              <div class="talk-bubble-msg-text translated-text">
+                You can browse past lobbies here.
+                Subscribed members can create new editable lobbies as well.
+              </div>
+            </span>
+          </span>
+        </span>
+
+        <span class="talk-bubble home-personal">
+          <span class="talk-bubble-container">
+            <span class="talk-bubble-text home-personal-text">
+              <div class="talk-bubble-msg-title translated-text">
+                PLAYER INFO
+              </div>
+              <div class="talk-bubble-msg-text translated-text">
+                When connected to the League of Legends client, you can open a page displaying personal machine learning scores and some performance statistics.
+                Subscribed members can also see the scores for other players.
+              </div>
+            </span>
+          </span>
+        </span>
+
+      </div>
+      <div class="cs-tab" style="display: none;"></div>
+      <div class="personal-tab" style="display: none;"></div>
+
+      <div class="owad-container">
+        <svg class="owad-logo" ><use href="/img/logo/professor.svg#black" /></svg>
+        <span id="owad"></span>
+      </div>
+
       <div class="faq-tab"></div>
       <div class="settings-tab"></div>
       <div class="feedback-tab"></div>
       <div class="news-tab"></div>
-      <div class="cs-tab" style="display: none;"></div>
-      <div class="personal-tab" style="display: none;"></div>
-      <div class="main-ad-container"><span class="main-ad"></span></div>
+
       <div class="popup-bg drags-window" style="display: none;"></div>
       <div class="popup-content" style="display: none;">
         <div class="popup-title drags-window">
@@ -129,6 +196,39 @@
       <span class="version">v0.3.0 (2022-08-08)</span>
     </footer>
   </div>
+
+  <script>
+    localStorage.owAdsForceAdUnit = "Ad_test"; //TODO remove this and set to undefined
+    //localStorage.owAdsForceAdUnit ="Ad_test_300x250";
+    //localStorage.owAdsForceAdUnit = undefined;
+
+    var _owAdConstructor = null;
+    // var _owAd = null;
+    // var _owAdReady = false;
+    function onOwAdReady() {
+      if (!OwAd) {
+        // This scenario might happen if the user is running behind an ISP/public 
+        // router that might have detected the library as an ad and redirected the
+        // request to an error page.
+        // The app should decide how to handle this scenario (trigger an event, 
+        // fallback to a place holder etc...)
+        console.log("No OwAd!");
+        return;
+      }
+      _owAdConstructor = OwAd;
+  
+      // The creation of an OwAd object will automatically load an ad (so no need to call refreshAd here).
+      // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 400, height: 300}});
+      // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 300, height: 250}});
+      // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 400, height: 300}});
+      // _owAd.addEventListener('ow_internal_rendered', () => {
+      //   // It is now safe to call any API you want ( e.g. _owAd.refreshAd() or _owAd.removeAd() )
+      //   _owAdReady = true;
+      // });
+    }
+
+  </script>
+  <script src="https://content.overwolf.com/libs/ads/latest/owads.min.js" async onload="onOwAdReady()"></script>
 
 </body>
 </html>

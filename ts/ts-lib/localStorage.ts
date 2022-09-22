@@ -26,5 +26,4 @@ export class LocalStorage {
     LocalStorage.set('cs-history', await CSCAI.zip(JSON.stringify(history)));
   }
 
-
 }

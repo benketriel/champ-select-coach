@@ -40,6 +40,39 @@
     display: flex;
 }
 
+.announcement-scrolling-text {
+    position: absolute;
+    display: block;
+    top: 9px;
+    left: 220px;
+    width: 670px;
+    height: 20px;
+    font-style: italic;
+}
+.announcement-scrolling-text-slider-overflow-clip {
+    overflow: hidden;
+    width: 100%;
+    display: block;
+}
+.announcement-scrolling-text-slider {
+    animation: slide-left 20s linear infinite;
+    display: inline-block;
+    min-width: 100%;
+    white-space: nowrap;
+}
+@keyframes slide-left {
+    from {
+        -webkit-transform: translateX(670px);
+                transform: translateX(670px);
+    }
+    to {
+        -webkit-transform: translateX(-100%);
+                transform: translateX(-100%);
+    }
+}
+
+
+
 .s-lcu-status:hover {
     filter: brightness(180%);
     cursor: pointer;

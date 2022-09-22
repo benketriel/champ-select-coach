@@ -8,6 +8,7 @@ import { Timer } from "./timer";
 import { Aws } from "./aws";
 import { ErrorReporting } from "./errorReporting";
 import { Logger } from "./logger";
+import { CsTab } from "./csTab";
 
 
 export class CsInput {
@@ -27,11 +28,11 @@ export class CsInput {
   public roleSwaps = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
   public championSwaps: string[] = [null, null, null, null, null, null, null, null, null, null];
 
-  public static triggerLoadCsData(oldCsInput: CsInput, newCsInput: CsInput) {
+  public static triggersLoadCsData(oldCsInput: CsInput, newCsInput: CsInput) {
     return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || !Utils.setsAreEqual(new Set(oldCsInput.summonerNames), new Set(newCsInput.summonerNames));
   }
 
-  public static triggerNewCs(oldCsInput: CsInput, newCsInput: CsInput) {
+  public static triggersNewCs(oldCsInput: CsInput, newCsInput: CsInput) {
     return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || !Utils.setIncludes(new Set(newCsInput.summonerNames), new Set(oldCsInput.summonerNames));
   }
   
@@ -58,7 +59,7 @@ export class CsInput {
   }
 
   public static individualScoresNeedUpdate(oldCsInput: CsInput, newCsInput: CsInput) {
-    const loadData = this.triggerLoadCsData(oldCsInput, newCsInput);
+    const loadData = this.triggersLoadCsData(oldCsInput, newCsInput);
     const draftChanged = !Utils.arraysEqual(oldCsInput.championIds, newCsInput.championIds) ||
       JSON.stringify(oldCsInput.summonerSpells) != JSON.stringify(newCsInput.summonerSpells) ||
       !Utils.arraysEqual(oldCsInput.assignedRoles, newCsInput.assignedRoles) ||
@@ -115,6 +116,7 @@ export class CsManager {
   private currCsScore = null;
   private currCsMissingScores = null;
   private currCsHistory = null;
+  private currCsHistoryStats = null;
   private currCsRecommendations = null;
   public currCsFirstRunComplete = false;
 
@@ -159,20 +161,13 @@ export class CsManager {
   }
 
   private async debug() {
-    //TODO
-    await Timer.wait(5000);
-
-    if (this.connectedToLcu) {
-      while (true) {
-        break;
-      }
-    }
+    
   }
 
   private init(csView: any) {
     if (!csView) return;
 
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, recommendations, swappable, editable, date } = csView;
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = csView;
 
     this.currCsInputView = csInput;
     this.currCsRolePredictionView = rolePrediction;
@@ -186,6 +181,7 @@ export class CsManager {
     this.currCsScore = score;
     this.currCsMissingScores = missingScore;
     this.currCsHistory = history;
+    this.currCsHistoryStats = historyStats;
     this.currCsRecommendations = recommendations;
     this.date = date;
   }
@@ -256,11 +252,11 @@ export class CsManager {
 
       try {
         this.ongoingCsChange = true;
-        const newCs = CsInput.triggerNewCs(this.currCsInput, newCsInput);
+        const newCs = CsInput.triggersNewCs(this.currCsInput, newCsInput);
         if (this.connectedToLcu && newCs) this.onNewCs(this);
 
         //Find out what needs to be done
-        const loadData = !this.currCsFirstRunComplete || CsInput.triggerLoadCsData(this.currCsInput, newCsInput);
+        const loadData = !this.currCsFirstRunComplete || CsInput.triggersLoadCsData(this.currCsInput, newCsInput);
         const computeBans = CsInput.shouldComputeBans(newCsInput);
         const isTeamPartial = CsInput.isTeamPartial(newCsInput);
         const individualScoresNeedUpdate = CsInput.individualScoresNeedUpdate(loadData ? new CsInput() : this.currCsInput, newCsInput);
@@ -294,6 +290,7 @@ export class CsManager {
         this.currCsScore = null;
         this.currCsMissingScores = null;
         this.currCsHistory = null;
+        this.currCsHistoryStats = null;
         this.currCsRecommendations = null;
       
         if (loadData) {
@@ -317,6 +314,9 @@ export class CsManager {
 
           this.currCsApiTiers = apiTiers;
           this.currCsHistory = this.reverseRoleSortIntoDict(historySortedByRoles);
+          this.currCsHistoryStats = this.extractHistoryStats(this.currCsHistory);
+          this.currCsHistory = this.compressHistory(this.currCsHistory);
+
           this.onCsUpdate('data', this);
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
 
@@ -329,6 +329,7 @@ export class CsManager {
           if (!isTeamPartial) {
             this.currCsScore['partial'] = [ await bluePartialTask, await redPartialTask ];
           }
+          this.compressScore(this.currCsScore);
           this.onCsUpdate('score', this);
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
 
@@ -422,6 +423,75 @@ export class CsManager {
     return result;
   }
 
+  private extractHistoryStats(history: any) {
+    const roleStats = {};
+    for (const name in history) {
+      const stats = {};
+      for (let h of history[name]) {
+        if (!(h.Role in stats)) {
+          stats[h.Role] = { wins:0, games:0, timestamp: h.Timestamp };
+        }
+
+        if (h.Victory) stats[h.Role].wins++;
+        stats[h.Role].games++;
+      }
+      roleStats[name] = stats;
+    }
+
+    const champStats = {};
+    for (const name in history) {
+      const nameStats = {};
+      for (let role = 0; role < 5; ++role) {
+        const stats = {};
+        for (let h of history[name]) {
+          if (h.Role != role) continue;
+          if (!(h.ChampionId in stats)) {
+            stats[h.ChampionId] = { wins:0, games:0, daysAgo: Math.floor((Date.now() - h.Timestamp) / (1000 * 60 * 60 * 24)), kills: 0, deaths: 0, assists: 0 };
+          }
+
+          if (h.Victory) stats[h.ChampionId].wins++;
+          stats[h.ChampionId].games++;
+          stats[h.ChampionId].kills += h.Kills;
+          stats[h.ChampionId].deaths += h.Deaths;
+          stats[h.ChampionId].assists += h.Assists;
+        }
+        nameStats[role] = stats;
+      }
+      champStats[name] = nameStats;
+    }
+
+    return { champStats, roleStats };
+  }
+
+  private compressHistory(history: any) {
+    const res = {};
+    for (const name in history) {
+      res[name] = history[name].slice(0, CsTab.NUM_HISTORY);
+    }
+    return res;
+  }
+
+  private compressScore(score: any) {
+    if (score && score.full) {
+      for (const i in score.full) {
+        const arr = score.full[i];
+        for (const j in arr) {
+          arr[j] = Math.round(arr[j] * 1000) / 1000;
+        }
+      }
+    }
+    if (score && score.partial) {
+      for (const side in score.partial) {
+        for (const i in score.partial[side]) {
+          const arr = score.partial[side][i];
+          for (const j in arr) {
+            arr[j] = Math.round(arr[j] * 1000) / 1000;
+          }
+        }
+      }
+    }
+  }
+
   private getPlayedChampions(history: any[], role: number, minPlayed: number = 3) {
     const playCount = {};
     for (let h of history) {
@@ -446,6 +516,7 @@ export class CsManager {
       score: this.currCsScore,
       missingScore: this.currCsMissingScores,
       history: this.currCsHistory,
+      historyStats: this.currCsHistoryStats,
       recommendations: this.currCsRecommendations,
       swappable: this.swappableCs,
       editable: this.editableCs,

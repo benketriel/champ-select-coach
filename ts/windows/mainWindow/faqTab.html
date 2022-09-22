@@ -1,0 +1,102 @@
+<div class="slide-overlay slide-overlay-faq">
+  <div class="slide-overlay-title">
+    <button class="s-icon-button s-icon-button-fill slide-overlay-close">
+      <svg class="s-icon-button-svg s-icon-svg-larger"><use href="/img/icons/icons.svg#window-close"></use></svg>
+    </button>
+    <span>FAQ</span>
+  </div>
+
+  <div class="slide-overlay-content">
+    <span class="accordeon-row">
+      <div class="accordeon-title settings-sub-title translated-text">What does the score represent?</div>
+      <div class="accordeon-content">
+        <ul><li><span class="translated-text">
+          Each 1.0 is 10% win rate, so a 5.6 score will be predicted to win at 56% chance.
+          For individual scores they are a difference either from 5.0 (ex. solo scores), or from the current score (ex. alternative champion picks), depending on the context.
+        </span></li></ul>
+      </div>
+    </span>
+    <span class="accordeon-row">
+      <div class="accordeon-title settings-sub-title">Does it work on normal games?</div>
+      <div class="accordeon-content">
+        <ul><li><span class="translated-text">
+          The AI was only trained on (millions of) <span class="faq-highlight">ranked</span> solo and flex games.
+          Scores for game modes other than solo/flex queue will be less accurate, and should be used with a grain of salt.
+        </span></li></ul>
+      </div>
+    </span>
+    <span class="accordeon-row">
+      <div class="accordeon-title settings-sub-title">Why do I have a bad individual score when I have great winrate?</div>
+      <div class="accordeon-content">
+        <ul><li><span class="translated-text">
+          The AI is aware of the winrate, but it also looks at many more things around your performance in game.
+          Maybe you have climbed to a new elo in which however you are playing is no longer good enough to continue climbing.
+          The opposite is also true where you some players may have bad winrates but high scores.
+        </span></li></ul>
+      </div>
+    </span>
+    <span class="accordeon-row">
+      <div class="accordeon-title settings-sub-title">How reliable are the scores?</div>
+      <div class="accordeon-content">
+        <ul><li><span class="translated-text">
+          The AI doesn't just predict who will win, but gives a win chance.
+          Over many games, this chance is extremely accurate, so for example exactly 60% of games where the AI said 6.0 were then actually won.
+          Likewise, when the AI isn't sure, it will say values closer to 5.0.
+          The overall accuracy of the AI is ~60.5%, however the accuracy for a single score is the score itself. The accuracy of 5.3 is 53%.
+          It is normal that for fewer games the statistics can differ a lot in both directions, just like flipping a coin won't give you exactly 50% of each outcome.
+        </span></li></ul>
+      </div>
+    </span>
+    <span class="accordeon-row">
+      <div class="accordeon-title settings-sub-title">Who are the devs behind the AI?</div>
+      <div class="accordeon-content">
+        <ul><li><span class="translated-text">
+          This project is made by a single person with some help from others from time to time.
+          I am a master elo EUW/EUNE player, who also has worked with machine learning both in the industry and the academy for over 10 years (currently working on an industrial PhD in reinforcement learning).
+          This started as a tool for my own private use in 2018.
+          After realizing how useful it was, I decided to share it with the community since 2020.
+          I have been prioritizing the improvement of the AI above anything else, making small improvements over time.
+          Feel free to reach out to me on Discord or on LinkedIn!
+        </span></li></ul>
+      </div>
+    </span>
+    <span class="accordeon-row">
+      <div class="accordeon-title settings-sub-title">How does the AI deal with patch changes in LoL?</div>
+      <div class="accordeon-content">
+        <ul><li><span class="translated-text">
+          The AI is constantly training on most, if not all, ranked games - soloQ & flex, to keep up to date.
+          We have observed how when new champions are released, the AI can still give a roughly accurate score for champions it has never seen in the past, 
+          and the overall accuracy doesn't really drop in a noticeable manner.
+          We keep updating the AI on a regular basis, to follow the small details of the patch changes.
+        </span></li></ul>
+      </div>
+    </span>
+    <span class="accordeon-row">
+      <div class="accordeon-title settings-sub-title">Can you add feature X?</div>
+      <div class="accordeon-content">
+        <ul><li><span class="translated-text">
+          Please write your ideas in the discord, maybe even someone has already lifted it.<br/>
+          For features related to results, generally speaking, this app will be AI based all the way, never depending on anyone's understanding of the game.
+          We will not add outputs which are based on some rule of thumb on a statistic, since these can be flawed, are based on opinion, and vary over time.
+          This way we ensure integrity and accuracy of results, since we can test and measure it.
+        </span></li></ul>
+      </div>
+    </span>
+    <span class="accordeon-row">
+      <div class="accordeon-title settings-sub-title">Can you translate to language Y?</div>
+      <div class="accordeon-content">
+        <ul><li><span class="translated-text">
+          If you can help us translate to a new language or if you find issues in the current translations, please let us know on the discord.
+          However, patch notes and dynamic notifications will be in English for the time being.
+        </span></li></ul>
+      </div>
+    </span>
+
+    <br/>
+    <span class="settings-sub-title translated-text">Join our <a href="https://discord.gg/YGcWxhyXmn">Discord</a> community where we discuss results and future features!</span><br/>
+    <br/>
+
+  </div>
+
+</div>
+
