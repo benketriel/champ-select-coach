@@ -9,6 +9,7 @@ import { Aws } from "./aws";
 import { ErrorReporting } from "./errorReporting";
 import { Logger } from "./logger";
 import { CsTab } from "./csTab";
+import { LocalStorage } from "./localStorage";
 
 
 export class CsInput {
@@ -150,6 +151,7 @@ export class CsManager {
       overwolf.games.launchers.events.onNewEvents.removeListener(handleLcuEvent);
       overwolf.games.launchers.events.onNewEvents.addListener(handleLcuEvent);
       
+      this.handleLcuEvent(null); //Check if currently in champion select
       this.pollForSpectator(1000, 10000);
     }
 
@@ -161,7 +163,8 @@ export class CsManager {
   }
 
   private async debug() {
-    
+    await Timer.wait(5000);
+
   }
 
   private init(csView: any) {
@@ -321,9 +324,16 @@ export class CsManager {
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
 
           if (this.currCsFirstRunComplete && this.pendingCsChange) continue;
+
+          const singleThread = LocalStorage.getSingleThreadedMode();
+          await CSCAI.setSingleThreadMode(singleThread);
+
           const fullTask = CSCAI.getFullScore();
+          if (singleThread) await fullTask;
           const bluePartialTask = isTeamPartial ? Timer.wait(0) : CSCAI.getPartialScore(true);
+          if (singleThread) await bluePartialTask;
           const redPartialTask = isTeamPartial ? Timer.wait(0) : CSCAI.getPartialScore(false);
+          if (singleThread) await redPartialTask;
           this.currCsScore = {};
           this.currCsScore['full'] = await fullTask;
           if (!isTeamPartial) {
@@ -338,6 +348,7 @@ export class CsManager {
             const missingTasks = {}
             for (let missingI = 0; missingI < 10; missingI++) {
               missingTasks[missingI] = CSCAI.getMissingScore(newRolePred[missingI] + (missingI < 5 ? 0 : 5));
+              if (singleThread) await missingTasks[missingI];
             }
             this.currCsMissingScores = {};
             for (let missingI = 0; missingI < 10; missingI++) {
@@ -359,6 +370,7 @@ export class CsManager {
           for (let i = 0; i < 10; ++i) {
             const j = i;
             recommendationTasks.push(CSCAI.getRecommendations(j, this.getPlayedChampions(historySortedByRoles[j], j % 5)));
+            if (singleThread) await recommendationTasks[recommendationTasks.length - 1];
           }
           this.currCsRecommendations = {};
           for (let i = 0; i < 10; ++i) {

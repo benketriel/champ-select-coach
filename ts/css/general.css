@@ -311,6 +311,18 @@ button:focus {
     width: 256px;
 }
 
+.owad-container-footer {
+    position: absolute;
+    bottom: -23px;
+    right: 167px;
+    cursor: pointer;
+    color: rgb(205, 190, 145);
+    font-style: italic;
+}
+.owad-container-footer:hover {
+    color: rgb(240, 234, 217);
+}
+
 #owad {
     position: absolute;
     top: 0px;
@@ -320,3 +332,4 @@ button:focus {
     /* background-color: gray; */
     right: 0px;
 }
+

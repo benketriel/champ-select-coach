@@ -127,4 +127,76 @@ a:hover, a:active {
     vertical-align: super;
 }
 
+/* Settings */
+
+.settings-button {
+    cursor: pointer;
+
+    width: 250px;
+    height: 42px;
+    border: 1px solid black;
+    outline: 1px solid rgb(190, 148, 58);
+    text-align: center;
+    padding: 10px 15px 10px 15px;
+    margin-top: 5px;
+    display: inline-block;
+
+    background: linear-gradient(145deg, rgba(30, 35, 40, 1) 0%, rgba(27, 32, 38, 1) 100%);
+    color: rgb(205, 190, 145);
+}
+
+.settings-button:hover {
+    filter: brightness(130%);
+}
+
+.settings-button-version {
+    margin-left: 20px;
+    padding: 5px 10px 5px 10px;
+    width: 170px;
+    height: 17px;
+}
+
+.settings-button-spinner-area {
+    height: 36px;
+    display: block;
+}
+
+.settings-version-loading-spinner {
+    top: 10px;
+    left: 34px;
+}
+
+.settings-version-text {
+    font-style: italic;
+}
+
+.settings-button-language {
+    position: absolute;
+    top: 100px;
+    right: 20px;
+}
+
+.settings-flag {
+    height: 32px;
+    width: 32px;
+    margin: 4px 9px -9px 0px;
+}
+
+.settings-button-subscribe {
+    position: absolute;
+    top: 196px;
+    right: 20px;
+}
+
+.settings-button-overwolf-settings {
+    position: absolute;
+    top: 294px;
+    right: 20px;
+}
+
+
+
+
+
+
 

@@ -5,8 +5,8 @@ import { Lcu } from '../../ts-lib/lcu';
 import { Updates } from "../../ts-lib/updates";
 import { ErrorReporting } from "../../ts-lib/errorReporting";
 import { Logger } from "../../ts-lib/logger";
-import { Settings } from "../../ts-lib/settings";
 import { Timer } from "../../ts-lib/timer";
+import { LocalStorage } from "../../ts-lib/localStorage";
 
 class BackgroundController {
   private static _instance: BackgroundController;
@@ -23,10 +23,13 @@ class BackgroundController {
 
     const that = this;
     //Set required features when LCU starts
-    const setRequiredFeatures = () => { Lcu.setRequiredFeatures([interestingFeatures.game_flow]); };
-    overwolf.games.launchers.onLaunched.removeListener(setRequiredFeatures);
-    overwolf.games.launchers.onLaunched.addListener(setRequiredFeatures);
-    overwolf.games.launchers.getRunningLaunchersInfo(info => { if (Lcu.isLcuRunningFromInfo(info)) { setRequiredFeatures(); }});
+    const onLcuLaunch = () => { 
+      Lcu.setRequiredFeatures([interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]);
+      if (LocalStorage.getAutoOpenMode() == 0) that.run();
+    };
+    overwolf.games.launchers.onLaunched.removeListener(onLcuLaunch);
+    overwolf.games.launchers.onLaunched.addListener(onLcuLaunch);
+    overwolf.games.launchers.getRunningLaunchersInfo(info => { if (Lcu.isLcuRunningFromInfo(info)) { onLcuLaunch(); }});
 
     //Trigger run() when the app is manually launched
     const onLaunch = (event: overwolf.extensions.AppLaunchTriggeredEvent) => { that.run();};
@@ -82,12 +85,15 @@ class BackgroundController {
 
   public async run() {
     const scoreWinState = (await this._windows[windowNames.mainWindow].getWindowState()).window_state_ex;
+    Logger.log('run state: ' + JSON.stringify(scoreWinState));
     if (scoreWinState == 'closed' || scoreWinState == 'hidden') { //(but not if minimized)
       this._windows[windowNames.mainWindow].restore();
       await BackgroundController.waitForWindowToOpen(this._windows[windowNames.mainWindow]);
     }
 
-    this._windows[windowNames.mainWindow].setTopmost();
+    if (LocalStorage.getAutoFocusCs()) {
+      this._windows[windowNames.mainWindow].setTopmost();
+    }
   }
 
   public static async waitForWindowToOpen(w: OWWindow) {
@@ -103,7 +109,7 @@ class BackgroundController {
       const phaseCS = event.info.game_flow.phase == "ChampSelect";
       const queueOK = phaseCS && await Lcu.inChampionSelect();
       
-      if (phaseCS && !this._inChampSelect && Settings.autoLoadOnChampionSelect()) {
+      if (phaseCS && !this._inChampSelect && LocalStorage.getAutoOpenMode() != 2) {
         if (!queueOK) {
           Logger.log('Current champion select queue not supported, ignoring event:');
           Logger.log(JSON.stringify(event));
@@ -121,4 +127,5 @@ class BackgroundController {
 
 }
 
-BackgroundController.instance().run();
+const _instance = BackgroundController.instance();
+if (LocalStorage.getAutoOpenMode() == 0) _instance.run();

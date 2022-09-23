@@ -379,7 +379,7 @@
 .cs-table-history-border {
     display: inline-block;
     /* padding: 1px 1px 0px 1px; */
-    margin: 1px 1px 0px 1px;
+    margin: 0px 1px 0px 1px;
     /* background: linear-gradient(to bottom right, rgba(205, 190, 145, 0) 0%, rgba(205, 190, 145, 0) 40%, rgba(205, 190, 145, 1) 100%); */
     background: radial-gradient(rgba(205, 190, 145, 1) 0%, rgba(205, 190, 145, 1) 40%, rgba(205, 190, 145, 0) 100%);
 }

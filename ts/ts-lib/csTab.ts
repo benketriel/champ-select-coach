@@ -8,6 +8,7 @@ import { Utils } from "./utils";
 import { LocalStorage } from "./localStorage";
 import { ErrorReporting } from "./errorReporting";
 import { Popup } from "./popup";
+import { TextLanguage } from "./textLanguage";
 
 
 export class CsTab {
@@ -928,7 +929,7 @@ export class CsTab {
   private updatePicks(patchInfo: any, side: number, fullScore: number[], participantI: number, recommendations: any[], history: any[], champStats: any[]) {
     if (!fullScore || !recommendations || !history || !champStats) {
       $('.cs-table-recommended-champion').hide();
-      // $('.lds-ring').hide();
+      // $('.cs-lds-ring').hide();
       return;
     }
     
@@ -968,7 +969,7 @@ export class CsTab {
       root.find('.cs-table-recommended-champion-border img').css('opacity', 1.0);
     }
 
-    $($('.lds-ring').get(partI)).hide();
+    $($('.cs-lds-ring').get(partI)).hide();
   }
 
   private setAllToLoading() {
@@ -984,7 +985,7 @@ export class CsTab {
     $('.cs-table-recommended-champion-border img').css('opacity', '0.6');
     // $('.cs-table-history-border').css('opacity', '0.6'); //Too flickery
 
-    $('.lds-ring').show();
+    $('.cs-lds-ring').show();
   }
 
   public swapRole(role: number, i: number) {
@@ -1028,7 +1029,7 @@ export class CsTab {
     const roleToIdx =  this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const idx = roleToIdx[(role + (blue ? 0 : 5)) % 10];
-    Popup.text('Edit Player', 'Enter player name', csInputView.summonerNames[idx], [], result => {
+    Popup.text(TextLanguage.DynamicText.editPlayer, TextLanguage.DynamicText.enterPlayerName, csInputView.summonerNames[idx], [], result => {
       const edited = CsInput.clone(csInputView);
       if (edited.ownerName == edited.summonerNames[idx]) {
         edited.ownerName = result;
@@ -1047,10 +1048,10 @@ export class CsTab {
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const idx = roleToIdx[(role + (blue ? 0 : 5)) % 10];
     const currName = this.patchInfo.ChampionIdToName[csInputView.championIds[idx]] || "";
-    Popup.text('Edit Champion', 'Enter champion name', currName, Object.values(this.patchInfo.ChampionIdToName), result => {
+    Popup.text(TextLanguage.DynamicText.editChampion, TextLanguage.DynamicText.enterChampionName, currName, Object.values(this.patchInfo.ChampionIdToName), result => {
       const picked = Object.keys(this.patchInfo.ChampionIdToName).filter(k => this.patchInfo.ChampionIdToName[k] == result);
       if (result.length > 0 && picked.length == 0) {
-        Popup.message('Error', 'Champion not found');
+        Popup.message(TextLanguage.DynamicText.error, TextLanguage.DynamicText.championNotFound);
         return;
       }
 
@@ -1067,11 +1068,11 @@ export class CsTab {
 
     const currentRegion = (this.patchInfo.RegionIdToGg[csInputView.region] || '').toUpperCase();
     const regions = Object.values(this.patchInfo.RegionIdToGg).map(x => (<string>x).toUpperCase());
-    Popup.text('Edit Region', 'Enter region initials', currentRegion, regions, result => {
+    Popup.text(TextLanguage.DynamicText.editRegion, TextLanguage.DynamicText.enterRegionInitials, currentRegion, regions, result => {
 
       const picked = Object.keys(this.patchInfo.RegionIdToGg).filter(k => this.patchInfo.RegionIdToGg[k].toUpperCase() == result.toUpperCase());
       if (picked.length == 0) {
-        Popup.message('Error', 'Region not found<br/>Available: ' + regions.join(', '));
+        Popup.message(TextLanguage.DynamicText.error, TextLanguage.DynamicText.regionNotFound + regions.join(', '));
         return;
       }
 

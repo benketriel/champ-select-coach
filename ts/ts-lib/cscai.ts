@@ -39,6 +39,11 @@ export class CSCAI {
     return JSON.parse(json);
   }
 
+  public static async setSingleThreadMode(mode: boolean) {
+    const ai = await this.instance();
+    ai.SetSingleThreadMode(mode);
+  }
+
   public static async getPatchInfo() {
     const ai = await this.instance();
     const json = await new Promise<any>(resolve => ai.GetPatchInfo(resolve))

@@ -26,4 +26,15 @@ export class LocalStorage {
     LocalStorage.set('cs-history', await CSCAI.zip(JSON.stringify(history)));
   }
 
+  public static getAutoOpenMode() { return parseInt(LocalStorage.get('auto-open-mode') || '0'); }
+  public static setAutoOpenMode(mode: number) { LocalStorage.set('auto-open-mode', mode.toString()); }
+
+  public static getAutoFocusCs() { return (LocalStorage.get('auto-focus-cs') || 't') == 't'; }
+  public static setAutoFocusCs(mode: boolean) { LocalStorage.set('auto-focus-cs', mode ? 't' : 'f'); }
+
+  public static getSingleThreadedMode() { return (LocalStorage.get('single-threaded-mode') || 'f') == 't'; }
+  public static setSingleThreadedMode(mode: boolean) { LocalStorage.set('single-threaded-mode', mode ? 't' : 'f'); }
+
+  
+
 }

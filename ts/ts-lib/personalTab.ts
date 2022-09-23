@@ -78,7 +78,7 @@ export class PersonalTab {
         const change = this.summonerName != x.name || this.region != x.region;
         this.summonerName = x.name;
         this.region = x.region;
-        if (change) {
+        if (change && !await Lcu.inChampionSelect()) {
           await this.updateView();
         }
       });

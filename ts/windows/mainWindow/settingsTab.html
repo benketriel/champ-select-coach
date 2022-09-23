@@ -3,18 +3,80 @@
     <button class="s-icon-button s-icon-button-fill slide-overlay-close">
       <svg class="s-icon-button-svg s-icon-svg-larger"><use href="/img/icons/icons.svg#window-close"></use></svg>
     </button>
-    <span>SETTINGS</span>
+    <span class="translated-text">SETTINGS</span>
   </div>
 
   <div class="slide-overlay-content">
-    <br/>
-    
-    <br/>
-    <a class="icon window-control" href="overwolf://settings/hotkeys">
-      <button class="s-icon-button s-icon-button-fill ow-settings-icon">
-        <svg class="s-icon-button-svg s-icon-svg-larger"><use href="/img/icons/icons.svg#overwolf-logo-footer"></use></svg>
-      </button><span class="settings-sub-title" style="font-weight: normal; margin-left: 10px;">Overwolf Settings</span>
-    </a>  
+    <ul><li>
+        <span class="settings-sub-title translated-text">App version:</span> &nbsp;
+        <span class="settings-version-id"></span><span class="settings-version-id-beta"> - Beta</span>
+    </li><li>
+      <span class="settings-version-text"></span>
+      <br/>
+      <span class="settings-button-spinner-area">
+        <span class="settings-version-loading-spinner lds-ring"><span></span><span></span><span></span><span></span></span>
+        <span class="settings-button settings-button-version">&nbsp;</span>
+      </span>
+    </li><li>
+      <span class="tooltip">
+        <span class="tooltiptext tooltiptext-sm"><span class="translated-text">
+          Check this if you want to help test the newest <br/>
+          features before they are added for everyone</span></span>
+        <input class="settings-beta-version" type="checkbox"> &nbsp;
+        <span class="translated-text">Enable experimental features</span>
+      </span>
+    </li><li>
+      <br/>
+      <span class="settings-sub-title translated-text">Champion Select Lobby</span>
+    </li><li>
+      <span class="translated-text">Automatically open CSC</span>
+      <br/>
+      &nbsp;
+      <input class="settings-auto-open-lcu" type="radio" checked>
+      <span class="translated-text">When LoL starts</span>
+      <br/>
+      &nbsp;
+      <input class="settings-auto-open-cs" type="radio">
+      <span class="translated-text">In champion select lobby</span>
+      <br/>
+      &nbsp;
+      <input class="settings-auto-open-never" type="radio">
+      <span class="translated-text">Never</span>
+    </li><li>
+      <span class="tooltip">
+        <span class="tooltiptext tooltiptext-sm"><span class="translated-text">
+          This will make the CSC window automatically <br/>
+          pop to the front when entering champion select</span></span>
+        <input class="settings-auto-focus-cs" type="checkbox" checked> &nbsp;
+        <span class="translated-text">Focus CSC on champion select</span>
+      </span>
+    </li><li>
+      <span class="tooltip">
+        <span class="tooltiptext tooltiptext-sm"><span class="translated-text">
+          Check this if you are experiencing <br/>
+          CPU problems during champion select</span></span>
+        <input class="settings-single-thread-mode" type="checkbox"> &nbsp;
+        <span class="translated-text">Single threaded mode</span>
+      </span>
+    </li></ul>
+
+    <span class="settings-button settings-button-language">
+      <img class="settings-flag" src="/img/flags/english.png"/>
+      <span class="settings-sub-title translated-text">Change Language</span>
+    </span>
+
+    <span class="settings-button settings-button-subscribe">
+      <button class="s-icon-button s-icon-button-fill-no-hover ow-settings-icon">
+        <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#subscription"></use></svg>
+      </button><span class="settings-sub-title translated-text">Get Pro version</span>
+    </span>
+
+    <span class="settings-button settings-button-overwolf-settings">
+      <button class="s-icon-button s-icon-button-fill-no-hover ow-settings-icon">
+        <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#overwolf-logo-footer"></use></svg>
+      </button><span class="settings-sub-title translated-text">Overwolf Settings</span>
+    </span>
+
   </div>
 </div>
   
