@@ -158,17 +158,23 @@
     position: absolute;
     top: 315px;
     font-size: 12px;
-    left: 49px;
-    width: 582px;
+    width: 100%;
 }
 
 .personal-champions-options-sort {
     float: left;
+    margin-left: 15px;
 }
 
 .personal-champions-options-performance {
     float: right;
+    margin-right: 15px;
 }
+
+.personal-champions-options-legend {
+    margin: 0px 5px 0px 5px;
+}
+
 
 .personal-champions-options-legend-bar {
     height: 10px;
@@ -257,7 +263,7 @@
     position: absolute;
     top: 10px;
     font-size: 12px;
-    right: 40px;
+    right: 20px;
 }
 
 

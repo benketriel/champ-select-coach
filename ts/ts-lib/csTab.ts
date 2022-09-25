@@ -8,7 +8,8 @@ import { Utils } from "./utils";
 import { LocalStorage } from "./localStorage";
 import { ErrorReporting } from "./errorReporting";
 import { Popup } from "./popup";
-import { TextLanguage } from "./textLanguage";
+import { TranslatedText } from "./textLanguage";
+import { Subscriptions } from "./subscriptions";
 
 
 export class CsTab {
@@ -50,6 +51,61 @@ export class CsTab {
     if (this.manualCsManagers.length > 0) MainWindow.selectHistoryCS(0);
     else MainWindow.selectHome();
 
+    //Callbacks
+    const roleSwappers = $('.cs-table-champion-swap-role').get();
+    for (const i in roleSwappers) {
+      const idx = Math.round(parseInt(i) % 4);
+      const team = Math.floor((parseInt(i) / 4) % 2);
+      const role = Math.floor(parseInt(i) / 8);
+      $(roleSwappers[i]).on('click', () => that.swapRole(5 * team + role, idx + (role <= idx ? 1 : 0)));
+    }
+
+    const champSwappers = $('.cs-table-champion-swap-champion').get();
+    for (const i in champSwappers) {
+      const idx = Math.round(parseInt(i) % 4);
+      const team = Math.floor((parseInt(i) / 4) % 2);
+      const role = Math.floor(parseInt(i) / 8);
+      $(champSwappers[i]).on('click', () => that.swapChampion(5 * team + role, 5 * team + idx + (role <= idx ? 1 : 0)));
+    }
+
+    const defaultSwappers = $('.cs-table-champion-swap-default').get();
+    for (const i in defaultSwappers) {
+      const idx = Math.round(parseInt(i) % 2);
+      const team = Math.floor((parseInt(i) / 2) % 2);
+      const role = Math.floor(parseInt(i) / 4);
+      if (idx == 0) {
+        $(defaultSwappers[i]).on('click', () => that.swapRole(5 * team + role, -1));
+      } else {
+        $(defaultSwappers[i]).on('click', () => that.swapChampion(5 * team + role, -1));
+      }
+    }
+
+    const editIcons = $('.cs-table-edit-button').get();
+    for (const i in editIcons) {
+      const idx = Math.round(Math.floor((parseInt(i) + 1) / 2) % 2);
+      const team = Math.floor((parseInt(i) / 2) % 2);
+      const role = Math.floor(parseInt(i) / 4);
+
+      const elm = editIcons[i]
+      $(elm).parent().on('mouseenter', async () => { if (that.getActiveManager().getCsView().editable && await Subscriptions.isSubscribed()) $(elm).show(); });
+      $(elm).parent().on('mouseleave', () => $(elm).hide());
+      if (idx == 0) {
+        $(elm).on('click', () => that.editChampion(role + 5 * team));
+      } else {
+        $(elm).on('click', () => that.editSummoner(role + 5 * team));
+      }
+    }
+    const regionEditIcon = $('.cs-region-edit-button').get(0);
+    $('.cs-region').on('mouseenter', async () => { if (that.getActiveManager().getCsView().editable && await Subscriptions.isSubscribed()) $(regionEditIcon).show(); });
+    $('.cs-region').on('mouseleave', () => $(regionEditIcon).hide());
+    $(regionEditIcon).on('click', () => that.editRegion());
+
+    $('.cs-side-blue').on('change', () => { that.editSide(true); });
+    $('.cs-side-red').on('change', () => { that.editSide(false); });
+
+    $('.cs-queue-solo').on('change', () => { that.editQueue(true); });
+    $('.cs-queue-flex').on('change', () => { that.editQueue(false); });
+    
   }
 
   private onNewCsLcu() {
@@ -208,7 +264,7 @@ export class CsTab {
       dateElm.hide();
     } else {
       const dateObj = new Date(date);
-      const dateString = (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '<br/>' + dateObj.getHours() + ":" + dateObj.getMinutes();
+      const dateString = (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '<br>' + dateObj.getHours() + ":" + dateObj.getMinutes();
       dateElm.html(dateString);
         
       editElm.hide();
@@ -299,7 +355,8 @@ export class CsTab {
   }
 
   // Heart of this class
-  private updateView(change: string) {
+  private async updateView(change: string) {
+    const subscribed = await Subscriptions.isSubscribed();
     let time = new Date().getTime();
     const timeStats = {};
     //Updates the html view, change is for optimization, if empty reset everything
@@ -313,7 +370,7 @@ export class CsTab {
     const side = Math.floor(ownerIdx/5);
     const patchInfo = MainWindow.instance().patchInfo;
     const swappedChampsView = CsManager.applyChampionSwaps(csInputView);
-    if (manager.swappableCs) {
+    if (swappable) {
       $('.cs-table-champion-swap').show();
     } else {
       $('.cs-table-champion-swap').hide();
@@ -327,7 +384,7 @@ export class CsTab {
       const roleToIdxView = this.roleToIdx(rolePredictionView);
       this.setAllToLoading();
       this.updateDistributionLegend(patchInfo, side, swappedChampsView, rolePredictionView);
-      this.updateFooter(patchInfo, csInputView, editable);
+      this.updateFooter(patchInfo, csInputView, editable && subscribed);
       this.updateSwaps(patchInfo, side, csInputView, roleToIdxView, mergedTier);
       this.updateSummonersAndRoles(patchInfo, side, csInputView, rolePredictionView, mergedTier);
     }
@@ -1029,7 +1086,7 @@ export class CsTab {
     const roleToIdx =  this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const idx = roleToIdx[(role + (blue ? 0 : 5)) % 10];
-    Popup.text(TextLanguage.DynamicText.editPlayer, TextLanguage.DynamicText.enterPlayerName, csInputView.summonerNames[idx], [], result => {
+    Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerName.english, csInputView.summonerNames[idx], [], result => {
       const edited = CsInput.clone(csInputView);
       if (edited.ownerName == edited.summonerNames[idx]) {
         edited.ownerName = result;
@@ -1048,10 +1105,10 @@ export class CsTab {
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const idx = roleToIdx[(role + (blue ? 0 : 5)) % 10];
     const currName = this.patchInfo.ChampionIdToName[csInputView.championIds[idx]] || "";
-    Popup.text(TextLanguage.DynamicText.editChampion, TextLanguage.DynamicText.enterChampionName, currName, Object.values(this.patchInfo.ChampionIdToName), result => {
+    Popup.text(TranslatedText.editChampion.english, TranslatedText.enterChampionName.english, currName, Object.values(this.patchInfo.ChampionIdToName), result => {
       const picked = Object.keys(this.patchInfo.ChampionIdToName).filter(k => this.patchInfo.ChampionIdToName[k] == result);
       if (result.length > 0 && picked.length == 0) {
-        Popup.message(TextLanguage.DynamicText.error, TextLanguage.DynamicText.championNotFound);
+        Popup.message(TranslatedText.error.english, TranslatedText.championNotFound.english);
         return;
       }
 
@@ -1068,11 +1125,11 @@ export class CsTab {
 
     const currentRegion = (this.patchInfo.RegionIdToGg[csInputView.region] || '').toUpperCase();
     const regions = Object.values(this.patchInfo.RegionIdToGg).map(x => (<string>x).toUpperCase());
-    Popup.text(TextLanguage.DynamicText.editRegion, TextLanguage.DynamicText.enterRegionInitials, currentRegion, regions, result => {
+    Popup.text(TranslatedText.editRegion.english, TranslatedText.enterRegionInitials.english, currentRegion, regions, result => {
 
       const picked = Object.keys(this.patchInfo.RegionIdToGg).filter(k => this.patchInfo.RegionIdToGg[k].toUpperCase() == result.toUpperCase());
       if (picked.length == 0) {
-        Popup.message(TextLanguage.DynamicText.error, TextLanguage.DynamicText.regionNotFound + regions.join(', '));
+        Popup.message(TranslatedText.error.english, TranslatedText.regionNotFound.english + regions.join(', '));
         return;
       }
 

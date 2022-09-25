@@ -99,12 +99,12 @@ export class CsManager {
   private static cscaiOwner: CsManager = null;
   private static cscaiBeingUsed: boolean = false;
   private patchInfo: any;
-  public connectedToLcu: boolean = false;
-  public swappableCs: boolean = false;
-  public editableCs: boolean = false;
-  public date: number = null;
-  public onNewCs: any;
-  public onCsUpdate: any;
+  private connectedToLcu: boolean = false;
+  private swappableCs: boolean = false;
+  private editableCs: boolean = false;
+  private date: number = null;
+  private onNewCs: any;
+  private onCsUpdate: any;
 
   private currCsInput = new CsInput();
   private currCsData = new CsData();

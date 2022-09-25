@@ -1,6 +1,7 @@
 import { LocalStorage } from "./localStorage";
 import { Timer } from "./timer";
 import * as $ from "jquery"; //npm install --save-dev @types/jquery
+import { TranslatedText } from "./textLanguage";
 
 
 export class Popup {
@@ -114,8 +115,8 @@ export class Popup {
   private static onLanguage: any = () => null;
   public static selectLanguage(onLanguage: any) {
     Popup.onLanguage = onLanguage;
-    $('.popup-title-text').html('Language');
-    $('.popup-content-text').html('Select your preferred language');
+    $('.popup-title-text').html(TranslatedText.language.english);
+    $('.popup-content-text').html(TranslatedText.languageText.english);
 
     $('.popup-content-text').show();
     $('.popup-input-text').hide();

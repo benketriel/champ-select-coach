@@ -12,7 +12,7 @@ import { PatchNotes } from "../../ts-lib/patchNotes";
 import { Lcu } from "../../ts-lib/lcu";
 import { Aws } from "../../ts-lib/aws";
 import { DynamicSettings } from "../../ts-lib/dynamicSettings";
-import { TextLanguage } from "../../ts-lib/textLanguage";
+import { TranslatedText, Translator } from "../../ts-lib/textLanguage";
 import { Beta } from "../../ts-lib/beta";
 import { LocalStorage } from "../../ts-lib/localStorage";
 
@@ -192,7 +192,7 @@ export class MainWindow {
       $(patchNotesTitleElems[i]).html(<string>p[2]);
       $(patchNotesDateElems[i]).html(<string>p[1]);
       for (let x of p[3]) {
-        $(patchNotesDescElems[i]).append('• ' + x + '<br/>');
+        $(patchNotesDescElems[i]).append('• ' + x + '<br>');
       }
     }
 
@@ -246,8 +246,8 @@ export class MainWindow {
       $($('.side-menu-old-cs')[i]).on('click', () => MainWindow.selectHistoryCS(i));
       $($('.deleteHistoryItem')[i]).on('click', event => { 
         Popup.prompt(
-          TextLanguage.DynamicText.deleteHistory,
-          TextLanguage.DynamicText.thisWillRemoveLobbyAreYouSure,
+          TranslatedText.deleteHistory.english,
+          TranslatedText.thisWillRemoveLobbyAreYouSure.english,
           () => MainWindow.deleteHistoryCS(i), 
           () => null);
         event.stopPropagation(); 
@@ -313,14 +313,15 @@ export class MainWindow {
     $('.settings-single-thread-mode').prop('checked', LocalStorage.getSingleThreadedMode());
     $('.settings-single-thread-mode').on('change', (e: any) => LocalStorage.setSingleThreadedMode(e.currentTarget.checked));
 
+    $('.settings-button-language img').attr('src', '/img/flags/' + LocalStorage.getLanguage() + '.png');
+    $('.settings-button-language').on('click', () => MainWindow.changeLanguage());
+
     $('.settings-button-overwolf-settings').on('click', () => { window.location.href = 'overwolf://settings/hotkeys'; });
 
-    $('.settings-button-subscribe').on('click', () => { MainWindow.subscribe(); });
-    $('.owad-container-footer').on('click', () => { MainWindow.subscribe(); });
+    $('.settings-button-subscribe').on('click', () => MainWindow.subscribe());
+    $('.owad-container-footer').on('click', () => MainWindow.subscribe());
     
-
     //Popup
-
     $('.popupCloseButton').on('click', () => { Popup.close(); });
     $('.popup-button-yes').on('click', () => { Popup.yes(); });
     $('.popup-button-no').on('click', () => { Popup.no(); });
@@ -330,83 +331,7 @@ export class MainWindow {
     
     $('.popup-flag').on('click', event => { Popup.flagClick(event); });
 
-
-    //CS
     const that = this;
-    const roleSwappers = $('.cs-table-champion-swap-role').get();
-    for (const i in roleSwappers) {
-      const idx = Math.round(parseInt(i) % 4);
-      const team = Math.floor((parseInt(i) / 4) % 2);
-      const role = Math.floor(parseInt(i) / 8);
-      $(roleSwappers[i]).on('click', () => that.csTab.swapRole(5 * team + role, idx + (role <= idx ? 1 : 0)));
-    }
-
-    const champSwappers = $('.cs-table-champion-swap-champion').get();
-    for (const i in champSwappers) {
-      const idx = Math.round(parseInt(i) % 4);
-      const team = Math.floor((parseInt(i) / 4) % 2);
-      const role = Math.floor(parseInt(i) / 8);
-      $(champSwappers[i]).on('click', () => that.csTab.swapChampion(5 * team + role, 5 * team + idx + (role <= idx ? 1 : 0)));
-    }
-
-    const defaultSwappers = $('.cs-table-champion-swap-default').get();
-    for (const i in defaultSwappers) {
-      const idx = Math.round(parseInt(i) % 2);
-      const team = Math.floor((parseInt(i) / 2) % 2);
-      const role = Math.floor(parseInt(i) / 4);
-      if (idx == 0) {
-        $(defaultSwappers[i]).on('click', () => that.csTab.swapRole(5 * team + role, -1));
-      } else {
-        $(defaultSwappers[i]).on('click', () => that.csTab.swapChampion(5 * team + role, -1));
-      }
-    }
-
-    const editIcons = $('.cs-table-edit-button').get();
-    for (const i in editIcons) {
-      const idx = Math.round(Math.floor((parseInt(i) + 1) / 2) % 2);
-      const team = Math.floor((parseInt(i) / 2) % 2);
-      const role = Math.floor(parseInt(i) / 4);
-
-      const elm = editIcons[i]
-      $(elm).parent().on('mouseenter', () => { if (that.csTab.getActiveManager().getCsView().editable) $(elm).show(); });
-      $(elm).parent().on('mouseleave', () => $(elm).hide());
-      if (idx == 0) {
-        $(elm).on('click', () => that.csTab.editChampion(role + 5 * team));
-      } else {
-        $(elm).on('click', () => that.csTab.editSummoner(role + 5 * team));
-      }
-    }
-    const regionEditIcon = $('.cs-region-edit-button').get(0);
-    $('.cs-region').on('mouseenter', () => { if (that.csTab.getActiveManager().getCsView().editable) $(regionEditIcon).show(); });
-    $('.cs-region').on('mouseleave', () => $(regionEditIcon).hide());
-    $(regionEditIcon).on('click', () => that.csTab.editRegion());
-
-    $('.cs-side-blue').on('change', () => { that.csTab.editSide(true); });
-    $('.cs-side-red').on('change', () => { that.csTab.editSide(false); });
-
-    $('.cs-queue-solo').on('change', () => { that.csTab.editQueue(true); });
-    $('.cs-queue-flex').on('change', () => { that.csTab.editQueue(false); });
-    
-    //Personal
-    $('.personal-champions-left-arrow').on('click', () => { that.personalTab.scrollChampRole(-1); });
-    $('.personal-champions-right-arrow').on('click', () => { that.personalTab.scrollChampRole(1); });
-    $('.personal-champions-options-sort-most-played').on('change', () => { that.personalTab.setSortByMostPlayed(true); });
-    $('.personal-champions-options-sort-score').on('change', () => { that.personalTab.setSortByMostPlayed(false); });
-    $('.personal-champions-options-performance-solo-queue').on('change', () => { that.personalTab.setSoloQueue(true); });
-    $('.personal-champions-options-performance-flex').on('change', () => { that.personalTab.setSoloQueue(false); });
-
-    $('.personal-history-left-arrow').on('click', () => { that.personalTab.scrollCscHistory(-1); });
-    $('.personal-history-right-arrow').on('click', () => { that.personalTab.scrollCscHistory(1); });
-    $('.personal-history-options-score-pre-game').on('change', () => { that.personalTab.setCscHistoryPreGame(true); });
-    $('.personal-history-options-score-in-game').on('change', () => { that.personalTab.setCscHistoryPreGame(false); });
-
-    const historyElems = $('.personal-history-table-container').get();
-    for (const i in historyElems) {
-      $(historyElems[i]).on('click', () => { that.personalTab.showCscHistoryCs(parseInt(i)); });
-    }
-
-    $('.personal-graph-canvas').on('mousemove', e => { that.personalTab.mouseOverCanvas(e); });
-    $('.personal-graph-canvas').on('mouseleave', () => { that.personalTab.mouseLeaveCanvas(); });
 
     //Global
     $('.drags-window').each((index, elem) => { this.setDrag(elem); });
@@ -421,6 +346,11 @@ export class MainWindow {
     } });
     $('body').on('mousedown', () => MainWindow.activity());
     $('.tooltip').on('mouseenter', e => that.repositionOverflowingPopup(e.currentTarget));
+
+    $('.translated-text').on('DOMSubtreeModified', (e: any) => { Translator.updateTranslation(e.currentTarget); });
+    Translator.updateAllTranslations();
+
+    if (!LocalStorage.languageHasBeenSet()) MainWindow.changeLanguage();
   }
 
   //Make callbacks static since the 'this' is confusing to pass to a callback, use MainWindow.instance() instead
@@ -476,7 +406,7 @@ export class MainWindow {
     const main = MainWindow.instance();
     if (main.selectedView == 'personal') return;
     if (!main.personalTab.readyToBeDisplayed()) {
-      Popup.message(TextLanguage.DynamicText.lolDisconnected, TextLanguage.DynamicText.cscNotConnectingToLCU);
+      Popup.message(TranslatedText.lolDisconnected.english, TranslatedText.cscNotConnectingToLCU.english);
       return;
     }
     MainWindow.clearAll();
@@ -523,7 +453,7 @@ export class MainWindow {
       $('#feedback-message').attr("disabled", "disabled");
   
       if (name.length == 0 || msg.length == 0) {
-        $('.feedback-error').html(TextLanguage.DynamicText.pleaseFillInFields);
+        $('.feedback-error').html(TranslatedText.pleaseFillInFields.english);
         $('.feedback-error').hide();
         $('.feedback-error').fadeIn();
         return;
@@ -544,19 +474,19 @@ export class MainWindow {
       }catch{}
 
       if (!(await Aws.feedback(JSON.stringify(data)))) {
-        $('.feedback-error').html(TextLanguage.DynamicText.unableToConnect);
+        $('.feedback-error').html(TranslatedText.unableToConnect.english);
         $('.feedback-error').hide();
         $('.feedback-error').fadeIn();
         return;
       }
 
       $('.submitFeedback').hide();
-      $('.feedback-success').html(TextLanguage.DynamicText.thankYouForFeedback);
+      $('.feedback-success').html(TranslatedText.thankYouForFeedback.english);
       $('.feedback-success').hide();
       $('.feedback-success').fadeIn();
       $('.feedback-error').html('');
     }catch (ex) {
-      $('.feedback-error').html(TextLanguage.DynamicText.anErrorOccurred);
+      $('.feedback-error').html(TranslatedText.anErrorOccurred.english);
       $('.feedback-error').hide();
       $('.feedback-error').fadeIn();
       Logger.log(ex);
@@ -578,7 +508,7 @@ export class MainWindow {
 
       if (MainWindow.lastStatusPopup != status.announcement) {
         MainWindow.lastStatusPopup = status.announcement;
-        // Popup.message(TextLanguage.DynamicText.announcement, status.announcement);
+        // Popup.message(TranslatedText.announcement.english, status.announcement);
       }
 
     } else {
@@ -598,7 +528,7 @@ export class MainWindow {
     $('.settings-beta-version').attr("disabled", "disabled"); //Also prevents multiple concurrent clicks
 
     if (MainWindow.currUpdateState == null || MainWindow.currUpdateState == 'UpToDate') {
-      $('.settings-version-text').html(TextLanguage.DynamicText.checkingForUpdates);
+      $('.settings-version-text').html(TranslatedText.checkingForUpdates.english);
 
       await Timer.wait(500);
       let res = await new Promise<overwolf.extensions.CheckForUpdateResult>(resolve => overwolf.extensions.checkForExtensionUpdate(resolve));
@@ -607,7 +537,7 @@ export class MainWindow {
         res = await new Promise<overwolf.extensions.CheckForUpdateResult>(resolve => overwolf.extensions.checkForExtensionUpdate(resolve));
       }
       if (MainWindow.currUpdateState == null && res.state != 'UpToDate') {
-        Popup.message(TextLanguage.DynamicText.update, TextLanguage.DynamicText.updateIsAvailable);
+        Popup.message(TranslatedText.update.english, TranslatedText.updateIsAvailable.english);
       }
       MainWindow.currUpdateState = res.state;
     } else if (MainWindow.currUpdateState == 'UpdateAvailable') {
@@ -616,21 +546,21 @@ export class MainWindow {
       if (updateRes && updateRes.success && updateRes.state == 'PendingRestart') {
         MainWindow.currUpdateState = 'PendingRestart';
       } else {
-        Popup.message(TextLanguage.DynamicText.error, TextLanguage.DynamicText.anErrorOccurred);
+        Popup.message(TranslatedText.error.english, TranslatedText.anErrorOccurred.english);
       }
     } else if (MainWindow.currUpdateState == 'PendingRestart') {
       overwolf.extensions.relaunch();
     }
 
     if (MainWindow.currUpdateState == 'UpToDate') {
-      $('.settings-version-text').html(TextLanguage.DynamicText.appIsUpToDate);
-      $('.settings-button-version').html(TextLanguage.DynamicText.checkForUpdates);
+      $('.settings-version-text').html(TranslatedText.appIsUpToDate.english);
+      $('.settings-button-version').html(TranslatedText.checkForUpdates.english);
     } else if (MainWindow.currUpdateState == "UpdateAvailable") {
-      $('.settings-version-text').html(TextLanguage.DynamicText.updateAvailable);
-      $('.settings-button-version').html(TextLanguage.DynamicText.downloadUpdate);
+      $('.settings-version-text').html(TranslatedText.updateAvailable.english);
+      $('.settings-button-version').html(TranslatedText.downloadUpdate.english);
     } else if (MainWindow.currUpdateState == "PendingRestart") {
-      $('.settings-version-text').html(TextLanguage.DynamicText.updateAvailable);
-      $('.settings-button-version').html(TextLanguage.DynamicText.updateNow);
+      $('.settings-version-text').html(TranslatedText.updateAvailable.english);
+      $('.settings-button-version').html(TranslatedText.updateNow.english);
     }
 
     $('.settings-version-id').html(version);
@@ -663,6 +593,13 @@ export class MainWindow {
     overwolf.utils.openStore(<any>{ page:overwolf.utils.enums.eStorePage.SubscriptionPage });
   }
 
+  private static async changeLanguage() {
+    Popup.selectLanguage((newLang: string) => {
+      LocalStorage.setLanguage(newLang);
+      $('.settings-button-language img').attr('src', '/img/flags/' + newLang + '.png');
+      Translator.updateAllTranslations();
+    });
+  }
 
   public async getWindowState() {
     return await this.window.getWindowState();

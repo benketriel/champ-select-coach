@@ -52,8 +52,22 @@
 }
 .tooltip:hover .tooltiptext 
 {
-    transition-delay: 0.5s;
-    visibility: visible;
-    opacity: 1;
+    animation: tooltip-popup 1.0s cubic-bezier(0.5, 0, 0.5, 1) forwards;
+    /* transition-delay: 0.5s; */
+    /* visibility: visible;
+    opacity: 1; */
 }
-
+@keyframes tooltip-popup {
+    0% { 
+        visibility: hidden;
+        opacity: 0;
+    }
+    50% { 
+        visibility: hidden;
+        opacity: 0;
+    }
+    100% { 
+        visibility: visible;
+        opacity: 1;
+    }
+}

@@ -58,6 +58,33 @@ export class PersonalTab {
       overwolf.games.launchers.onTerminated.removeListener(handleLcuEvent);
       overwolf.games.launchers.onTerminated.addListener(handleLcuEvent);
     }
+
+    this.init();
+  }
+
+  private async init() {
+    const that = this;
+
+    $('.personal-champions-left-arrow').on('click', () => { that.scrollChampRole(-1); });
+    $('.personal-champions-right-arrow').on('click', () => { that.scrollChampRole(1); });
+    $('.personal-champions-options-sort-most-played').on('change', () => { that.setSortByMostPlayed(true); });
+    $('.personal-champions-options-sort-score').on('change', () => { that.setSortByMostPlayed(false); });
+    $('.personal-champions-options-performance-solo-queue').on('change', () => { that.setSoloQueue(true); });
+    $('.personal-champions-options-performance-flex').on('change', () => { that.setSoloQueue(false); });
+
+    $('.personal-history-left-arrow').on('click', () => { that.scrollCscHistory(-1); });
+    $('.personal-history-right-arrow').on('click', () => { that.scrollCscHistory(1); });
+    $('.personal-history-options-score-pre-game').on('change', () => { that.setCscHistoryPreGame(true); });
+    $('.personal-history-options-score-in-game').on('change', () => { that.setCscHistoryPreGame(false); });
+
+    const historyElems = $('.personal-history-table-container').get();
+    for (const i in historyElems) {
+      $(historyElems[i]).on('click', () => { that.showCscHistoryCs(parseInt(i)); });
+    }
+
+    $('.personal-graph-canvas').on('mousemove', e => { that.mouseOverCanvas(e); });
+    $('.personal-graph-canvas').on('mouseleave', () => { that.mouseLeaveCanvas(); });
+
   }
 
   private async delayedSync() {
@@ -404,7 +431,7 @@ export class PersonalTab {
       const role = data.rolePrediction[idx];
       const pred = this.cscHistoryPreGame ? hist.partialPrediction : hist.fullPrediction;
       const date = new Date(hist.timestamp);
-      const dateHtml = date.getFullYear().toString().substring(2) + '/' + date.getMonth() + '<br/>' + date.getHours() + ':' + date.getMinutes();
+      const dateHtml = date.getFullYear().toString().substring(2) + '/' + date.getMonth() + '<br>' + date.getHours() + ':' + date.getMinutes();
 
       if (pred > 0.5 && hist.userWon || pred < 0.5 && !hist.userWon) {
         hits++;

@@ -35,6 +35,10 @@ export class LocalStorage {
   public static getSingleThreadedMode() { return (LocalStorage.get('single-threaded-mode') || 'f') == 't'; }
   public static setSingleThreadedMode(mode: boolean) { LocalStorage.set('single-threaded-mode', mode ? 't' : 'f'); }
 
+  public static getLanguage() { return LocalStorage.get('language') || 'english'; }
+  public static setLanguage(lang: string) { LocalStorage.set('language', lang); }
+  public static languageHasBeenSet() { return !!LocalStorage.get('language'); }
+
   
 
 }
