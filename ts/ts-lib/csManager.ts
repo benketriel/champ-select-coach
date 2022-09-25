@@ -30,15 +30,25 @@ export class CsInput {
   public championSwaps: string[] = [null, null, null, null, null, null, null, null, null, null];
 
   public static triggersLoadCsData(oldCsInput: CsInput, newCsInput: CsInput) {
-    return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || !Utils.setsAreEqual(new Set(oldCsInput.summonerNames), new Set(newCsInput.summonerNames));
+    return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || 
+      !Utils.setsAreEqual(new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)));
   }
 
   public static triggersNewCs(oldCsInput: CsInput, newCsInput: CsInput) {
-    return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || !Utils.setIncludes(new Set(newCsInput.summonerNames), new Set(oldCsInput.summonerNames));
+    return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || 
+      !Utils.setIncludes(new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)));
   }
   
   public static anyVisibleChange(oldCsInput: CsInput, newCsInput: CsInput) {
     return JSON.stringify(oldCsInput) != JSON.stringify(newCsInput);
+  }
+
+  public static isOlderVersionOfTheSameCS(oldCsInput: CsInput, newCsInput: CsInput) {
+    return oldCsInput && newCsInput && oldCsInput.queueId == newCsInput.queueId && oldCsInput.region == newCsInput.region && oldCsInput.ownerName == newCsInput.ownerName && 
+      oldCsInput.championIds.filter(x => x != null && x != '' && x != '0').length == 10 &&
+      newCsInput.championIds.filter(x => x != null && x != '' && x != '0').length == 5 && 
+      Utils.setIncludes(new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(newCsInput.summonerNames.filter(name => name && name.length > 0))) &&
+      new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)).size > new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)).size;
   }
   
   public static readyToBeUploaded(csInput: CsInput) {
@@ -211,10 +221,14 @@ export class CsManager {
     if (!CsInput.anyVisibleChange(this.newCsInput, newCsInput)) {
       return;
     }
+    if (CsInput.isOlderVersionOfTheSameCS(this.newCsInput, newCsInput)) {
+      //Ignore, these messages can come out of order between CS and spectator and we don't want it to think it's a new CS all of the sudden
+      return;
+    }
 
+    this.newCsInput = newCsInput;
     if (this.ongoingRolePred) {
       this.pendingRolePred = true;
-      this.newCsInput = newCsInput;
       return;
     }
 

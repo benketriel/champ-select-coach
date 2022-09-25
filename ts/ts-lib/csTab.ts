@@ -231,8 +231,10 @@ export class CsTab {
 
     const ownerIdx = CsInput.getOwnerIdx(csInputView);
     const mergedTier = CsTab.mergeTiers(lcuTiers, apiTiers)[csInputView.summonerNames[ownerIdx]] || {};
-    let fullScore = score && score['full'] ? score['full'][0][0] : 0.5;
-    fullScore = ownerIdx < 5 ? fullScore : 1 - fullScore;
+    let fullScore = score && score['full'] ? score['full'][0][0] : null;
+    if (fullScore != null) {
+      fullScore = ownerIdx < 5 ? fullScore : 1 - fullScore;
+    }
 
     const patchInfo = MainWindow.instance().patchInfo;
 
@@ -240,7 +242,9 @@ export class CsTab {
     CsTab.setChampionImg(patchInfo, $('.side-menu-current-cs .side-menu-champion img'), swappedChamps[ownerIdx]);
     CsTab.setRoleImg($('.side-menu-current-cs .side-menu-role img'), rolePredictionView[ownerIdx], mergedTier.tier, mergedTier.division, mergedTier.lp);
 
-    $('.side-menu-current-cs .side-menu-current-cs-score').html(Utils.probabilityToScore(fullScore));
+    if (fullScore != null) {
+      $('.side-menu-current-cs .side-menu-current-cs-score').html(Utils.probabilityToScore(fullScore));
+    }
 
     $('.side-menu-current-cs .side-menu-waiting').hide();
     $('.side-menu-current-cs .side-menu-champion').show();
@@ -387,6 +391,7 @@ export class CsTab {
       this.updateFooter(patchInfo, csInputView, editable && subscribed);
       this.updateSwaps(patchInfo, side, csInputView, roleToIdxView, mergedTier);
       this.updateSummonersAndRoles(patchInfo, side, csInputView, rolePredictionView, mergedTier);
+      this.updatePicking(side, csInputView, rolePredictionView);
     }
     timeStats['instant'] = new Date().getTime() - time; time = new Date().getTime();
     if (!change || change == '' || change == 'data') {
@@ -861,6 +866,37 @@ export class CsTab {
       CsTab.setRoleImg($(roleIcons[teamRole]), teamRole, tTeam.tier, tTeam.division, tTeam.lp);
       roleTooltips[teamRole].innerHTML = roleNames[teamRole];
     }
+  }
+
+  private updatePicking(side: number, inputView: CsInput, rolePrediction: number[]) {
+    const elems = [
+      $('.cs-table-champion-icon-cell').get(),
+      $('.cs-table-summoner-name-cell').get(),
+      $('.cs-table-individuals-solo-cell').get(),
+      $('.cs-table-summoner-tier-cell').get(),
+      $('.cs-table-individuals-team-cell').get(),
+      $('.cs-table-recommended-champions-cell').get(),
+    ];
+    for (let i = 0; i < 5; ++i) {
+      const role0 = rolePrediction[i];
+      const role1 = rolePrediction[5 + i];
+      const pick0 = inputView.picking[i];
+      const pick1 = inputView.picking[5 + i];
+
+      for (let j = 0; j < elems.length; ++j) {
+        if (pick0) {
+          $(elems[j][2 * role0 + side]).addClass('picking');
+        } else {
+          $(elems[j][2 * role0 + side]).removeClass('picking');
+        }
+        if (pick1) {
+          $(elems[j][2 * role1 + 1 - side]).addClass('picking');
+        } else {
+          $(elems[j][2 * role1 + 1 - side]).removeClass('picking');
+        }
+      }
+    }
+
   }
 
   private updateHistory(patchInfo: any, side: number, rolePrediction: number[], inputView: CsInput, history: any, historyStats: any, lcuTiers: any) {

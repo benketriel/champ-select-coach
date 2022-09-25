@@ -65,7 +65,19 @@ export class MainWindow {
     MainWindow.waitForAdsLibToLoadThenInitAdObj();
     MainWindow.versionButtonClick();
 
-    Popup.prompt('Subscription', 'Do you want to temporarily enable the subscribed-only mode?', () => Subscriptions.TODO = true, () => {});
+    Popup.prompt('Subscription', 'BETA TESTING: Do you want to temporarily enable the subscribed-only mode?', () => Subscriptions.TODO = true, () => {});
+    $('body').css('opacity', '1.0');
+
+    const notes = PatchNotes.get();
+
+    if (notes.length > 0 && LocalStorage.getLatestSeenPatchNote() != notes[notes.length - 1][0]) {
+      await Timer.wait(100);
+      $('.newsButton').trigger('click');
+      await Timer.wait(100);
+      $($('.slide-overlay-news .settings-sub-title').get(0)).trigger('click');
+      LocalStorage.setLatestSeenPatchNote(<string>notes[notes.length - 1][0]);
+    }
+
   }
 
 
@@ -116,6 +128,8 @@ export class MainWindow {
       return; //Prevent spamming of this function
     }
     MainWindow.lastActivity = new Date().getTime();
+    await Timer.wait(100); //Just prevent things from happening exactly when you click the window
+
     if (await Subscriptions.isSubscribed()) {
       MainWindow.owAdObj.removeAd();
       $('.side-menu-add-manual-cs').show();
@@ -283,6 +297,7 @@ export class MainWindow {
       $('.slide-overlay-news').animate({ left: 0 });
     });
     $('.slide-overlay-close').on('click', () => { 
+      $('.slide-overlay').stop();
       $('.slide-overlay').animate({ left: '100%' });
     });
     $('.accordeon-title').on('click', e => { 
@@ -319,8 +334,8 @@ export class MainWindow {
 
     $('.settings-button-overwolf-settings').on('click', () => { window.location.href = 'overwolf://settings/hotkeys'; });
 
-    $('.settings-button-subscribe').on('click', () => MainWindow.subscribe());
-    $('.owad-container-footer').on('click', () => MainWindow.subscribe());
+    $('.settings-button-subscribe').on('click', () => Subscriptions.subscribe());
+    $('.owad-container-footer').on('click', () => Subscriptions.subscribe());
     
     //Popup
     $('.popupCloseButton').on('click', () => { Popup.close(); });
@@ -343,6 +358,7 @@ export class MainWindow {
     $('body').on('keyup', e => { if (e.key === "Escape") {
       MainWindow.activity();
       Popup.close();
+      $('.slide-overlay').stop();
       $('.slide-overlay').animate({ left: '100%' });
     } });
     $('body').on('mousedown', () => MainWindow.activity());
@@ -438,7 +454,8 @@ export class MainWindow {
     main.selectedView = '';
 
     $('.home-tab').hide();
-    $('.slide-overlay').animate({ left: '100%' });
+    // $('.slide-overlay').stop();
+    // $('.slide-overlay').animate({ left: '100%' });
     $('.side-menu-current-cs').removeClass('side-menu-selected-effect');
     $('.side-menu-selected-effect').removeClass('side-menu-selected-effect');
     $('.s-lcu-status').removeClass('s-lcu-status-selected');
@@ -531,6 +548,7 @@ export class MainWindow {
     if (MainWindow.currUpdateState == null || MainWindow.currUpdateState == 'UpToDate') {
       $('.settings-version-text').html(TranslatedText.checkingForUpdates.english);
 
+      await Timer.wait(500); //Give the user time to see that it did click the button
       let currState = await Updates.getUpdateState();
       if (MainWindow.currUpdateState == null && currState != 'UpToDate') {
         Popup.message(TranslatedText.update.english, TranslatedText.updateIsAvailable.english);
@@ -582,10 +600,6 @@ export class MainWindow {
     $('.settings-auto-open-never').prop('checked', mode == 2);
 
     LocalStorage.setAutoOpenMode(mode);
-  }
-
-  private static async subscribe() {
-    overwolf.utils.openStore(<any>{ page:overwolf.utils.enums.eStorePage.SubscriptionPage });
   }
 
   private static async changeLanguage() {

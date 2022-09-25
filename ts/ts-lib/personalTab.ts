@@ -99,6 +99,8 @@ export class PersonalTab {
       $('.lcuStatusLightDisconnected').hide();
       $('.lcuStatusLightConnected').show();
       $('.s-lcu-status-text').removeClass('s-lcu-status-text-disconnected');
+      $('.s-lcu-status-text').removeClass('translated-text');
+      $('.s-lcu-status-text').off('DOMSubtreeModified');
       $('.s-lcu-status-text').html(x.name)
 
       this.enqueueUpdate(async () => {
@@ -154,6 +156,24 @@ export class PersonalTab {
     this.canvasDraw(clear, clear, clear);
   }
 
+  private lockOptions() {
+    $('.personal-champions-options-sort-most-played').attr('disabled', <any>true);
+    $('.personal-champions-options-sort-score').attr('disabled', <any>true);
+    $('.personal-champions-options-performance-solo-queue').attr('disabled', <any>true);
+    $('.personal-champions-options-performance-flex').attr('disabled', <any>true);
+    $('.personal-history-options-score-pre-game').attr('disabled', <any>true);
+    $('.personal-history-options-score-in-game').attr('disabled', <any>true);
+  }
+
+  private unlockOptions() {
+    $('.personal-champions-options-sort-most-played').attr('disabled', <any>false);
+    $('.personal-champions-options-sort-score').attr('disabled', <any>false);
+    $('.personal-champions-options-performance-solo-queue').attr('disabled', <any>false);
+    $('.personal-champions-options-performance-flex').attr('disabled', <any>false);
+    $('.personal-history-options-score-pre-game').attr('disabled', <any>false);
+    $('.personal-history-options-score-in-game').attr('disabled', <any>false);
+  }
+
   private async enqueueUpdate(func: any) {
     if (this.updateInProgress) {
       this.updateQueue.push(func);
@@ -194,7 +214,9 @@ export class PersonalTab {
       this.ongoingProgressBar = new ProgressBar(['loadPersonalData'], [1]);
       if (activeProgressBar) this.ongoingProgressBar.setActive();
 
+      this.lockOptions();
       await this.loadData();
+      this.unlockOptions();
       this.ongoingProgressBar.taskCompleted();
       $($('.personal-title').get(0)).html(this.summonerName + ' - ' + (this.tier.tier == '' ? '' : Utils.capitalizeFirstLetter(this.tier.tier) + ' ' + this.tier.division + ' ' + this.tier.lp + ' LP ') + ' ' + this.patchInfo.RegionIdToGg[this.region].toUpperCase());
     }

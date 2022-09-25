@@ -12,7 +12,6 @@ export class Updates {
   };
 
   public static async getUpdateState() {
-    await Timer.wait(10);
     let res = await new Promise<overwolf.extensions.CheckForUpdateResult>(resolve => overwolf.extensions.checkForExtensionUpdate(resolve));
     let tries = 0;
     while (!res || !res.success || !res.state) {

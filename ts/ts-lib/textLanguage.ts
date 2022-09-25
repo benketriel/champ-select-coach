@@ -110,6 +110,10 @@ export const TranslatedText = {
     spanish: 'Estás seguro que deseas de eliminar esta partida de la historia?',
   },
   
+  disconnected: {
+    english: 'Disconnected',
+    spanish: 'Desconectado',
+  },
   lolDisconnected: {
     english: 'LoL disconnected',
     spanish: 'LoL desconectado',

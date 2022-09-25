@@ -39,6 +39,9 @@ export class LocalStorage {
   public static setLanguage(lang: string) { LocalStorage.set('language', lang); }
   public static languageHasBeenSet() { return !!LocalStorage.get('language'); }
 
+  public static getLatestSeenPatchNote() { return LocalStorage.get('latest-seen-patch-note') || null; }
+  public static setLatestSeenPatchNote(name: string) { LocalStorage.set('latest-seen-patch-note', name); }
+
   
 
 }

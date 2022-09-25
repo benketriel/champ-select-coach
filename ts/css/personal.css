@@ -335,6 +335,10 @@
     margin: 4px;
 }
 
+.personal-history-table-container:hover {
+    filter: brightness(130%);
+}
+
 .personal-history-champion-icon {
     background: rgba(30, 40, 45, 1);
     height: 44px;
