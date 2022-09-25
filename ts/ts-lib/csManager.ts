@@ -587,12 +587,17 @@ export class CsManager {
         csInput.championIds = spect.result.participants.map(x => x.championId.toString());
         csInput.picking = [false, false, false, false, false, false, false, false, false, false];
         csInput.summonerSpells = spect.result.participants.map(x => [x.spell1Id || -1, x.spell2Id || -1]);
-        csInput.assignedRoles = this.currCsInputView.assignedRoles; //roles not in the data here
-        // csInput.assignedRoles = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]; //alt
-        // csInput.assignedRoles = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //or maybe it's like this? TODO check
-        
-        csInput.roleSwaps = this.currCsInputView.roleSwaps;
-        csInput.championSwaps = this.currCsInputView.championSwaps;
+
+        const sToCs = this.findSpectatorToCsMapping(this.currCsInputView.summonerNames, csInput.summonerNames);
+        if (sToCs) {
+          //roles not in the data here
+          csInput.assignedRoles =  this.applyMapping(this.currCsInputView.assignedRoles, sToCs);
+          // csInput.assignedRoles = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]; //alt
+          // csInput.assignedRoles = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //or maybe it's like this? TODO check
+          
+          csInput.roleSwaps =  this.applyMapping(this.currCsInputView.roleSwaps, sToCs);
+          csInput.championSwaps =  this.applyMapping(this.currCsInputView.championSwaps, sToCs);
+        }
         
         this.handleCsChange(csInput);
         break;
@@ -602,6 +607,27 @@ export class CsManager {
         continue;
       }
     }
+  }
+
+  private findSpectatorToCsMapping(csNames: string[], spectNames: string[]) {
+    const mapping = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    for (let i = 0; i < 10; ++i) {
+      const name = csNames[i];
+      const idx = spectNames.indexOf(name);
+      if (name.length > 0 && idx >=0) {
+        mapping[idx] = i;
+      }
+    }
+    if (new Set(mapping).size != 10) return null;
+    return mapping;
+  }
+
+  private applyMapping(arr: any[], mapping: number[]) {
+    const res = [];
+    for (let i = 0; i < 10; ++i) {
+      res[i] = arr[mapping[i]];
+    }
+    return res;
   }
 
   private async uploadCurrentCS() {

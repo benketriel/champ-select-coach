@@ -15,6 +15,7 @@ import { DynamicSettings } from "../../ts-lib/dynamicSettings";
 import { TranslatedText, Translator } from "../../ts-lib/textLanguage";
 import { Beta } from "../../ts-lib/beta";
 import { LocalStorage } from "../../ts-lib/localStorage";
+import { Updates } from "../../ts-lib/updates";
 
 
 declare var _owAdConstructor: any;
@@ -530,19 +531,13 @@ export class MainWindow {
     if (MainWindow.currUpdateState == null || MainWindow.currUpdateState == 'UpToDate') {
       $('.settings-version-text').html(TranslatedText.checkingForUpdates.english);
 
-      await Timer.wait(500);
-      let res = await new Promise<overwolf.extensions.CheckForUpdateResult>(resolve => overwolf.extensions.checkForExtensionUpdate(resolve));
-      while (!res || !res.success || !res.state) {
-        await Timer.wait(1000);
-        res = await new Promise<overwolf.extensions.CheckForUpdateResult>(resolve => overwolf.extensions.checkForExtensionUpdate(resolve));
-      }
-      if (MainWindow.currUpdateState == null && res.state != 'UpToDate') {
+      let currState = await Updates.getUpdateState();
+      if (MainWindow.currUpdateState == null && currState != 'UpToDate') {
         Popup.message(TranslatedText.update.english, TranslatedText.updateIsAvailable.english);
       }
-      MainWindow.currUpdateState = res.state;
+      MainWindow.currUpdateState = currState;
     } else if (MainWindow.currUpdateState == 'UpdateAvailable') {
-      const updateRes = <any>await new Promise(resolve => overwolf.extensions.updateExtension(resolve));
-      Logger.log("App was manually updated with return message: " + JSON.stringify(updateRes));
+      const updateRes = <any>await Updates.update();
       if (updateRes && updateRes.success && updateRes.state == 'PendingRestart') {
         MainWindow.currUpdateState = 'PendingRestart';
       } else {
@@ -552,7 +547,7 @@ export class MainWindow {
       overwolf.extensions.relaunch();
     }
 
-    if (MainWindow.currUpdateState == 'UpToDate') {
+    if (MainWindow.currUpdateState == null || MainWindow.currUpdateState == 'UpToDate') {
       $('.settings-version-text').html(TranslatedText.appIsUpToDate.english);
       $('.settings-button-version').html(TranslatedText.checkForUpdates.english);
     } else if (MainWindow.currUpdateState == "UpdateAvailable") {
@@ -564,7 +559,7 @@ export class MainWindow {
     }
 
     $('.settings-version-id').html(version);
-    if (await Beta.isBetaVersion() && MainWindow.currUpdateState == 'UpToDate') {
+    if (await Beta.isBetaVersion() && (MainWindow.currUpdateState == null || MainWindow.currUpdateState == 'UpToDate')) {
       $('.settings-version-id-beta').show();
     } else {
       $('.settings-version-id-beta').hide();

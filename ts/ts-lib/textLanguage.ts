@@ -3,9 +3,30 @@ import { LocalStorage } from "./localStorage"
 import { Logger } from "./logger";
 
 export const TranslatedText = {
-  //JSON.stringify([...new Set($('.translated-text').get().map($).map(x => x.html()))])
+
+  /*
+    For anyone who wants to contribute read this first:
+    All you need to do is add a row to every entry, with the language you are translating to.
+    Do not translate two different items into the same text, the text may be the same in different 
+    languages in the same item though, for example 'Total' in spanish/english.
+    Some fields have formatting parts such as line breaks or other html tags. These should be kept in all translations.
+    Line breaks in the format \n, tabs or multiple spaces do not matter (HTML), however when there are line breaks in the format <br>
+    then it means these lines should not be much longer than this, and you also have to include <br> in your translations.
+    For the translations you can omit characters like \n or multiple spaces in a row since these won't matter in HTML.
+    Try to maintain the translations of similar length to prevent issues of text overflowing in the UI.
+    For full sentences feel free to paraphrase if it comes more natural.
+    It's highly recommended to understand the context of each entry before translating.
+    Add //comments or ask if things are uncertain, so we can build and maintain this together over time.
+
+    All the entries after 'Extracted from HTML' were automatically extracted from the HTML via
+    JSON.stringify([...new Set($('.translated-text').get().map($).map(x => x.html()))])
+    This means that you may not change any character in the English versions of these entries (not even spaces), 
+    unless you also make the same change in the original HTML.
+
+  */
+
   top: {
-    english: 'Top',
+    english: 'Top', //Example comment
     spanish: 'Superior',
   },
   jungle: {

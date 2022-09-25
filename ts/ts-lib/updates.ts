@@ -12,9 +12,10 @@ export class Updates {
   };
 
   public static async getUpdateState() {
+    await Timer.wait(10);
     let res = await new Promise<overwolf.extensions.CheckForUpdateResult>(resolve => overwolf.extensions.checkForExtensionUpdate(resolve));
     let tries = 0;
-    while (!res.success || !res.state) {
+    while (!res || !res.success || !res.state) {
       await Timer.wait(1000);
       res = await new Promise<overwolf.extensions.CheckForUpdateResult>(resolve => overwolf.extensions.checkForExtensionUpdate(resolve));
       if (tries > 10) return null;
@@ -22,14 +23,11 @@ export class Updates {
     }
     return res.state;
   }
-  
 
   public static async update(){
-    if (await this.getUpdateState() == this.updateStates.UpdateAvailable) {
-      const updateRes = await new Promise(resolve => overwolf.extensions.updateExtension(resolve));
-      Logger.log("App was updated with return message: " + JSON.stringify(updateRes));
-      return true;
-    }
+    const updateRes = await new Promise(resolve => overwolf.extensions.updateExtension(resolve));
+    Logger.log("App was updated with return message: " + JSON.stringify(updateRes));
+    return updateRes;
   }
 
   public static async restartToApplyUpdate() {
@@ -40,7 +38,9 @@ export class Updates {
   }
 
   public static async updateOnAppClose() {
-    await Updates.update();
+    if (await Updates.getUpdateState() == 'UpdateAvailable') {
+      await Updates.update();
+    }
   }
 
 }
