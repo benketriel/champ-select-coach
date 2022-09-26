@@ -184,27 +184,27 @@ export const TranslatedText = {
   waitingForCS: {
     english: "Waiting for<br>champion select",
     spanish: 'Esperando la<br>próxima partida',
-    french: '',
+    french: 'En attente de la selection de champions',
   },
   clonesTheCurrent: {
     english: "Clones the current champion select<br>into an editable one",
     spanish: 'Copia la partida actual a<br>una otra igual editable',
-    french: '',
+    french: 'Copier la selection de champions actuelle<br>dans une version modifiable',
   },
   WelcomeToCSC: {
     english: "\n          Welcome to Champion Select Coach (CSC)<br><br>\n          This app delivers advanced machine learning techniques applied to League of Legends data<br><br>\n          All the provided results are trained, tested and validated on millions of ranked games to give you as trustworthy information as possible\n        ",
     spanish: '\n          Bienvenidos a Champion Select Coach (CSC)<br><br>\n          Esta aplicación aplica técnicas avanzadas de inteligencia artificial a datos de League of Legends<br><br>\n          Todos los datos presentados fueron aprendidos y probados usando miliones de partidas clasificadas para que sean lo más confiables posible\n        ',
-    french: '',
+    french: '\n          Bienvenue dans Champion Select Coach (CSC)<br><br>\n          Cet outil fait appel à des techniques d\'intelligence artificielle (IA) en se basant sur des données de parties de League of Legends<br><br>\n          Tous les resultats fournis sont le fruit de l\'entrainement, du test, et de la validation de l\'IA sur des millions de parties classés pour donner les resultats les plus crédibles possibles\n',
   },
   currentLobby: {
     english: "\n                CURRENT LOBBY\n              ",
     spanish: '\n                ESTA PARTIDA\n              ',
-    french: '',
+    french: '\n                PARTIE ACTUELLE\n              ',
   },
   currentLobbyText: {
     english: "\n                When connected to the League of Legends client, CSC will automatically sync with the champion select lobby for normal or ranked games.\n              ",
     spanish: '\n                Al estar conectado al cliente de League of Legends, CSC automáticamente se sincroniza con los datos de partidas normales o clasificadas.\n              ',
-    french: '',
+    french: '\n                Lorsqu\'il est connecté au client League of Legends, CSC va automatiquement se synchroniser avec la selection de champion pour la file normale et classée',
   },
   lobbyHistory: {
     english: "\n                PAST LOBBIES\n              ",
