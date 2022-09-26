@@ -7,175 +7,175 @@ export const TranslatedText = {
   top: {
     english: 'Top',
     spanish: 'Superior',
-    french: '',
+    french: 'Haut',
   },
   jungle: {
     english: 'Jungle',
     spanish: 'Jungla',
-    french: '',
+    french: 'Jungle',
   },
   mid: {
     english: 'Mid',
     spanish: 'Central',
-    french: '',
+    french: 'Milieu',
   },
   bottom: {
     english: 'Bot',
     spanish: 'Inferior',
-    french: '',
+    french: 'Bas',
   },
   support: {
     english: 'Support',
     spanish: 'Soporte',
-    french: '',
+    french: 'Support',
   },
 
   pleaseFillInFields: {
     english: 'Please fill in the fields',
     spanish: 'Por favor rellene la información',
-    french: '',
+    french: 'Merci de completer les informations',
   },
   unableToConnect: {
     english: 'Unable to connect to server',
     spanish: 'No se pudo conectar con el servidor',
-    french: '',
+    french: 'Impossible de se connecter au serveur',
   },
   thankYouForFeedback: {
     english: 'Thank you for your feedback!',
     spanish: 'Gracias por su contribución!',
-    french: '',
+    french: 'Merci pour le retour!',
   },
   anErrorOccurred: {
     english: 'An unknown error occurred',
     spanish: 'Ocurrió un error inesperado',
-    french: '',
+    french: 'Une erreur inconnue est survenue',
   },
 
   editPlayer: {
     english: 'Edit Player',
     spanish: 'Editar Jugador',
-    french: '',
+    french: 'Modifier le joueur',
   },
   enterPlayerName: {
     english: 'Enter player name',
     spanish: 'Ingrese el nombre del jugador',
-    french: '',
+    french: 'Entrer le nom du joueur',
   },
   editChampion: {
     english: 'Edit Champion',
     spanish: 'Editar Campeón',
-    french: '',
+    french: 'Modifier le champion',
   },
   enterChampionName: {
     english: 'Enter champion name',
     spanish: 'Ingrese el nombre del campeón',
-    french: '',
+    french: 'Entrer le nom du champion',
   },
 
   error: {
     english: 'Error',
     spanish: 'Error',
-    french: '',
+    french: 'Erreur',
   },
   championNotFound: {
     english: 'Champion not found',
     spanish: 'No se encontró un campeón con ese nombre',
-    french: '',
+    french: 'Impossible de trouver le nom du champion',
   },
   editRegion: {
     english: 'Edit Region',
     spanish: 'Editar Región',
-    french: '',
+    french: 'Modifier la région',
   },
   enterRegionInitials: {
     english: 'Enter region initials',
     spanish: 'Ingrese las iniciales de la región',
-    french: '',
+    french: 'Entrer les initiales de la région',
   },
   regionNotFound: {
     english: 'Region not found<br>Available: ',
     spanish: 'No se encontró ninguna region con esas iniciales<br>Existentes: ',
-    french: '',
+    french: 'Impossible de trouver la région<br>Existantes:',
   },
 
   deleteHistory: {
     english: 'Delete history',
     spanish: 'Eliminar historia',
-    french: '',
+    french: 'Effacer l\'historique',
   },
   thisWillRemoveLobbyAreYouSure: {
     english: 'This will remove this champion select lobby from your history<br>Are you sure?',
     spanish: 'Estás seguro que deseas de eliminar esta partida de la historia?',
-    french: '',
+    french: 'Ceci va effacer cette selection de champion de votre historique<br>Comfirmer?',
   },
   
   lolDisconnected: {
     english: 'LoL disconnected',
     spanish: 'LoL desconectado',
-    french: '',
+    french: 'LoL Déconnecté',
   },
   cscNotConnectingToLCU: {
     english: 'CSC wasn\'t able to connect to the League of Legends app. Try restarting <u>League of Legends</u>',
     spanish: 'CSC no pudo conectarse a la aplicación de League of Legends. Pruebe reiniciar <u>League of Legends</u>',
-    french: '',
+    french: 'CSC n\'a pas pu se connecter à l\'application League of Legends. Essayez de relancer <u>League of Legends</u>',
   },
 
   announcement: {
     english: 'Announcement',
     spanish: 'Anuncios',
-    french: '',
+    french: 'Annonces',
   },
 
   checkingForUpdates: {
     english: 'Checking for updates...',
     spanish: 'Buscando actualizaciones...',
-    french: '',
+    french: 'Vérification des mises à jour...',
   },
   appIsUpToDate: {
     english: 'The app is up to date',
     spanish: 'La aplicación está actualizada',
-    french: '',
+    french: 'L\'application est à jour',
   },
   checkForUpdates: {
     english: 'Check for updates',
     spanish: 'Buscar actualizaciones',
-    french: '',
+    french: 'Actualiser la version',
   },
   updateAvailable: {
     english: 'An update is available',
     spanish: 'Una actualización está disponible',
-    french: '',
+    french: 'Une mise à jour est disponnible',
   },
   downloadUpdate: {
     english: 'Download update',
     spanish: 'Descargar actualización',
-    french: '',
+    french: 'Télécharger la mise à jour',
   },
   updateNow: {
     english: 'Update now',
     spanish: 'Actualizar ahora',
-    french: '',
+    french: 'Actualiser maintenant',
   },
 
   update: {
     english: 'Update',
     spanish: 'Actualización',
-    french: '',
+    french: 'Mise à jour',
   },
   updateIsAvailable: {
     english: 'An update is available, consider updating via settings or restarting CSC',
     spanish: 'Una actualización está disponible, se recomienda actualizar en opciones o reiniciar CSC',
-    french: '',
+    french: 'Une mise à jour est disponnible, pensez à actualiser votre version via les paramètres ou en relancant CSC',
   },
   language: {
     english: 'Language',
     spanish: 'Idioma',
-    french: '',
+    french: 'Langue',
   },
   languageText: {
     english: 'Select your preferred language. <br><i>Note: Certain texts such as patch notes will remain in English.</i>',
     spanish: 'Escoja su idioma preferido. <br><i>Nota: Ciertos textos como noticias recientes no se han traducido.</i>',
-    french: '',
+    french: 'Selectionnez une langue de préférence. <br><i>Note: Certains textes comme les notes de patchs resterons en anglais.</i>',
   },
   
 
