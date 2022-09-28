@@ -13,6 +13,14 @@
     line-height: 24px;  
 }
 
+.personal-title-edit-button {
+    position: absolute;
+    display: inline-block;
+    top: -10px;
+    height: 0px;
+    width: 0px;
+}
+
 /* Champions */
 .personal-champions-container {
     position: absolute;

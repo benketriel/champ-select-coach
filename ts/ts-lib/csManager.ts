@@ -312,7 +312,9 @@ export class CsManager {
       
         if (loadData) {
           this.currCsFirstRunComplete = false;
-          this.onCsUpdate('clearData', this);
+          if (newCs) {
+            this.onCsUpdate('clearData', this);
+          }
 
           this.currCsData = await CsDataFetcher.getCsData(this.patchInfo, this.currCsInput);
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();

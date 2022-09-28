@@ -42,6 +42,9 @@ export class LocalStorage {
   public static getLatestSeenPatchNote() { return LocalStorage.get('latest-seen-patch-note') || null; }
   public static setLatestSeenPatchNote(name: string) { LocalStorage.set('latest-seen-patch-note', name); }
 
+  public static getRestartCount() { return parseInt(LocalStorage.get('restart-count') || '0'); }
+  public static setRestartCount(x: number) { LocalStorage.set('restart-count', x.toString()); }
+
   
 
 }

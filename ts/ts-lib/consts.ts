@@ -1,4 +1,4 @@
-const version = 'v0.3.0';
+const version = 'v0.3.2';
 const lcuClassId = 10902;
 
 const interestingFeatures = {

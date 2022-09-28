@@ -19,8 +19,6 @@ import { Updates } from "../../ts-lib/updates";
 
 
 declare var _owAdConstructor: any;
-// declare var _owAd: any;
-// declare var _owAdReady: any;
 
 export class MainWindow {
   private static _instance: MainWindow;
@@ -49,8 +47,8 @@ export class MainWindow {
     this.window = new OWWindow(windowNames.mainWindow);
 
     //Track window state to pause/resume ads
-    overwolf.windows.onStateChanged.removeListener(x => MainWindow.handleStateChanged(x));
-    overwolf.windows.onStateChanged.addListener(x => MainWindow.handleStateChanged(x));
+    overwolf.windows.onStateChanged.removeListener(x => MainWindow.handleMinimizeStateChanged(x));
+    overwolf.windows.onStateChanged.addListener(x => MainWindow.handleMinimizeStateChanged(x));
 
     this.initWindow();
   }
@@ -65,7 +63,19 @@ export class MainWindow {
     MainWindow.waitForAdsLibToLoadThenInitAdObj();
     MainWindow.versionButtonClick();
 
-    Popup.prompt('Subscription', 'BETA TESTING: Do you want to temporarily enable the subscribed-only mode?', () => Subscriptions.TODO = true, () => {});
+    //Popup.prompt('Subscription', 'BETA TESTING: Do you want to temporarily enable the subscribed-only mode?', () => Subscriptions.TODO = true, () => {}); //TODO remove completely
+
+    const rc = LocalStorage.getRestartCount();
+    const windowIsTheRightSize = Math.abs($('body').outerWidth() - 1300) < 100 || Math.abs($('body').outerHeight() - 720) < 100;
+    if (rc < 2 && !windowIsTheRightSize) {
+      LocalStorage.setRestartCount(rc + 1);
+      await Timer.wait(1000);
+      overwolf.extensions.relaunch();
+      //Error reporting TODO
+      return;
+    }
+    LocalStorage.setRestartCount(0);
+
     $('body').css('opacity', '1.0');
 
     const notes = PatchNotes.get();
@@ -87,6 +97,17 @@ export class MainWindow {
   private static async waitForAdsLibToLoadThenInitAdObj() {
     while(!_owAdConstructor) await Timer.wait(1000);
 
+    //For testing use:
+    //localStorage.owAdsForceAdUnit = "Ad_test";
+    //localStorage.owAdsForceAdUnit ="Ad_test_300x250";
+    //localStorage.owAdsForceAdUnit = undefined; //Restore to original state
+
+    // The creation of an OwAd object will automatically load an ad (so no need to call refreshAd here).
+    // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 400, height: 300}});
+    // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 300, height: 250}});
+    // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 400, height: 300}});
+
+    $('#owad').html('');
     MainWindow.owAdObj = new _owAdConstructor(document.getElementById("owad"), {size: {width: 400, height: 300}});
     MainWindow.owAdObj.addEventListener('ow_internal_rendered', () => {
       // It is now safe to call any API you want ( e.g. MainWindow.owAdObj.refreshAd() or MainWindow.owAdObj.removeAd() )
@@ -95,7 +116,7 @@ export class MainWindow {
     });
   }
 
-  public static async handleStateChanged(state: any) {
+  public static async handleMinimizeStateChanged(state: any) {
     if (state && state.window_name == windowNames.mainWindow) {
       if (!MainWindow.owAdObjReady){
         await Timer.wait(1000);
@@ -116,6 +137,8 @@ export class MainWindow {
       else if(state.window_previous_state === "minimized" && state.window_state === "normal"){
         if (!await Subscriptions.isSubscribed()) {
           MainWindow.lastAdRefresh = new Date().getTime();
+          MainWindow.owAdObj.removeAd(); //Not calling this makes it a black screen forever sometimes
+          await Timer.wait(500);
           MainWindow.owAdObj.refreshAd();
         }
       }
@@ -419,11 +442,15 @@ export class MainWindow {
     }
   }
 
-  public static selectPersonal() {
+  public static async selectPersonal() {
     const main = MainWindow.instance();
     if (main.selectedView == 'personal') return;
     if (!main.personalTab.readyToBeDisplayed()) {
-      Popup.message(TranslatedText.lolDisconnected.english, TranslatedText.cscNotConnectingToLCU.english);
+      if (await Subscriptions.isSubscribed()) {
+        main.personalTab.editSummonerAndRegion();
+      } else {
+        Popup.message(TranslatedText.lolDisconnected.english, TranslatedText.cscNotConnectingToLCU.english);
+      }
       return;
     }
     MainWindow.clearAll();

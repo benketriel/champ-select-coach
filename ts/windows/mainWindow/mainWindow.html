@@ -77,7 +77,7 @@
         <span class="home-intro-message translated-text">
           Welcome to Champion Select Coach (CSC)<br><br>
           This app delivers advanced machine learning techniques applied to League of Legends data<br><br>
-          All the provided results are trained, tested and validated on millions of ranked games to give you as trustworthy information as possible
+          The provided results are trained, tested and validated on millions of ranked games to give you as trustworthy information as possible
         </span>
 
         <span class="talk-bubble home-lcu">
@@ -194,18 +194,12 @@
           </button>
         </a>
       </span>
-      <span class="version">v0.3.0 (2022-08-08)</span>
+      <span class="version">v0.3.2 (2022-09-28)</span>
     </footer>
   </div>
 
   <script>
-    //localStorage.owAdsForceAdUnit = "Ad_test";
-    //localStorage.owAdsForceAdUnit ="Ad_test_300x250";
-    //localStorage.owAdsForceAdUnit = undefined;
-
     var _owAdConstructor = null;
-    // var _owAd = null;
-    // var _owAdReady = false;
     function onOwAdReady() {
       if (!OwAd) {
         // This scenario might happen if the user is running behind an ISP/public 
@@ -217,15 +211,6 @@
         return;
       }
       _owAdConstructor = OwAd;
-  
-      // The creation of an OwAd object will automatically load an ad (so no need to call refreshAd here).
-      // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 400, height: 300}});
-      // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 300, height: 250}});
-      // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 400, height: 300}});
-      // _owAd.addEventListener('ow_internal_rendered', () => {
-      //   // It is now safe to call any API you want ( e.g. _owAd.refreshAd() or _owAd.removeAd() )
-      //   _owAdReady = true;
-      // });
     }
 
   </script>
