@@ -209,47 +209,47 @@ export const TranslatedText = {
   lobbyHistory: {
     english: "\n                PAST LOBBIES\n              ",
     spanish: '\n                PARTIDAS PASADAS\n              ',
-    french: '',
+    french: '\n                HISTORIQUE DES PARTIES\n              ',
   },
   lobbyHistoryText: {
     english: "\n                You can browse past lobbies here.\n                Subscribed members can create new editable lobbies as well.\n              ",
     spanish: '\n                Aquí se pueden encontrar partidas pasadas.\n                Miembros suscritos pueden además crear partidas nuevas editables.\n              ',
-    french: '',
+    french: '\n                Vous pouvez voir vos parties précédentes ici.\n                Les abonnés peuvent créer des selections de champion modifiables.\n              ',
   },
   personalInfo: {
     english: "\n                PLAYER INFO\n              ",
     spanish: '\n                INFORMACIÓN DEL JUGADOR\n              ',
-    french: '',
+    french: '\n                INFOS DU JOUEUR\n              ',
   },
   personalInfoText: {
     english: "\n                When connected to the League of Legends client, you can open a page displaying personal machine learning scores and some performance statistics.\n                Subscribed members can also see the scores for other players.\n              ",
     spanish: '\n                Al estar conectado al cliente de League of Legends, podrá abrir una página mostrando puntuajes personales otorgadas por la inteligencia artificial y ciertas estadísticas de las partidas anteriores.\n                Miembros suscritos pueden además abrir esta información de otros jugadores.\n              ',
-    french: '',
+    french: '\n                Connecté au client League of Legends, vous pouvez ouvrir une page affichant les scores personels de l\'IA et des statistiques sur ses performances.\n                Les abonnés peuvent aussi voir les scores de l\'IA pour les autres joueurs.\n              ',
   },
   swapRole: {
     english: "Swap role",
     spanish: 'Intercambiar posición',
-    french: '',
+    french: 'Interchanger les rôles',
   },
   swapChampion: {
     english: "Swap champion",
     spanish: 'Intercambiar campeón',
-    french: '',
+    french: 'Interchanger les champions',
   },
   soloScoreInfo: {
     english: "Solo score<br>This score shows the predicted score difference from <br>5.0 which this player would have in this lobby, <br>if all other players are replaced with unknown.",
     spanish: 'Puntaje Solo<br>Este puntaje muestra la diferencia entre 5.0 <br>y el puntuaje que recibe este jugador sólo, si los <br>demás jugadores se remplazan con un jugador vacío',
-    french: '',
+    french: 'Score individuel<br>Ce score indique la difference avec un score de <br>5.0, pour le joueur en question, si l\'on masque l\'information <br>provenant des autres joueurs de la selection de champion.',
   },
   teamScoreInfo: {
     english: "Team score<br>This score shows the difference <br>where we to remove this player <br>and replace with an unknown player. <br>So the score represents the synergy <br>with the rest of the team",
     spanish: 'Puntaje sinergia<br>Este puntaje muestra la diferencia <br>en puntaje si este jugador se <br>remmplaza por un jugador vacío. <br>Por lo cual este puntaje representa la sinergia <br>este jugador tiene con el resto del equipo',
-    french: '',
+    french: 'Score d\'équipe<br>Ce score indique la difference avec un score de 5.0, si l\'on masque l\'information provenant du joueur en question. Ce score represente donc la synergie du reste de l\'équipe.',
   },
   recentGames: {
     english: "Recent Games",
     spanish: 'Partidas recientes',
-    french: '',
+    french: 'Parties récentes',
   },
   daysAgoPlayed: {
     english: "Days ago played",
