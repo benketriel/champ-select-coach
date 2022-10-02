@@ -602,40 +602,40 @@ export const TranslatedText = {
   howDoesAIPatch:{
     english: 'How does the AI deal with patch changes in LoL?',
     spanish: '¿Cuan bien se adapta a cambios de LoL?',
-    french: '',
+    french: 'L\'IA s\'adapte-t-elle au changements de patchs sur LoL ?',
   },
   howDoesAIPatchAnswer: {
     english: "\n          The AI is constantly training on most, if not all, ranked games - soloQ &amp; flex, to keep up to date.\n          We have observed how when new champions are released, the AI can still give a roughly accurate score for champions it has never seen in the past, \n          and the overall accuracy doesn't really drop in a noticeable manner.\n          We keep updating the AI on a regular basis, to follow the small details of the patch changes.\n        ",
     spanish: 'La inteligencia artificial esta constantemente aprendiendo de casi todas las partidas clasificadas - sólo/flex, para mantenerse al día. Hemos observado que aún cuando salen nuevos campeones, la inteligencia artificial es capaz de dar un puntaje aproximado, y la precisión no baja de manera notable. Seguiremos actualizando el modelo de manera cotidiana, para seguir los pequeños cambias cuando ocurren',
-    french: '',
+    french: '\n          L\'IA est entrainée sur toutes des parties classées soloQ &amp; flex qui se jouent tous les jours.\n          Même lorsque de nouveaux champions sortent, l\'IA arrive tout de même à donner un score, et sa precision ne baisse pas de manière significative. \n          Nous continuons de mettre à jour l\'IA de façon regulière, pour suivre au mieux les changements lors de sorties de patchs.\n          ',
   },
 
   addFeatureX:{
     english: 'Can you add feature X?',
     spanish: '¿Pueden añadir función X?',
-    french: '',
+    french: 'Pourrait-on ajouter une fonctionnalité ?',
   },
   addFeatureXAnswer: {
     english: "\n          Please write your ideas in the discord, maybe even someone has already lifted it.<br>\n          For features related to results, generally speaking, this app will be AI based all the way, never depending on anyone's understanding of the game.\n          We will not add outputs which are based on some rule of thumb on a statistic, since these can be flawed, are based on opinion, and vary over time.\n          This way we ensure integrity and accuracy of results, since we can test and measure it.\n        ",
     spanish: 'Por favor cuéntenos de sus ideas en discord, tal vez alguien más ya lo mencionó. Para funciones relacionadas a resultados, generalmente esta aplicación las basará solamnete en inteligencia artificial para nunca tener que depender del conocimiento humano el cual puede ser limitado, basado en opiniones, y cambiar con el tiempo. De esta manera aseguramos la integridad de los resultados, al poder probarlos y medirlos',
-    french: '',
+    french: '\n          Venez nous en parler sur Discord ! Mais peut-etre que quelqu\'un a eu l\'idée avant vous !<br>\n          Pour les fonctionnalités liées aux résultats, cette outil reposera toujours sur de l\'IA, et jamais sur l\'interpretation personnelle de quelqu\'un.\n          Nous n\'ajouterons pas non plus de résultats basés sur des tests statistiques, car ils peuvent être l\'objet de biais, et sont sujet à interpretation.\n          De cette manière, nous serons toujours sûrs de l\'intergrité et de la précision des résultats, car nous pourrons toujours les mesurer !',
   },
 
   translateToY:{
     english: 'Can you translate to language Y?',
     spanish: '¿Puede traducir a idioma Y?',
-    french: '',
+    french: 'Pourrez-vous traduire CSC d\'autres langues ?',
   },
   translateToYAnswer: {
     english: "\n          If you can help us translate to a new language or if you find issues in the current translations, please let us know on the discord.\n          However, patch notes and dynamic notifications will be in English for the time being.\n        ",
     spanish: 'Si usted puede ayudar con una traducción o si encuentra errores en una traducción por favor infórmenos en discord. Lástimamente, las noticias no se traducen por ahora.',
-    french: '',
+    french: '\n          Si vous voulez nous aider à traduire CSC dans une nouvelle langue, ou si vous voyez des problèmes avec la traduction dans votre langue, Merci de nous en faire part sur le Discord !\n          Cela dit, les notes de patch ainsi que les mises à jour dynamiques resterons en anglais pour le moment.',
   },
 
   joinDiscord: {
     english: "Join our <a href=\"https://discord.gg/YGcWxhyXmn\">Discord</a> community where we discuss results and future features!",
     spanish: 'Únete a nuestra comunidad en <a href=\"https://discord.gg/YGcWxhyXmn\">Discord</a> en donde discutimos resultados y qué funciones añadir.',
-    french: '',
+    french: 'Rejoignez notre communauté <a href=\"https://discord.gg/YGcWxhyXmn\">Discord</a> où nous discutons des résultats et des futures fonctionnalités !',
   },
 
   //Settings
