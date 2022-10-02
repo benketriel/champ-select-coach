@@ -536,45 +536,45 @@ export const TranslatedText = {
   whatDoesTheScoreRepresent: {
     english: "What does the score represent?",
     spanish: '¿Qué simbolizan los puntajes?',
-    french: '',
+    french: 'Que representent les scores ?',
   },
   whatDoesTheScoreRepresentAnswer: {
     english: "\n          Each 1.0 is 10% win rate, so a 5.6 score will be predicted to win at 56% chance.\n          For individual scores they are a difference either from 5.0 (ex. solo scores), or from the current score (ex. alternative champion picks), depending on the context.\n        ",
     spanish: 'Cada 1.0 son 10%, así que un 5.6 indica que la probabilidad para ganar es 56%. Puntajes individuales son diferencias comparando con 5.0 (ej. puntajes sólo), o comparando con el puntaje actual (ej. otros campeones)',
-    french: '',
+    french: 'Chaque 1.0 de score represente 10% de chance de gagner la partie. Par exemple, pour un score CSC de 5.6, vous avez en moyenne 56% de chance de gagner la partie.\n          Les autres scores sont calculés comme la différence par rapport à un score de 5.0 (ex : le scores individuel).\n        ',
   },
 
   doesItWorkOnNormals:{
     english: 'Does it work on normal games?',
     spanish: '¿Funciona en partidas normales?',
-    french: '',
+    french: 'CSC fonctionne-t-il en file normale ?',
   },
   doesItWorkOnNormalsAnswer: {
     english: "\n          The AI was only trained on (millions of) <span class=\"faq-highlight\">ranked</span> solo and flex games.\n          Scores for game modes other than solo/flex queue will be less accurate, and should be used with a grain of salt.\n        ",
     spanish: 'La inteligencia artificial aprendió mirando solamente (miliones de) partidas <span class=\"faq-highlight\">clasificatorias</span> sólo/flex. Puntajes en otros modos son menos exactos, y se deben de tomar con precaución',
-    french: '',
+    french: 'L\'intelligence artificielle à été entrainée seulement sur des parties classées de <span class=\"faq-highlight\">ranked</span> soloQ et flex. Les scores calculés dans les autres modes de jeux seront donc moins précis.',
   },
 
   whyBadIndividual:{
     english: 'Why do I have a bad individual score when I have great winrate?',
     spanish: '¿Por qué tengo puntaje sólo negativo si tengo tan buena racha de victorias?',
-    french: '',
+    french: 'Pourquoi j\'ai un mauvais score individuel alors que j\'ai un très bon ratio de victoire ?',
   },
   whyBadIndividualAnswer: {
     english: "\n          The AI is aware of the winrate, but it also looks at many more things around your performance in game.\n          Maybe you have climbed to a new elo in which however you are playing is no longer good enough to continue climbing.\n          The opposite is also true where you some players may have bad winrates but high scores.\n        ",
     spanish: 'La inteligencia artificial ve que has ganado, pero también ve muchos más detalles acerca de cada partida. Quizás ha escalado a un rango más alto en el cual la inteligencia artificial predice que si no mejora no seguirá ganando de la misma manera. Lo contrario también puede ser, que ciertos jugadores que han perdido muchas partidas jugaron bien, pero tuvieron mala suerte.',
-    french: '',
+    french: '\n          L\'IA à connaisance de votre ratio de victoire, mais c\'est loin d\'etre la seule chose qu\'elle prends en compte ! \n          Peut-etre que vous êtes arrivé à un elo où ce que vous faites n\'est plus suffisant pour continuer de monter.\n          Le contraire est aussi vrai, il y a des joueurs qui ont un mauvais ratio de victoire, mais de très bons scores CSC.\n          ',
   },
 
   counteredChampions:{
     english: "How come it's recommending champions that would get countered?",
     spanish: '¿Cómo es que me recomienda jugar campeones que son débiles contra el campeón adversario?',
-    french: '',
+    french: 'Comment l\'IA recommande-t-elle les contres à certains champions ?',
   },
   counteredChampionsAnswer: {
     english: "\n          The AI is aware of counterpicks as well, but it also knows to put them in perspective of champion mastery.\n          More often than not, picking a champion on which the player has experience is preferred even when countered by the enemy champion (if the goal is to win the game).\n        ",
     spanish: 'La inteligencia artificial conoce bien las interacciones de los campeones, pero también sabe poner esta información en perpectiva a cuánto el jugador conoze cada campeón. Muchas veces es mejor jugar un campeón que el jugador conoce bien (si la meta es ganar la partida).',
-    french: '',
+    french: '\n          L\IA à conscience des contres aux divers champions, mais aussi de la maitrise des joueurs en parallèle.\n          Le plus souvent, verrouiller un champion que l\'on maitrise à l\'air plus important que le fait de se faire contrer par un autre champion (le but est de gagner la partie, pas forcement la lane).\n          ',
   },
 
   howReliableAreTheScores:{
@@ -585,7 +585,7 @@ export const TranslatedText = {
   howReliableAreTheScoresAnswer: {
     english: "\n          The AI doesn't just predict who will win, but gives a win chance.\n          Over many games, this chance is extremely accurate, so for example exactly 60% of games where the AI said 6.0 were then actually won.\n          Likewise, when the AI isn't sure, it will say values closer to 5.0.\n          The overall accuracy of the AI is ~60.5% (pre-game scores), however the accuracy for a single score is the score itself. The accuracy of 5.3 is 53%.\n          It is normal that for fewer games the statistics can differ a lot in both directions, just like flipping a coin won't give you exactly 50% of each outcome.\n        ",
     spanish: 'La inteligencia artificial no sólo predice quien va a ganar, sino que da un porcentaje. Sobre muchas partidas, el porcentaje es extremadamente preciso, por ejemplo exáctamente 60% de las partidas en donde el puntaje fué 6.0 se ganaron. De igual manera, cuando la inteligencia artificial no está segura, el puntaje se acerca a 5.0. La precisión promedia total es de ~60.5% (puntajes antes del inicio de la partida), pero la precisión de cada puntaje es el puntaje mismo. Un puntaje de 5.3 tiene una precisión de 53%. Es normal que las estadísticas pueden variar mucho al mirar solamente unas pocas partidas, igual como cuando al lanzar una moneda unas veces no se reciben exáctamente 50% de cada resultado.',
-    french: '',
+    french: '\n          L\'IA ne predit pas qui va gagner avec certitude, mais plutôt un pourcentage de chance de gagner.\n          Sur un grand nombre de parties, les resultats sont très précis. Par exemple, sur toutes les parties notés 6.0, exactement 60% d\'entres elles ont été gagnées.\n          De la même façon, lorsque l\'IA n\'est pas certaine, les scores se situeront plutôt autour de 5.0.\n          La précision moyenne de l\'IA, avant de connaitre l\'identité des joueurs de l\'équipe adverse, est actuellement de 60.5%.',
   },
 
   whoAreDevs:{
