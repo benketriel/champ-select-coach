@@ -456,7 +456,7 @@ export class CsTab {
     if (!change || change == '' || change == 'finished') {
       //Do nothing, this is for registering into history
     }
-    Logger.debug(JSON.stringify(timeStats));
+    //Logger.debug(JSON.stringify(timeStats));
   }
 
   private roleToIdx(roles: number[]) {
