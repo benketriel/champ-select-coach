@@ -580,7 +580,7 @@ export const TranslatedText = {
   howReliableAreTheScores:{
     english: 'How reliable are the scores?',
     spanish: '¿Cuánto se puede uno fiar de los resultados?',
-    french: '',
+    french: 'Les scores CSC sont-ils fiables ?',
   },
   howReliableAreTheScoresAnswer: {
     english: "\n          The AI doesn't just predict who will win, but gives a win chance.\n          Over many games, this chance is extremely accurate, so for example exactly 60% of games where the AI said 6.0 were then actually won.\n          Likewise, when the AI isn't sure, it will say values closer to 5.0.\n          The overall accuracy of the AI is ~60.5% (pre-game scores), however the accuracy for a single score is the score itself. The accuracy of 5.3 is 53%.\n          It is normal that for fewer games the statistics can differ a lot in both directions, just like flipping a coin won't give you exactly 50% of each outcome.\n        ",
@@ -591,12 +591,12 @@ export const TranslatedText = {
   whoAreDevs:{
     english: 'Who are the devs behind the AI?',
     spanish: '¿Quienes son los creadores de la aplicación?',
-    french: '',
+    french: 'Qui sont les developpeurs de CSC ?',
   },
   whoAreDevsAnswer: {
     english: "\n          This project is made by a single person with some help from others from time to time.\n          I am a master elo EUW/EUNE player, who also has worked with machine learning both in the industry and the academy for over 10 years.\n          This started as a tool for my own private use in 2018.\n          After realizing how useful it was, I decided to share it with the community since 2020.\n          I have been prioritizing the improvement of the AI above anything else, making small improvements over time.\n          Feel free to reach out to me on Discord or on LinkedIn!\n        ",
     spanish: 'Este proyecto fue creado por una persona con la ayuda de otros de vez en cuando. Yo soy un jugador de EUW/EUNE master, que ha trabajado con inteligencia artificial en la industría y academía por más de 10 años. Hice estas prediciones en 2018 para uso propio, pero al ver lo útiles que son, decidí compartirlas con la comunidad desde 2020. Siempre he priorizado mejorar la precisión más que cualquier otra cosa, mejorando poco a poco con el tiempo. Puede contactarme en Discord o LinkedIn, sería un gusto!',
-    french: '',
+    french: '\n          Ce projet est l\'oeuvre d\'une seule personne, avec parfois un peu d\'aide sur la base du volontariat.\n          Je suis un joueur master EUW/EUNE, qui a travaillé dans le machine learning à la fois dans l\'académique et dans l\'industrie depuis maintenant 10 ans.\n          J\'ai créé cet outil pour mon usage personnel en 2018.\n          Après avoir réalisé à quel point il pouvrait m\'etre utile, j\'ai décidé de le rendre public en 2020.\n          L\'amélioration de l\'IA à toujours été la priorité dans mon travail, en faisant des petits ajustements au cours du temps.\n          N\'hesitez pas à rejoindre mon Discord, ou à me suivre sur LinkedIn ! \n           ',
   },
 
   howDoesAIPatch:{
