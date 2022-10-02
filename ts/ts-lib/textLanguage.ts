@@ -642,146 +642,146 @@ export const TranslatedText = {
   settings: {
     english: "SETTINGS",
     spanish: 'OPCIONES',
-    french: '',
+    french: 'OPTIONS',
   },
   appVersion: {
     english: "App version:",
     spanish: 'Versión:',
-    french: '',
+    french: 'Version:',
   },
   betaInfo: {
     english: "\n          Check this if you want to help test the newest <br>\n          features before they are added for everyone",
     spanish: '\n          Seleccione si desea ayudar a probar las nuevas <br>\n          funciones antes de que sean publicadas a todos',
-    french: '',
+    french: '\n          Cochez ceci si vous voulez aider à tester les <br>\n          nouvelles versions avant les autres utilisateurs',
   },
   betaText: {
     english: "Enable experimental features",
     spanish: 'Incluir funciones experimentales',
-    french: '',
+    french: 'Inclure les fonctionnalités experimentales',
   },
   csLobby: {
     english: "Champion Select Lobby",
     spanish: 'Lobby de la partida',
-    french: '',
+    french: 'Lobby de la selection de champion',
   },
   autoOpenCSC: {
     english: "Automatically open CSC",
     spanish: 'Automáticamente abrir CSC',
-    french: '',
+    french: 'Ouvrir CSC automatiquement',
   },
   onLCUStart: {
     english: "When LoL starts",
     spanish: 'Al inicial LoL',
-    french: '',
+    french: 'Lorsque LoL démarre',
   },
   onCSLobby: {
     english: "In champion select lobby",
     spanish: 'En el lobby de la partida',
-    french: '',
+    french: 'En selection de champion',
   },
   never: {
     english: "Never",
     spanish: 'Nunca',
-    french: '',
+    french: 'Jamais',
   },
   toFrontOnCSInfo: {
     english: "\n          This will make the CSC window automatically <br>\n          pop to the front when entering champion select",
     spanish: 'Indica si desea que la ventana de CSC se ponga <br> al frente cuando se inicie un lobby nuevo',
-    french: '',
+    french: '\n          Ceci fera automatiquement passer CSC en premier <br>\n          plan lorsque vous entrerez dans une selection de champions',
   },
   toFrontOnCS: {
     english: "Focus CSC on champion select",
     spanish: 'Enfocar CSC cada nuevo lobby',
-    french: '',
+    french: 'Focaliser CSC sur la selection de champion',
   },
   singleThreadInfo: {
     english: "\n          Check this if you are experiencing <br>\n          CPU problems during champion select",
     spanish: 'Limita el uso del CPU a un core',
-    french: '',
+    french: '\n          Cochez ceci si vous avez des <br>\n          problèmes de CPU pendant la selection de champion',
   },
   singleThread: {
     english: "Single threaded mode",
     spanish: 'Prevenir paralelización CPU',
-    french: '',
+    french: 'Eviter le multi-threading du CPU',
   },
   changeLanguage: {
     english: "Change Language",
     spanish: 'Cambiar Idioma',
-    french: '',
+    french: 'Changer la langue',
   },
   getProVersion: {
     english: "Get Pro Version",
     spanish: 'Suscribir a CSC',
-    french: '',
+    french: 'Abonnez vous à la version pro',
   },
   overwolfSettings: {
     english: "Overwolf Settings",
     spanish: 'Opciones Overwolf',
-    french: '',
+    french: 'Paramètres Overwolf',
   },
 
   //Feedback
   feedback: {
     english: "FEEDBACK",
     spanish: 'CONTACTO',
-    french: '',
+    french: 'CONTACT',
   },
   feedbackJoinDiscord: {
     english: "\n        The best way to contact us is via the <a href=\"https://discord.gg/YGcWxhyXmn\">CSC discord</a>.\n        You can <a href=\"https://discord.gg/Fw9QFKstFk\">report issues</a>, <a href=\"https://discord.gg/fFFaVxCYCQ\">propose new features</a>, \n        discuss ideas or results with other users, check the ongoing status of development, and get in-depth info about the app\n      ",
     spanish: 'La mejor manera de contactarnos es en <a href=\"https://discord.gg/YGcWxhyXmn\">discord</a>. Podrá <a href=\"https://discord.gg/Fw9QFKstFk\">reportar problemas</a>, <a href=\"https://discord.gg/fFFaVxCYCQ\">proponer nuevas funciones</a>, discutir ideas o resultados con otros usuarios, leer acerca del estado del desarrollo, y recibir mejor entendimiento de la aplicación.',
-    french: '',
+    french: '\n        La façon la plus simple de nous contacter est via notre <a href=\"https://discord.gg/YGcWxhyXmn\">CSC discord</a>.\n        Vous pouvez <a href=\"https://discord.gg/Fw9QFKstFk\">signaler un problème</a>, <a href=\"https://discord.gg/fFFaVxCYCQ\">proposer une fonctionnalité</a>, \n        discuter d\'idées avec d\'autres utilisateurs, vous informer des phases de developpement, et obtenir des informations précises à propos de CSC.\n      ',
   },
   directFeedback: {
     english: "Direct feedback",
     spanish: 'Contacto directo',
-    french: '',
+    french: 'Contact direct',
   },
   name: {
     english: "Name",
     spanish: 'Nombre',
-    french: '',
+    french: 'Nom',
   },
   contact: {
     english: "Contact (optional)",
     spanish: 'Contacto (opcional)',
-    french: '',
+    french: 'Contact (optionnel)',
   },
   message: {
     english: "Message",
     spanish: 'Mensaje',
-    french: '',
+    french: 'Message',
   },
   noteSlowReplies: {
     english: "Note: Replies will be slower on this channel",
     spanish: 'Nota: Las respuestas tardarán más usando este canal',
-    french: '',
+    french: 'Note: Les réponses seront plus longues de cette façon',
   },
   canAlsoEmail: {
     english: "You can also email champselectcoach@gmail.com",
     spanish: 'También puede escribir un email a champselectcoach@gmail.com',
-    french: '',
+    french: 'Vous pouvez aussi contacter par mail champselectcoach@gmail.com',
   },
 
   //Patch history
   patchHistory: {
     english: "Patch History",
     spanish: 'Historia del desarrollo',
-    french: '',
+    french: 'Historique des patchs',
   },
   onlyLatest10Patches: {
     english: "Only the latest 10 patches are shown, the rest can be found in our <a href=\"https://discord.gg/YGcWxhyXmn\">Discord</a>. \n      There you can also read about the future planned work, or request features.",
     spanish: 'Lástimamente esta información no está traducida.<br>Solamente los últimos 10 cambios se muestran, el resto se encuentra en <a href=\"https://discord.gg/YGcWxhyXmn\">Discord</a>. Allá puede además leer acerca de las funciones planeadas para el futuro, o solicitar funciones.',
-    french: '',
+    french: 'Seulement les 10 derniers patchs sont visibles, le reste peut etre consulté sur notre <a href=\"https://discord.gg/YGcWxhyXmn\">Discord</a>. \n      Vous y trouverez aussi les prochains projets de developpement, et les ajouts de fonctionnalités.',
   },
   subscription: {
     english: "Subscription",
     spanish: 'Suscripción',
-    french: '',
+    french: 'Abonnement',
   },
   removeAds: {
     english: 'Remove ads - get pro version',
     spanish: 'Suscríbete para quitar los anuncios!',
-    french: '',
+    french: 'Supprimer les pubs - passez à la version pro',
   },
 
   //Languages should be in their own language always
