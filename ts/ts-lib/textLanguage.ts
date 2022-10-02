@@ -528,12 +528,12 @@ export const TranslatedText = {
   },
   howDoesAIPatchAnswer: {
     english: "\n          The AI is constantly training on most, if not all, ranked games - soloQ &amp; flex, to keep up to date.\n          We have observed how when new champions are released, the AI can still give a roughly accurate score for champions it has never seen in the past, \n          and the overall accuracy doesn't really drop in a noticeable manner.\n          We keep updating the AI on a regular basis, to follow the small details of the patch changes.\n        ",
-    spanish: 'La inteligencia artificial esta constantemente aprendiendo de casi todas las partidas clasificatorias - sólo/flex, para mantenerse al día. Hemos observado que aún cuando salen nuevos campeones, la inteligencia artificial es capaz de dar un puntaje aproximado, y la precisión no baja de manera notable. Seguiremos actualizando el modelo de manera cotidiana, para seguir los pequeños cambias cuando ocurren',
+    spanish: 'La inteligencia artificial esta constantemente aprendiendo de casi todas las partidas clasificatorias - sólo/flex, para mantenerse al día. Hemos observado que aún cuando salen nuevos campeones, la inteligencia artificial es capaz de dar un puntaje aproximado, y la precisión no baja de manera notable. Seguiremos actualizando el modelo de manera cotidiana, para seguir los pequeños cambios cuando ocurren',
   },
 
   addFeatureX:{
     english: 'Can you add feature X?',
-    spanish: '¿Pueden añadir función X?',
+    spanish: '¿Se puede añadir función X?',
   },
   addFeatureXAnswer: {
     english: "\n          Please write your ideas in the discord, maybe even someone has already lifted it.<br>\n          For features related to results, generally speaking, this app will be AI based all the way, never depending on anyone's understanding of the game.\n          We will not add outputs which are based on some rule of thumb on a statistic, since these can be flawed, are based on opinion, and vary over time.\n          This way we ensure integrity and accuracy of results, since we can test and measure it.\n        ",
@@ -542,7 +542,7 @@ export const TranslatedText = {
 
   translateToY:{
     english: 'Can you translate to language Y?',
-    spanish: '¿Puede traducir a idioma Y?',
+    spanish: '¿Se puede traducir a idioma Y?',
   },
   translateToYAnswer: {
     english: "\n          If you can help us translate to a new language or if you find issues in the current translations, please let us know on the discord.\n          However, patch notes and dynamic notifications will be in English for the time being.\n        ",

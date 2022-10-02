@@ -4,7 +4,7 @@ import { Timer } from "./timer";
 
 
 export class DynamicSettings {
-  private POLLING_INTERVAL_MS: number = 1000 * 60 * 10;
+  private POLLING_INTERVAL_MS: number = 1000 * 60 * 60;
   private onStatusUpdate: any = null;
   private currStatus: string = null;
   

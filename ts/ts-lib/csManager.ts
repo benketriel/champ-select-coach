@@ -46,7 +46,9 @@ export class CsInput {
   public static isOlderVersionOfTheSameCS(oldCsInput: CsInput, newCsInput: CsInput) {
     return oldCsInput && newCsInput && oldCsInput.queueId == newCsInput.queueId && oldCsInput.region == newCsInput.region && oldCsInput.ownerName == newCsInput.ownerName && 
       oldCsInput.championIds.filter(x => x != null && x != '' && x != '0').length == 10 &&
-      newCsInput.championIds.filter(x => x != null && x != '' && x != '0').length == 5 && 
+      newCsInput.championIds.filter(x => x != null && x != '' && x != '0').length == 10 && 
+      oldCsInput.summonerNames.filter(name => name && name.length > 0).length == 10 &&
+      newCsInput.summonerNames.filter(name => name && name.length > 0).length == 5 &&
       Utils.setIncludes(new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(newCsInput.summonerNames.filter(name => name && name.length > 0))) &&
       new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)).size > new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)).size;
   }

@@ -449,14 +449,12 @@ export class PersonalTab {
     $('.personal-history-options-score-in-game').prop("checked", !this.cscHistoryPreGame);
   
     const personalHistoryElems = $('.personal-history-table-container').get();
-    let hits = 0;
     for (let i = 0; i < numCscHistoryObjects; ++i) {
       const elmn = $(personalHistoryElems[i]);
       if (cscHistory.length <= i) {
         elmn.hide();
         continue;
       }
-
       const hist = cscHistory[cscHistory.length - 1 - (this.cscHistoryIndex + i)];
       const data = JSON.parse(hist.data);
       const csInput = <CsInput>data.csInput;
@@ -469,10 +467,6 @@ export class PersonalTab {
       const dateHtml = (date.getMonth() + 1) + '/' + date.getDate() + '<br>' + 
         date.getHours().toString().padStart(2, '0') + ":" + date.getMinutes().toString().padStart(2, '0');
 
-      if (pred > 0.5 && hist.userWon || pred < 0.5 && !hist.userWon) {
-        hits++;
-      }
-
       CsTab.setChampionImg(this.patchInfo, elmn.find('.personal-history-champion-icon img'), championId);
       CsTab.setRoleImg($(elmn.find('.personal-history-role-icon img').get(0)), role, this.tier.tier, this.tier.division, this.tier.lp);
       elmn.find('.personal-history-score').html((Math.round(pred * 10 * 10) / 10).toFixed(1));
@@ -480,6 +474,14 @@ export class PersonalTab {
       elmn.removeClass('personal-history-table-container-' + (!hist.userWon ? 'win' : 'lose'));
       elmn.addClass('personal-history-table-container-' + (hist.userWon ? 'win' : 'lose'));
       elmn.show();
+    }
+    let hits = 0;
+    for (let i = 0; i < cscHistory.length; ++i) {
+      const hist = cscHistory[i];
+      const pred = this.cscHistoryPreGame ? hist.partialPrediction : hist.fullPrediction;
+      if (pred > 0.5 && hist.userWon || pred < 0.5 && !hist.userWon) {
+        hits++;
+      }
     }
 
     $($('.personal-history-stats-total').get(0)).html(cscHistory.length.toString());
@@ -522,8 +524,8 @@ export class PersonalTab {
     const csc = [null, null, null, null, null, null, null, null, null, null, null];
     const player = [null, null, null, null, null, null, null, null, null, null, null];
     for (let i = 0; i < 11; ++i) {
-      all[i] = allWins[i] + allLosses[i] > 10 ? allWins[i] / (allWins[i] + allLosses[i]) : null;
-      csc[i] = cscWins[i] + cscLosses[i] > 10 ? cscWins[i] / (cscWins[i] + cscLosses[i]) : null;
+      all[i] = allWins[i] + allLosses[i] > 100 ? allWins[i] / (allWins[i] + allLosses[i]) : null;
+      csc[i] = cscWins[i] + cscLosses[i] > 100 ? cscWins[i] / (cscWins[i] + cscLosses[i]) : null;
       player[i] = playerWins[i] + playerLosses[i] != 0 ? playerWins[i] / (playerWins[i] + playerLosses[i]) : null;
     }
 

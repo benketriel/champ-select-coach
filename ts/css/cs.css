@@ -55,6 +55,7 @@
 .cs-objectives-table {
     width: 100%;
     margin-top: 15px;
+    display: none;
 }
 .cs-objective-cell {
     width: 35px;
@@ -71,7 +72,8 @@
     width: 100%;
     text-align: center;
     border-spacing: 0px;
-    margin-top: 20px;
+    /* margin-top: 20px; */
+    margin-top: 50px;
 }
 
 .cs-colors-legend-table-margin-cell {
@@ -93,6 +95,7 @@
 .cs-total-bars-table {
     width: 100%;
     margin-top: 10px;
+    margin-bottom: 45px;
 }
 
 .cs-total-bars-table td:nth-child(1) {

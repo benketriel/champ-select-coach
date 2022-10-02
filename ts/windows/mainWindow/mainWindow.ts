@@ -34,6 +34,8 @@ export class MainWindow {
   private ongoingFeedback: boolean = false;
 
   public static MAX_MENU_HISTORY_SIZE: number = 13;
+  public static MAX_PERSONAL_HISTORY_SIZE: number = 10;
+  public static MAX_PATCH_NOTES: number = 10;
 
   public static instance() {
     return this._instance = this._instance || new MainWindow();
@@ -224,7 +226,7 @@ export class MainWindow {
     const patchNotesTitleElems = $('.patch-notes-short-title').get();
     const patchNotesDateElems = $('.patch-notes-date').get();
     const patchNotesDescElems = $('.slide-overlay-news .accordeon-row li').get();
-    for (let i = 0; i < Math.min(10, patchNotesContent.length); ++i) {
+    for (let i = 0; i < Math.min(MainWindow.MAX_PATCH_NOTES, patchNotesContent.length); ++i) {
       const p = patchNotesContent[patchNotesContent.length - 1 - i];
       $(patchNotesIdElems[i]).html(<string>p[0]);
       $(patchNotesTitleElems[i]).html(<string>p[2]);
@@ -250,7 +252,7 @@ export class MainWindow {
       $('.personal-champions-list').append(await (await fetch('personalTabChampionItem.html')).text());
     }
 
-    for (let i = 0; i < 10; ++i) {
+    for (let i = 0; i < MainWindow.MAX_PERSONAL_HISTORY_SIZE; ++i) {
       $('.personal-history-list').append(await (await fetch('personalTabHistoryItem.html')).text());
     }
 
@@ -280,7 +282,7 @@ export class MainWindow {
 
     //Menu navigation
     $('.side-menu-current-cs').on('click', MainWindow.selectCurrentCS);
-    for (let i = 0; i < 10; ++i) {
+    for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
       $($('.side-menu-old-cs')[i]).on('click', () => MainWindow.selectHistoryCS(i));
       $($('.deleteHistoryItem')[i]).on('click', event => { 
         Popup.prompt(
@@ -545,24 +547,28 @@ export class MainWindow {
   }
 
   public static async setStatus(statusJSON: string) {
-    const status = JSON.parse(statusJSON) || {};
-    if (status.announcement && status.announcement.length > 0) {
-      $('.announcement-scrolling-text-slider').html(status.announcement.split('<br/>').join('').split('<br>').join(''));
-      $('.announcement-scrolling-text-tooltip').html(status.announcement);
-      $('.announcement-scrolling-text').show();
+    try {
+      const status = JSON.parse(statusJSON) || {};
+      if (status.announcement && status.announcement.length > 0) {
+        $('.announcement-scrolling-text-slider').html(status.announcement.split('<br/>').join('').split('<br>').join(''));
+        $('.announcement-scrolling-text-tooltip').html(status.announcement);
+        $('.announcement-scrolling-text').show();
 
-      if (MainWindow.lastStatusPopup != status.announcement) {
-        MainWindow.lastStatusPopup = status.announcement;
-        // Popup.message(TranslatedText.announcement.english, status.announcement);
+        if (MainWindow.lastStatusPopup != status.announcement) {
+          MainWindow.lastStatusPopup = status.announcement;
+          // Popup.message(TranslatedText.announcement.english, status.announcement);
+        }
+
+      } else {
+        $('.announcement-scrolling-text').hide();
       }
 
-    } else {
-      $('.announcement-scrolling-text').hide();
-    }
-
-    if (MainWindow.currUpdateState != null && MainWindow.currUpdateState != 'UpToDate' && 
-      status.supportedVersions && status.supportedVersions.length > 0 && !status.supportedVersions.includes(version)) {
-        MainWindow.versionButtonClick(); //Force update if not supported and not up to date
+      if (MainWindow.currUpdateState != null && MainWindow.currUpdateState != 'UpToDate' && 
+        status.supportedVersions && status.supportedVersions.length > 0 && !status.supportedVersions.includes(version)) {
+          MainWindow.versionButtonClick(); //Force update if not supported and not up to date
+      }
+    } catch {
+      Logger.warn('setStatus crashed on: ' + statusJSON);
     }
   }
 
