@@ -110,6 +110,7 @@ export class CsTab {
 
   private onNewCsLcu() {
     this.addHistoryCs();
+    this.clearCurrentCSMenu();
     this.onCsUpdateLcu('');
     MainWindow.selectCurrentCS();
   }
@@ -199,6 +200,8 @@ export class CsTab {
     const onNewCsManual = (managerAsking: any) => that.onNewCsManual(managerAsking);
     const onCsUpdateManual = (change: string, managerAsking: any) => that.onCsUpdateManual(change, managerAsking);
     csView.date = null;
+    if (csView.csInput) csView.csInput.picking = [false, false, false, false, false, false, false, false, false, false];
+    if (csView.csInputView) csView.csInputView.picking = [false, false, false, false, false, false, false, false, false, false];
     const newManager = new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, csView, true, true);
 
     this.manualCsManagers.unshift(newManager);
@@ -223,6 +226,10 @@ export class CsTab {
     return this.manualCsManagers.length;
   }
 
+  private clearCurrentCSMenu() {
+    $('.side-menu-current-cs .side-menu-current-cs-score').html('5.0');
+  }
+
   private updateCurrentCSMenu() {
     this.saveHistory();
 
@@ -231,8 +238,10 @@ export class CsTab {
 
     const ownerIdx = CsInput.getOwnerIdx(csInputView);
     const mergedTier = CsTab.mergeTiers(lcuTiers, apiTiers)[csInputView.summonerNames[ownerIdx]] || {};
-    let fullScore = score && score['full'] ? score['full'][0][0] : 0.5;
-    fullScore = ownerIdx < 5 ? fullScore : 1 - fullScore;
+    let fullScore = score && score['full'] ? score['full'][0][0] : null;
+    if (fullScore != null) {
+      fullScore = ownerIdx < 5 ? fullScore : 1 - fullScore;
+    }
 
     const patchInfo = MainWindow.instance().patchInfo;
 
@@ -240,7 +249,9 @@ export class CsTab {
     CsTab.setChampionImg(patchInfo, $('.side-menu-current-cs .side-menu-champion img'), swappedChamps[ownerIdx]);
     CsTab.setRoleImg($('.side-menu-current-cs .side-menu-role img'), rolePredictionView[ownerIdx], mergedTier.tier, mergedTier.division, mergedTier.lp);
 
-    $('.side-menu-current-cs .side-menu-current-cs-score').html(Utils.probabilityToScore(fullScore));
+    if (fullScore != null) {
+      $('.side-menu-current-cs .side-menu-current-cs-score').html(Utils.probabilityToScore(fullScore));
+    }
 
     $('.side-menu-current-cs .side-menu-waiting').hide();
     $('.side-menu-current-cs .side-menu-champion').show();
@@ -264,7 +275,8 @@ export class CsTab {
       dateElm.hide();
     } else {
       const dateObj = new Date(date);
-      const dateString = (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '<br>' + dateObj.getHours() + ":" + dateObj.getMinutes();
+      const dateString = (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '<br>' + 
+        dateObj.getHours().toString().padStart(2, '0') + ":" + dateObj.getMinutes().toString().padStart(2, '0');
       dateElm.html(dateString);
         
       editElm.hide();
@@ -387,6 +399,7 @@ export class CsTab {
       this.updateFooter(patchInfo, csInputView, editable && subscribed);
       this.updateSwaps(patchInfo, side, csInputView, roleToIdxView, mergedTier);
       this.updateSummonersAndRoles(patchInfo, side, csInputView, rolePredictionView, mergedTier);
+      this.updatePicking(side, csInputView, rolePredictionView);
     }
     timeStats['instant'] = new Date().getTime() - time; time = new Date().getTime();
     if (!change || change == '' || change == 'data') {
@@ -863,6 +876,41 @@ export class CsTab {
     }
   }
 
+  private updatePicking(side: number, inputView: CsInput, rolePrediction: number[]) {
+    const elems = [
+      $('.cs-table-champion-icon-cell').get(),
+      $('.cs-table-summoner-name-cell').get(),
+      $('.cs-table-individuals-solo-cell').get(),
+      $('.cs-table-summoner-tier-cell').get(),
+      $('.cs-table-individuals-team-cell').get(),
+      $('.cs-table-recommended-champions-cell').get(),
+    ];
+    for (let i = 0; i < 5; ++i) {
+      const role0 = rolePrediction[i];
+      const role1 = rolePrediction[5 + i];
+      const pick0 = inputView.picking[i];
+      const pick1 = inputView.picking[5 + i];
+      const champ0 = inputView.championIds[i];
+      const champ1 = inputView.championIds[5 + i];
+      const assigned0 = inputView.assignedRoles[i];
+      const assigned1 = inputView.assignedRoles[5 + i];
+
+      for (let j = 0; j < elems.length; ++j) {
+        if (pick0 && assigned0 != -1 && champ0 != '0' && champ0 != '-1' && champ0.length > 0) {
+          $(elems[j][2 * role0 + side]).addClass('picking');
+        } else {
+          $(elems[j][2 * role0 + side]).removeClass('picking');
+        }
+        if (pick1 && assigned1 != -1 && champ1 != '0' && champ1 != '-1' && champ1.length > 0) {
+          $(elems[j][2 * role1 + 1 - side]).addClass('picking');
+        } else {
+          $(elems[j][2 * role1 + 1 - side]).removeClass('picking');
+        }
+      }
+    }
+
+  }
+
   private updateHistory(patchInfo: any, side: number, rolePrediction: number[], inputView: CsInput, history: any, historyStats: any, lcuTiers: any) {
     if (!rolePrediction || !inputView || !history) {
       $('.cs-table-history-border').hide();
@@ -1129,7 +1177,7 @@ export class CsTab {
 
       const picked = Object.keys(this.patchInfo.RegionIdToGg).filter(k => this.patchInfo.RegionIdToGg[k].toUpperCase() == result.toUpperCase());
       if (picked.length == 0) {
-        Popup.message(TranslatedText.error.english, TranslatedText.regionNotFound.english + regions.join(', '));
+        Popup.message(TranslatedText.error.english, TranslatedText.regionNotFound.english);
         return;
       }
 
@@ -1145,8 +1193,16 @@ export class CsTab {
       manager.getCsView();
 
     const edited = CsInput.clone(csInputView);
-    if (edited.ownerName == null || !edited.summonerNames.includes(edited.ownerName)) {
-      edited.ownerName = edited.summonerNames[0];
+    if (edited.ownerName == null || edited.ownerName == "" || !edited.summonerNames.includes(edited.ownerName)) {
+      const availableNames = edited.summonerNames.filter(x => x && x.length > 0);
+      if (availableNames.length == 0) {
+        Popup.message(TranslatedText.error.english, TranslatedText.inputOneSummonerName.english);
+        //Reverse click
+        $('.cs-side-blue').prop("checked", !blue);
+        $('.cs-side-red').prop("checked", blue);
+        return;
+      }
+      edited.ownerName = availableNames[0];
     }
     const currBlue = CsInput.getOwnerIdx(csInputView) < 5;
     if (currBlue != blue) {

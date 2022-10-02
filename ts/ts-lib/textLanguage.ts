@@ -3,9 +3,34 @@ import { LocalStorage } from "./localStorage"
 import { Logger } from "./logger";
 
 export const TranslatedText = {
-  //JSON.stringify([...new Set($('.translated-text').get().map($).map(x => x.html()))])
+
+  /*
+    For anyone who wants to contribute read this first:
+      All you need to do is add a row to every entry, with the language you are translating to.
+      For full sentences feel free to paraphrase if it comes more natural.
+      Try to maintain the translations of similar length to prevent issues of text overflowing in the UI.
+      It's highly recommended to understand the context of each entry before translating.
+      For example it's important to get right the names of the roles as they are in game (Top, Jungle, Mid, Bottom, Support).
+      Add //comments or ask if things are uncertain, so we can build and maintain this together over time.
+
+    Some further constraints exist but these can be done by someone other than the translator, since they do not depend on the 
+    language knowledge, but rather on HTML:
+      Do not translate two different items into the same text (can fix by just adding a space in the end of one of them)
+      The text may be the same in different languages in the same item, for example 'Total' in spanish/english.
+      Failing to translate one item, will make it default to English
+      Some fields have formatting parts such as line breaks or other html tags. These should be kept in all translations.
+      Line breaks in the format \n, tabs or multiple spaces do not matter (HTML), however when there are line breaks in the format <br>
+      then it means these lines should not be much longer than this, and you also have to include <br> in your translations.
+      For the translations you can omit characters like \n or multiple spaces in a row since these won't matter in HTML.
+
+    All the entries after 'Extracted from HTML' were automatically extracted from the HTML via
+    JSON.stringify([...new Set($('.translated-text').get().map($).map(x => x.html()))])
+    This means that you may not change any character in the English versions of these entries (not even spaces), 
+    unless you also make the same change in the original HTML.
+  */
+
   top: {
-    english: 'Top',
+    english: 'Top', //Example comment
     spanish: 'Superior',
     french: 'Haut',
   },
@@ -93,9 +118,14 @@ export const TranslatedText = {
     french: 'Entrer les initiales de la région',
   },
   regionNotFound: {
-    english: 'Region not found<br>Available: ',
-    spanish: 'No se encontró ninguna region con esas iniciales<br>Existentes: ',
-    french: 'Impossible de trouver la région<br>Existantes:',
+    english: 'Region not found<br>Available: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
+    spanish: 'No se encontró ninguna region con esas iniciales<br>Existentes: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
+    french: 'Impossible de trouver la région<br>Existantes: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
+  },
+  inputOneSummonerName: {
+    english: 'Please input at least one summoner name',
+    spanish: 'Por favor primero ingrese el nombre de un invocador',
+    french: 'Merci d\'entrer au moins un nom d\'invocateur',
   },
 
   deleteHistory: {
@@ -109,10 +139,15 @@ export const TranslatedText = {
     french: 'Ceci va effacer cette selection de champion de votre historique<br>Comfirmer?',
   },
   
+  disconnected: {
+    english: 'Disconnected',
+    spanish: 'Desconectado',
+    french: 'Déconnecté',
+  },
   lolDisconnected: {
     english: 'LoL disconnected',
     spanish: 'LoL desconectado',
-    french: 'LoL Déconnecté',
+    french: 'LoL déconnecté',
   },
   cscNotConnectingToLCU: {
     english: 'CSC wasn\'t able to connect to the League of Legends app. Try restarting <u>League of Legends</u>',
@@ -177,6 +212,12 @@ export const TranslatedText = {
     spanish: 'Escoja su idioma preferido. <br><i>Nota: Ciertos textos como noticias recientes no se han traducido.</i>',
     french: 'Selectionnez une langue de préférence. <br><i>Note: Certains textes comme les notes de patchs resterons en anglais.</i>',
   },
+
+  enterRegion:  {
+    english: 'ENTER REGION',
+    spanish: 'INGRESE REGIÓN',
+    french: 'ENTRER RÉGION',
+  },
   
 
   /////////////////////
@@ -188,12 +229,12 @@ export const TranslatedText = {
   },
   clonesTheCurrent: {
     english: "Clones the current champion select<br>into an editable one",
-    spanish: 'Copia la partida actual a<br>una otra igual editable',
+    spanish: 'Copia la partida actual a<br>otra igual editable',
     french: 'Copier la selection de champions actuelle<br>dans une version modifiable',
   },
   WelcomeToCSC: {
-    english: "\n          Welcome to Champion Select Coach (CSC)<br><br>\n          This app delivers advanced machine learning techniques applied to League of Legends data<br><br>\n          All the provided results are trained, tested and validated on millions of ranked games to give you as trustworthy information as possible\n        ",
-    spanish: '\n          Bienvenidos a Champion Select Coach (CSC)<br><br>\n          Esta aplicación aplica técnicas avanzadas de inteligencia artificial a datos de League of Legends<br><br>\n          Todos los datos presentados fueron aprendidos y probados usando miliones de partidas clasificadas para que sean lo más confiables posible\n        ',
+    english: "\n          Welcome to Champion Select Coach (CSC)<br><br>\n          This app delivers advanced machine learning techniques applied to League of Legends data<br><br>\n          The provided results are trained, tested and validated on millions of ranked games to give you as trustworthy information as possible\n        ",
+    spanish: '\n          Bienvenidos a Champion Select Coach (CSC)<br><br>\n          Esta aplicación aplica técnicas avanzadas de inteligencia artificial a datos de League of Legends<br><br>\n          Los datos presentados fueron aprendidos y probados usando millones de partidas clasificatorias para que sean lo más confiables posible\n        ',
     french: '\n          Bienvenue dans Champion Select Coach (CSC)<br><br>\n          Cet outil fait appel à des techniques d\'intelligence artificielle (IA) en se basant sur des données de parties de League of Legends<br><br>\n          Tous les resultats fournis sont le fruit de l\'entrainement, du test, et de la validation de l\'IA sur des millions de parties classés pour donner les resultats les plus crédibles possibles\n',
   },
   currentLobby: {
@@ -203,7 +244,7 @@ export const TranslatedText = {
   },
   currentLobbyText: {
     english: "\n                When connected to the League of Legends client, CSC will automatically sync with the champion select lobby for normal or ranked games.\n              ",
-    spanish: '\n                Al estar conectado al cliente de League of Legends, CSC automáticamente se sincroniza con los datos de partidas normales o clasificadas.\n              ',
+    spanish: '\n                Al estar conectado al cliente de League of Legends, CSC automáticamente se sincroniza con los datos de partidas normales o clasificatorias.\n              ',
     french: '\n                Lorsqu\'il est connecté au client League of Legends, CSC va automatiquement se synchroniser avec la selection de champion pour la file normale et classée',
   },
   lobbyHistory: {
@@ -536,7 +577,7 @@ export const TranslatedText = {
   whatDoesTheScoreRepresent: {
     english: "What does the score represent?",
     spanish: '¿Qué simbolizan los puntajes?',
-    french: 'Que representent les scores ?',
+    french: 'Que representent les scores?',
   },
   whatDoesTheScoreRepresentAnswer: {
     english: "\n          Each 1.0 is 10% win rate, so a 5.6 score will be predicted to win at 56% chance.\n          For individual scores they are a difference either from 5.0 (ex. solo scores), or from the current score (ex. alternative champion picks), depending on the context.\n        ",
@@ -551,7 +592,7 @@ export const TranslatedText = {
   },
   doesItWorkOnNormalsAnswer: {
     english: "\n          The AI was only trained on (millions of) <span class=\"faq-highlight\">ranked</span> solo and flex games.\n          Scores for game modes other than solo/flex queue will be less accurate, and should be used with a grain of salt.\n        ",
-    spanish: 'La inteligencia artificial aprendió mirando solamente (miliones de) partidas <span class=\"faq-highlight\">clasificatorias</span> sólo/flex. Puntajes en otros modos son menos exactos, y se deben de tomar con precaución',
+    spanish: 'La inteligencia artificial aprendió mirando solamente (millones de) partidas <span class=\"faq-highlight\">clasificatorias</span> sólo/flex. Puntajes en otros modos son un poco menos exactos',
     french: 'L\'intelligence artificielle à été entrainée seulement sur des parties classées de <span class=\"faq-highlight\">ranked</span> soloQ et flex. Les scores calculés dans les autres modes de jeux seront donc moins précis.',
   },
 
@@ -606,13 +647,13 @@ export const TranslatedText = {
   },
   howDoesAIPatchAnswer: {
     english: "\n          The AI is constantly training on most, if not all, ranked games - soloQ &amp; flex, to keep up to date.\n          We have observed how when new champions are released, the AI can still give a roughly accurate score for champions it has never seen in the past, \n          and the overall accuracy doesn't really drop in a noticeable manner.\n          We keep updating the AI on a regular basis, to follow the small details of the patch changes.\n        ",
-    spanish: 'La inteligencia artificial esta constantemente aprendiendo de casi todas las partidas clasificadas - sólo/flex, para mantenerse al día. Hemos observado que aún cuando salen nuevos campeones, la inteligencia artificial es capaz de dar un puntaje aproximado, y la precisión no baja de manera notable. Seguiremos actualizando el modelo de manera cotidiana, para seguir los pequeños cambias cuando ocurren',
+    spanish: 'La inteligencia artificial esta constantemente aprendiendo de casi todas las partidas clasificatorias - sólo/flex, para mantenerse al día. Hemos observado que aún cuando salen nuevos campeones, la inteligencia artificial es capaz de dar un puntaje aproximado, y la precisión no baja de manera notable. Seguiremos actualizando el modelo de manera cotidiana, para seguir los pequeños cambios cuando ocurren',
     french: '\n          L\'IA est entrainée sur toutes des parties classées soloQ &amp; flex qui se jouent tous les jours.\n          Même lorsque de nouveaux champions sortent, l\'IA arrive tout de même à donner un score, et sa precision ne baisse pas de manière significative. \n          Nous continuons de mettre à jour l\'IA de façon regulière, pour suivre au mieux les changements lors de sorties de patchs.\n          ',
   },
 
   addFeatureX:{
     english: 'Can you add feature X?',
-    spanish: '¿Pueden añadir función X?',
+    spanish: '¿Se puede añadir función X?',
     french: 'Pourrait-on ajouter une fonctionnalité ?',
   },
   addFeatureXAnswer: {
@@ -623,7 +664,7 @@ export const TranslatedText = {
 
   translateToY:{
     english: 'Can you translate to language Y?',
-    spanish: '¿Puede traducir a idioma Y?',
+    spanish: '¿Se puede traducir a idioma Y?',
     french: 'Pourrez-vous traduire CSC d\'autres langues ?',
   },
   translateToYAnswer: {
@@ -780,7 +821,7 @@ export const TranslatedText = {
   },
   removeAds: {
     english: 'Remove ads - get pro version',
-    spanish: 'Suscríbete para quitar los anuncios!',
+    spanish: '¡Suscríbete para quitar los anuncios!',
     french: 'Supprimer les pubs - passez à la version pro',
   },
 

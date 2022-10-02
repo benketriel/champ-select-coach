@@ -55,6 +55,7 @@
 .cs-objectives-table {
     width: 100%;
     margin-top: 15px;
+    display: none;
 }
 .cs-objective-cell {
     width: 35px;
@@ -71,7 +72,8 @@
     width: 100%;
     text-align: center;
     border-spacing: 0px;
-    margin-top: 20px;
+    /* margin-top: 20px; */
+    margin-top: 50px;
 }
 
 .cs-colors-legend-table-margin-cell {
@@ -93,6 +95,7 @@
 .cs-total-bars-table {
     width: 100%;
     margin-top: 10px;
+    margin-bottom: 45px;
 }
 
 .cs-total-bars-table td:nth-child(1) {
@@ -190,6 +193,63 @@
 }
 
 /* Now it goes column by column since they all share the same width, so remember to update all if you change */
+
+/* Picking effect */
+.picking {
+    background-image: radial-gradient(rgba(205, 190, 145, 0.13) 15%, rgba(205, 190, 145, 0) 70%);
+    background-size: 282px 62px;
+    background-repeat: no-repeat;
+    filter: brightness(150%);
+}
+.cs-table-champion-icon-cell.picking {
+    background-position-x: 0px;
+    background-position-y: 0px;
+}
+.cs-table-summoner-name-cell.picking {
+    background-position-x: -63px;
+    background-position-y: 0px;
+}
+.cs-table-individuals-solo-cell.picking {
+    background-position-x: -203px;
+    background-position-y: 0px;
+}
+.cs-table-summoner-tier-cell.picking {
+    background-position-x: -63px;
+    background-position-y: -22px;
+}
+.cs-table-individuals-team-cell.picking {
+    background-position-x: -203px;
+    background-position-y: -22px;
+}
+.cs-table-recommended-champions-cell.picking {
+    background-position-x: -63px;
+    background-position-y: -44px;
+}
+
+.cs-table-champion-icon-cell:nth-child(7).picking {
+    background-position-x: -219px;
+    background-position-y: 0px;
+}
+.cs-table-summoner-name-cell:nth-child(6).picking {
+    background-position-x: -79px;
+    background-position-y: 0px;
+}
+.cs-table-individuals-solo-cell:nth-child(5).picking {
+    background-position-x: 0px;
+    background-position-y: 0px;
+}
+.cs-table-summoner-tier-cell:nth-child(4).picking {
+    background-position-x: -79px;
+    background-position-y: -22px;
+}
+.cs-table-individuals-team-cell:nth-child(3).picking {
+    background-position-x: 0px;
+    background-position-y: -22px;
+}
+.cs-table-recommended-champions-cell:nth-child(2).picking {
+    background-position-x: 0px;
+    background-position-y: -44px;
+}
 
 /* Champion Icon */
 .cs-table-champion-icon-cell .cs-table-cell {

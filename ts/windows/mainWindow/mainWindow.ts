@@ -15,11 +15,10 @@ import { DynamicSettings } from "../../ts-lib/dynamicSettings";
 import { TranslatedText, Translator } from "../../ts-lib/textLanguage";
 import { Beta } from "../../ts-lib/beta";
 import { LocalStorage } from "../../ts-lib/localStorage";
+import { Updates } from "../../ts-lib/updates";
 
 
 declare var _owAdConstructor: any;
-// declare var _owAd: any;
-// declare var _owAdReady: any;
 
 export class MainWindow {
   private static _instance: MainWindow;
@@ -35,6 +34,8 @@ export class MainWindow {
   private ongoingFeedback: boolean = false;
 
   public static MAX_MENU_HISTORY_SIZE: number = 13;
+  public static MAX_PERSONAL_HISTORY_SIZE: number = 10;
+  public static MAX_PATCH_NOTES: number = 10;
 
   public static instance() {
     return this._instance = this._instance || new MainWindow();
@@ -48,8 +49,8 @@ export class MainWindow {
     this.window = new OWWindow(windowNames.mainWindow);
 
     //Track window state to pause/resume ads
-    overwolf.windows.onStateChanged.removeListener(x => MainWindow.handleStateChanged(x));
-    overwolf.windows.onStateChanged.addListener(x => MainWindow.handleStateChanged(x));
+    overwolf.windows.onStateChanged.removeListener(x => MainWindow.handleMinimizeStateChanged(x));
+    overwolf.windows.onStateChanged.addListener(x => MainWindow.handleMinimizeStateChanged(x));
 
     this.initWindow();
   }
@@ -64,7 +65,31 @@ export class MainWindow {
     MainWindow.waitForAdsLibToLoadThenInitAdObj();
     MainWindow.versionButtonClick();
 
-    Popup.prompt('Subscription', 'Do you want to temporarily enable the subscribed-only mode?', () => Subscriptions.TODO = true, () => {});
+    //Popup.prompt('Subscription', 'BETA TESTING: Do you want to temporarily enable the subscribed-only mode?', () => Subscriptions.TODO = true, () => {}); //TODO remove completely
+
+    const rc = LocalStorage.getRestartCount();
+    const windowIsTheRightSize = Math.abs($('body').outerWidth() - 1300) < 100 || Math.abs($('body').outerHeight() - 720) < 100;
+    if (rc < 2 && !windowIsTheRightSize) {
+      LocalStorage.setRestartCount(rc + 1);
+      await Timer.wait(1000);
+      overwolf.extensions.relaunch();
+      //Error reporting TODO
+      return;
+    }
+    LocalStorage.setRestartCount(0);
+
+    $('body').css('opacity', '1.0');
+
+    const notes = PatchNotes.get();
+
+    if (notes.length > 0 && LocalStorage.getLatestSeenPatchNote() != notes[notes.length - 1][0]) {
+      await Timer.wait(100);
+      $('.newsButton').trigger('click');
+      await Timer.wait(100);
+      $($('.slide-overlay-news .settings-sub-title').get(0)).trigger('click');
+      LocalStorage.setLatestSeenPatchNote(<string>notes[notes.length - 1][0]);
+    }
+
   }
 
 
@@ -74,6 +99,17 @@ export class MainWindow {
   private static async waitForAdsLibToLoadThenInitAdObj() {
     while(!_owAdConstructor) await Timer.wait(1000);
 
+    //For testing use:
+    //localStorage.owAdsForceAdUnit = "Ad_test";
+    //localStorage.owAdsForceAdUnit ="Ad_test_300x250";
+    //localStorage.owAdsForceAdUnit = undefined; //Restore to original state
+
+    // The creation of an OwAd object will automatically load an ad (so no need to call refreshAd here).
+    // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 400, height: 300}});
+    // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 300, height: 250}});
+    // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 400, height: 300}});
+
+    $('#owad').html('');
     MainWindow.owAdObj = new _owAdConstructor(document.getElementById("owad"), {size: {width: 400, height: 300}});
     MainWindow.owAdObj.addEventListener('ow_internal_rendered', () => {
       // It is now safe to call any API you want ( e.g. MainWindow.owAdObj.refreshAd() or MainWindow.owAdObj.removeAd() )
@@ -82,7 +118,7 @@ export class MainWindow {
     });
   }
 
-  public static async handleStateChanged(state: any) {
+  public static async handleMinimizeStateChanged(state: any) {
     if (state && state.window_name == windowNames.mainWindow) {
       if (!MainWindow.owAdObjReady){
         await Timer.wait(1000);
@@ -103,6 +139,8 @@ export class MainWindow {
       else if(state.window_previous_state === "minimized" && state.window_state === "normal"){
         if (!await Subscriptions.isSubscribed()) {
           MainWindow.lastAdRefresh = new Date().getTime();
+          MainWindow.owAdObj.removeAd(); //Not calling this makes it a black screen forever sometimes
+          await Timer.wait(500);
           MainWindow.owAdObj.refreshAd();
         }
       }
@@ -115,6 +153,8 @@ export class MainWindow {
       return; //Prevent spamming of this function
     }
     MainWindow.lastActivity = new Date().getTime();
+    await Timer.wait(100); //Just prevent things from happening exactly when you click the window
+
     if (await Subscriptions.isSubscribed()) {
       MainWindow.owAdObj.removeAd();
       $('.side-menu-add-manual-cs').show();
@@ -186,7 +226,7 @@ export class MainWindow {
     const patchNotesTitleElems = $('.patch-notes-short-title').get();
     const patchNotesDateElems = $('.patch-notes-date').get();
     const patchNotesDescElems = $('.slide-overlay-news .accordeon-row li').get();
-    for (let i = 0; i < Math.min(10, patchNotesContent.length); ++i) {
+    for (let i = 0; i < Math.min(MainWindow.MAX_PATCH_NOTES, patchNotesContent.length); ++i) {
       const p = patchNotesContent[patchNotesContent.length - 1 - i];
       $(patchNotesIdElems[i]).html(<string>p[0]);
       $(patchNotesTitleElems[i]).html(<string>p[2]);
@@ -212,7 +252,7 @@ export class MainWindow {
       $('.personal-champions-list').append(await (await fetch('personalTabChampionItem.html')).text());
     }
 
-    for (let i = 0; i < 10; ++i) {
+    for (let i = 0; i < MainWindow.MAX_PERSONAL_HISTORY_SIZE; ++i) {
       $('.personal-history-list').append(await (await fetch('personalTabHistoryItem.html')).text());
     }
 
@@ -242,7 +282,7 @@ export class MainWindow {
 
     //Menu navigation
     $('.side-menu-current-cs').on('click', MainWindow.selectCurrentCS);
-    for (let i = 0; i < 10; ++i) {
+    for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
       $($('.side-menu-old-cs')[i]).on('click', () => MainWindow.selectHistoryCS(i));
       $($('.deleteHistoryItem')[i]).on('click', event => { 
         Popup.prompt(
@@ -282,6 +322,7 @@ export class MainWindow {
       $('.slide-overlay-news').animate({ left: 0 });
     });
     $('.slide-overlay-close').on('click', () => { 
+      $('.slide-overlay').stop();
       $('.slide-overlay').animate({ left: '100%' });
     });
     $('.accordeon-title').on('click', e => { 
@@ -318,8 +359,8 @@ export class MainWindow {
 
     $('.settings-button-overwolf-settings').on('click', () => { window.location.href = 'overwolf://settings/hotkeys'; });
 
-    $('.settings-button-subscribe').on('click', () => MainWindow.subscribe());
-    $('.owad-container-footer').on('click', () => MainWindow.subscribe());
+    $('.settings-button-subscribe').on('click', () => Subscriptions.subscribe());
+    $('.owad-container-footer').on('click', () => Subscriptions.subscribe());
     
     //Popup
     $('.popupCloseButton').on('click', () => { Popup.close(); });
@@ -342,6 +383,7 @@ export class MainWindow {
     $('body').on('keyup', e => { if (e.key === "Escape") {
       MainWindow.activity();
       Popup.close();
+      $('.slide-overlay').stop();
       $('.slide-overlay').animate({ left: '100%' });
     } });
     $('body').on('mousedown', () => MainWindow.activity());
@@ -402,11 +444,15 @@ export class MainWindow {
     }
   }
 
-  public static selectPersonal() {
+  public static async selectPersonal() {
     const main = MainWindow.instance();
     if (main.selectedView == 'personal') return;
     if (!main.personalTab.readyToBeDisplayed()) {
-      Popup.message(TranslatedText.lolDisconnected.english, TranslatedText.cscNotConnectingToLCU.english);
+      if (await Subscriptions.isSubscribed()) {
+        main.personalTab.editSummonerAndRegion();
+      } else {
+        Popup.message(TranslatedText.lolDisconnected.english, TranslatedText.cscNotConnectingToLCU.english);
+      }
       return;
     }
     MainWindow.clearAll();
@@ -437,7 +483,8 @@ export class MainWindow {
     main.selectedView = '';
 
     $('.home-tab').hide();
-    $('.slide-overlay').animate({ left: '100%' });
+    // $('.slide-overlay').stop();
+    // $('.slide-overlay').animate({ left: '100%' });
     $('.side-menu-current-cs').removeClass('side-menu-selected-effect');
     $('.side-menu-selected-effect').removeClass('side-menu-selected-effect');
     $('.s-lcu-status').removeClass('s-lcu-status-selected');
@@ -500,24 +547,28 @@ export class MainWindow {
   }
 
   public static async setStatus(statusJSON: string) {
-    const status = JSON.parse(statusJSON) || {};
-    if (status.announcement && status.announcement.length > 0) {
-      $('.announcement-scrolling-text-slider').html(status.announcement.split('<br/>').join('').split('<br>').join(''));
-      $('.announcement-scrolling-text-tooltip').html(status.announcement);
-      $('.announcement-scrolling-text').show();
+    try {
+      const status = JSON.parse(statusJSON) || {};
+      if (status.announcement && status.announcement.length > 0) {
+        $('.announcement-scrolling-text-slider').html(status.announcement.split('<br/>').join('').split('<br>').join(''));
+        $('.announcement-scrolling-text-tooltip').html(status.announcement);
+        $('.announcement-scrolling-text').show();
 
-      if (MainWindow.lastStatusPopup != status.announcement) {
-        MainWindow.lastStatusPopup = status.announcement;
-        // Popup.message(TranslatedText.announcement.english, status.announcement);
+        if (MainWindow.lastStatusPopup != status.announcement) {
+          MainWindow.lastStatusPopup = status.announcement;
+          // Popup.message(TranslatedText.announcement.english, status.announcement);
+        }
+
+      } else {
+        $('.announcement-scrolling-text').hide();
       }
 
-    } else {
-      $('.announcement-scrolling-text').hide();
-    }
-
-    if (MainWindow.currUpdateState != null && MainWindow.currUpdateState != 'UpToDate' && 
-      status.supportedVersions && status.supportedVersions.length > 0 && !status.supportedVersions.includes(version)) {
-        MainWindow.versionButtonClick(); //Force update if not supported and not up to date
+      if (MainWindow.currUpdateState != null && MainWindow.currUpdateState != 'UpToDate' && 
+        status.supportedVersions && status.supportedVersions.length > 0 && !status.supportedVersions.includes(version)) {
+          MainWindow.versionButtonClick(); //Force update if not supported and not up to date
+      }
+    } catch {
+      Logger.warn('setStatus crashed on: ' + statusJSON);
     }
   }
 
@@ -530,19 +581,14 @@ export class MainWindow {
     if (MainWindow.currUpdateState == null || MainWindow.currUpdateState == 'UpToDate') {
       $('.settings-version-text').html(TranslatedText.checkingForUpdates.english);
 
-      await Timer.wait(500);
-      let res = await new Promise<overwolf.extensions.CheckForUpdateResult>(resolve => overwolf.extensions.checkForExtensionUpdate(resolve));
-      while (!res || !res.success || !res.state) {
-        await Timer.wait(1000);
-        res = await new Promise<overwolf.extensions.CheckForUpdateResult>(resolve => overwolf.extensions.checkForExtensionUpdate(resolve));
-      }
-      if (MainWindow.currUpdateState == null && res.state != 'UpToDate') {
+      await Timer.wait(500); //Give the user time to see that it did click the button
+      let currState = await Updates.getUpdateState();
+      if (MainWindow.currUpdateState == null && currState != 'UpToDate') {
         Popup.message(TranslatedText.update.english, TranslatedText.updateIsAvailable.english);
       }
-      MainWindow.currUpdateState = res.state;
+      MainWindow.currUpdateState = currState;
     } else if (MainWindow.currUpdateState == 'UpdateAvailable') {
-      const updateRes = <any>await new Promise(resolve => overwolf.extensions.updateExtension(resolve));
-      Logger.log("App was manually updated with return message: " + JSON.stringify(updateRes));
+      const updateRes = <any>await Updates.update();
       if (updateRes && updateRes.success && updateRes.state == 'PendingRestart') {
         MainWindow.currUpdateState = 'PendingRestart';
       } else {
@@ -552,7 +598,7 @@ export class MainWindow {
       overwolf.extensions.relaunch();
     }
 
-    if (MainWindow.currUpdateState == 'UpToDate') {
+    if (MainWindow.currUpdateState == null || MainWindow.currUpdateState == 'UpToDate') {
       $('.settings-version-text').html(TranslatedText.appIsUpToDate.english);
       $('.settings-button-version').html(TranslatedText.checkForUpdates.english);
     } else if (MainWindow.currUpdateState == "UpdateAvailable") {
@@ -564,7 +610,7 @@ export class MainWindow {
     }
 
     $('.settings-version-id').html(version);
-    if (await Beta.isBetaVersion() && MainWindow.currUpdateState == 'UpToDate') {
+    if (await Beta.isBetaVersion() && (MainWindow.currUpdateState == null || MainWindow.currUpdateState == 'UpToDate')) {
       $('.settings-version-id-beta').show();
     } else {
       $('.settings-version-id-beta').hide();
@@ -587,10 +633,6 @@ export class MainWindow {
     $('.settings-auto-open-never').prop('checked', mode == 2);
 
     LocalStorage.setAutoOpenMode(mode);
-  }
-
-  private static async subscribe() {
-    overwolf.utils.openStore(<any>{ page:overwolf.utils.enums.eStorePage.SubscriptionPage });
   }
 
   private static async changeLanguage() {

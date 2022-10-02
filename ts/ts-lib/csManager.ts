@@ -30,15 +30,27 @@ export class CsInput {
   public championSwaps: string[] = [null, null, null, null, null, null, null, null, null, null];
 
   public static triggersLoadCsData(oldCsInput: CsInput, newCsInput: CsInput) {
-    return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || !Utils.setsAreEqual(new Set(oldCsInput.summonerNames), new Set(newCsInput.summonerNames));
+    return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || 
+      !Utils.setsAreEqual(new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)));
   }
 
   public static triggersNewCs(oldCsInput: CsInput, newCsInput: CsInput) {
-    return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || !Utils.setIncludes(new Set(newCsInput.summonerNames), new Set(oldCsInput.summonerNames));
+    return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || 
+      !Utils.setIncludes(new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)));
   }
   
   public static anyVisibleChange(oldCsInput: CsInput, newCsInput: CsInput) {
     return JSON.stringify(oldCsInput) != JSON.stringify(newCsInput);
+  }
+
+  public static isOlderVersionOfTheSameCS(oldCsInput: CsInput, newCsInput: CsInput) {
+    return oldCsInput && newCsInput && oldCsInput.queueId == newCsInput.queueId && oldCsInput.region == newCsInput.region && oldCsInput.ownerName == newCsInput.ownerName && 
+      oldCsInput.championIds.filter(x => x != null && x != '' && x != '0').length == 10 &&
+      newCsInput.championIds.filter(x => x != null && x != '' && x != '0').length == 10 && 
+      oldCsInput.summonerNames.filter(name => name && name.length > 0).length == 10 &&
+      newCsInput.summonerNames.filter(name => name && name.length > 0).length == 5 &&
+      Utils.setIncludes(new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(newCsInput.summonerNames.filter(name => name && name.length > 0))) &&
+      new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)).size > new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)).size;
   }
   
   public static readyToBeUploaded(csInput: CsInput) {
@@ -211,10 +223,14 @@ export class CsManager {
     if (!CsInput.anyVisibleChange(this.newCsInput, newCsInput)) {
       return;
     }
+    if (CsInput.isOlderVersionOfTheSameCS(this.newCsInput, newCsInput)) {
+      //Ignore, these messages can come out of order between CS and spectator and we don't want it to think it's a new CS all of the sudden
+      return;
+    }
 
+    this.newCsInput = newCsInput;
     if (this.ongoingRolePred) {
       this.pendingRolePred = true;
-      this.newCsInput = newCsInput;
       return;
     }
 
@@ -298,7 +314,9 @@ export class CsManager {
       
         if (loadData) {
           this.currCsFirstRunComplete = false;
-          this.onCsUpdate('clearData', this);
+          if (newCs) {
+            this.onCsUpdate('clearData', this);
+          }
 
           this.currCsData = await CsDataFetcher.getCsData(this.patchInfo, this.currCsInput);
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
@@ -587,12 +605,17 @@ export class CsManager {
         csInput.championIds = spect.result.participants.map(x => x.championId.toString());
         csInput.picking = [false, false, false, false, false, false, false, false, false, false];
         csInput.summonerSpells = spect.result.participants.map(x => [x.spell1Id || -1, x.spell2Id || -1]);
-        csInput.assignedRoles = this.currCsInputView.assignedRoles; //roles not in the data here
-        // csInput.assignedRoles = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]; //alt
-        // csInput.assignedRoles = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //or maybe it's like this? TODO check
-        
-        csInput.roleSwaps = this.currCsInputView.roleSwaps;
-        csInput.championSwaps = this.currCsInputView.championSwaps;
+
+        const sToCs = this.findSpectatorToCsMapping(this.currCsInputView.summonerNames, csInput.summonerNames);
+        if (sToCs) {
+          //roles not in the data here
+          csInput.assignedRoles =  this.applyMapping(this.currCsInputView.assignedRoles, sToCs);
+          // csInput.assignedRoles = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]; //alt
+          // csInput.assignedRoles = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //or maybe it's like this? TODO check
+          
+          csInput.roleSwaps =  this.applyMapping(this.currCsInputView.roleSwaps, sToCs);
+          csInput.championSwaps =  this.applyMapping(this.currCsInputView.championSwaps, sToCs);
+        }
         
         this.handleCsChange(csInput);
         break;
@@ -602,6 +625,27 @@ export class CsManager {
         continue;
       }
     }
+  }
+
+  private findSpectatorToCsMapping(csNames: string[], spectNames: string[]) {
+    const mapping = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    for (let i = 0; i < 10; ++i) {
+      const name = csNames[i];
+      const idx = spectNames.indexOf(name);
+      if (name.length > 0 && idx >=0) {
+        mapping[idx] = i;
+      }
+    }
+    if (new Set(mapping).size != 10) return null;
+    return mapping;
+  }
+
+  private applyMapping(arr: any[], mapping: number[]) {
+    const res = [];
+    for (let i = 0; i < 10; ++i) {
+      res[i] = arr[mapping[i]];
+    }
+    return res;
   }
 
   private async uploadCurrentCS() {
