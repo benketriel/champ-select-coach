@@ -152,7 +152,9 @@ export class PatchNotes {
         'The personal page also shows the full history of CSC games played, along with statistics of performance. Clicking on these games in the history will load them to be visible again as they appeared during champion select.',
         'The personal page also shows a histogram of AI scores VS outcome of the game, for your games, all CSC users, and the AI\'s veredict on all the new games it has encountered.',
       ]],
-      // ['v0.3.3', '2022/09/30', '3rd AI Rework - Subscriptions', [
+      ['v0.3.3', '2022/11/06', 'K\'Sante', ['K\'Sante sprites']],
+      
+      // ['v0.3.4', '2022/09/30', '3rd AI Rework - Subscriptions', [
       //   'Subscriptions are available so you can support the app, remove ads and unlock a few more features (future features may also be subscription-only).',
       //   'Subscription only: Ads removed.',
       //   'Subscription only: Any champion select can be cloned into edit mode, where the champions, player names, region and side can be freely edited, simulating ficticious lobbies. This can be used for example in clash to decide beforehand what to play or ban, check what CSC would say for your friend\'s game, or to go back into an old game and check how various changes would affect the scores. Keep in mind that simulating very old games where the elo of the players has changed a lot since, can give unstable results.',
