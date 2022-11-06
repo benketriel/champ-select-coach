@@ -563,9 +563,8 @@ export class MainWindow {
         $('.announcement-scrolling-text').hide();
       }
 
-      if (MainWindow.currUpdateState != null && MainWindow.currUpdateState != 'UpToDate' && 
-        status.supportedVersions && status.supportedVersions.length > 0 && !status.supportedVersions.includes(version)) {
-          MainWindow.versionButtonClick(); //Force update if not supported and not up to date
+      if (MainWindow.currUpdateState != null && status.supportedVersions && status.supportedVersions.length > 0 && !status.supportedVersions.includes(version)) {
+        MainWindow.versionButtonClick(); //Force update if not supported and not up to date
       }
     } catch {
       Logger.warn('setStatus crashed on: ' + statusJSON);
