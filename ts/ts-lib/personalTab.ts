@@ -52,18 +52,18 @@ export class PersonalTab {
       const that = this; //Need this trick else this will be window inside the callbacks
       const setRequiredFeatures = async () => { 
         await Lcu.setRequiredFeatures([interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]);
-        this.delayedSync();
+        await this.delayedSync();
       };
       overwolf.games.launchers.onLaunched.removeListener(setRequiredFeatures);
       overwolf.games.launchers.onLaunched.addListener(setRequiredFeatures);
       overwolf.games.launchers.getRunningLaunchersInfo(info => { if (Lcu.isLcuRunningFromInfo(info)) { setRequiredFeatures(); }});
 
-      const handleLcuEvent = (event: any) => that.syncWithLCU();
+      const handleLcuEvent = async (event: any) => await that.syncWithLCU();
       overwolf.games.launchers.onTerminated.removeListener(handleLcuEvent);
       overwolf.games.launchers.onTerminated.addListener(handleLcuEvent);
     }
 
-    this.init();
+    /* await */ this.init();
   }
 
   private async init() {
@@ -86,9 +86,9 @@ export class PersonalTab {
       $(historyElems[i]).on('click', () => { that.showCscHistoryCs(parseInt(i)); });
     }
     const editElm = $('.personal-title-edit-button').get(0);
-    $(editElm).parent().on('mouseenter', async () => { if (await Subscriptions.isSubscribed()) $(editElm).show(); });
+    $(editElm).parent().on('mouseenter', () => { if (Subscriptions.isSubscribed()) $(editElm).show(); });
     $(editElm).parent().on('mouseleave', () => $(editElm).hide());
-    $(editElm).on('click', () => that.editSummonerAndRegion());
+    $(editElm).on('click', async () => await that.editSummonerAndRegion());
 
     $('.personal-graph-canvas').on('mousemove', e => { that.mouseOverCanvas(e); });
     $('.personal-graph-canvas').on('mouseleave', () => { that.mouseLeaveCanvas(); });
@@ -97,7 +97,7 @@ export class PersonalTab {
 
   private async delayedSync() {
     await Timer.wait(1000); //Wait for the app to load to reduce lag as the CsTab may be selecting its first one
-    this.syncWithLCU();
+    await this.syncWithLCU();
   }
 
   private async syncWithLCU() {
@@ -117,7 +117,7 @@ export class PersonalTab {
         this.region = x.region;
         this.customSummoner = false;
         if (change && !await Lcu.inChampionSelect()) {
-          await this.updateView();
+          await MainWindow.showPersonalTab(false);
         }
       });
     } else {
@@ -187,22 +187,23 @@ export class PersonalTab {
     $('.personal-history-options-score-in-game').attr('disabled', <any>false);
   }
 
-  private async enqueueUpdate(func: any) {
+  private enqueueUpdate(func: any) {
+    this.updateQueue.push(func);
+    /* await */ this.handleUpdateQueue();
+  }
+
+  private async handleUpdateQueue() {
     if (this.updateInProgress) {
-      this.updateQueue.push(func);
       return;
     }
-    let currFunc = func;
-    while (true) {
-      try {
-        this.updateInProgress = true;
+    try {
+      this.updateInProgress = true;
+      while (this.updateQueue.length > 0) {
+        const currFunc = this.updateQueue.shift();
         await currFunc();
-        if (this.updateQueue.length == 0) break;
-
-        currFunc = this.updateQueue.shift();
-      } finally {
-        this.updateInProgress = false;
       }
+    } finally {
+      this.updateInProgress = false;
     }
   }
 
@@ -211,12 +212,6 @@ export class PersonalTab {
       this.clearView(false);
       return;
     }
-
-    MainWindow.selectPersonal();
-
-    this.ongoingProgressBar.abort();
-    const activeProgressBar = this.ongoingProgressBar.isActive();
-
     const loadData = this.summonerName != this.dataLoadedForName || this.region != this.dataLoadedForRegion || this.soloQueue != this.dataLoadedForSoloQueue ||
       new Date().getTime() - this.dataLoadedTimestamp > PersonalTab.DATA_TIMEOUT_MS;
     if (loadData) {
@@ -225,13 +220,15 @@ export class PersonalTab {
       $('.personal-graph-legend-personal .personal-graph-legend-text').html(this.summonerName);
 
       this.ongoingProgressBar = new ProgressBar(['loadPersonalData'], [1]);
-      if (activeProgressBar) this.ongoingProgressBar.setActive();
+      this.ongoingProgressBar.setActive();
 
       this.lockOptions();
       await this.loadData();
       this.unlockOptions();
       this.ongoingProgressBar.taskCompleted();
       $($('.personal-title').get(0)).html(this.summonerName + ' - ' + (this.tier.tier == '' ? '' : Utils.capitalizeFirstLetter(this.tier.tier) + ' ' + this.tier.division + ' ' + this.tier.lp + ' LP ') + ' ' + this.patchInfo.RegionIdToGg[this.region].toUpperCase());
+    } else {
+      this.ongoingProgressBar.setActive();
     }
 
     this.updateChampionRoleStats();
@@ -469,7 +466,7 @@ export class PersonalTab {
 
       CsTab.setChampionImg(this.patchInfo, elmn.find('.personal-history-champion-icon img'), championId);
       CsTab.setRoleImg($(elmn.find('.personal-history-role-icon img').get(0)), role, this.tier.tier, this.tier.division, this.tier.lp);
-      elmn.find('.personal-history-score').html((Math.round(pred * 10 * 10) / 10).toFixed(1));
+      elmn.find('.personal-history-score').html((Math.round(pred * 100) / 10).toFixed(1));
       elmn.find('.personal-history-date').html(dateHtml);
       elmn.removeClass('personal-history-table-container-' + (!hist.userWon ? 'win' : 'lose'));
       elmn.addClass('personal-history-table-container-' + (hist.userWon ? 'win' : 'lose'));
@@ -642,25 +639,19 @@ export class PersonalTab {
     $('.personal-graph-canvas-mouseover').html('');
   }
 
-  public hide() {
-    $('.personal-tab').hide();
-  }
-
-  public async show() {
-    if (this.customSummoner) {
+  public async load(resetSummoner: boolean) {
+    if (resetSummoner && this.customSummoner) {
       await this.syncWithLCU();
     } else {
-      this.updateView();
+      await this.updateView();
     }
-    $('.personal-tab').show();
-    this.ongoingProgressBar.setActive();
   }
 
   public showCscHistoryCs(i: number) {
     const cscHistory = this.cscHistory.personalHistory || [];
     const hist = cscHistory[cscHistory.length - 1 - (this.cscHistoryIndex + i)];
     const data = JSON.parse(hist.data);
-    MainWindow.selectStatic(data);
+    MainWindow.showPersonalCS(data);
   }
 
   public async editSummonerAndRegion() {
@@ -680,7 +671,7 @@ export class PersonalTab {
           this.region = picked[0];
           this.customSummoner = true;
           if (change && !await Lcu.inChampionSelect()) {
-            await this.updateView();
+            await MainWindow.showPersonalTab(false);
           }
         });
       });

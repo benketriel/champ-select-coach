@@ -30,7 +30,7 @@ export class ProgressBar {
       this.remainingTotalSeconds += s * n;
     }
 
-    this.tick();
+    /* await */ this.tick();
   }
 
   private setValue() {

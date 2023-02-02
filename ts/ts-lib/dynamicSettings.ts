@@ -10,7 +10,7 @@ export class DynamicSettings {
   
   constructor(onStatusUpdate: any) {
     this.onStatusUpdate = onStatusUpdate;
-    this.pollForStatusUpdates();
+    /* await */ this.pollForStatusUpdates();
   }
 
   public async pollForStatusUpdates() { 

@@ -14,41 +14,38 @@ import { Subscriptions } from "./subscriptions";
 
 export class CsTab {
   private lcuCsManager: CsManager;
-  private manualCsManagers: CsManager[];
-  private staticCsManager: CsManager;
-  private lcuManagerActive: boolean = false;
-  private currHistoryIndex: number = -1;
-  public hasBeenInCS: boolean = false;
+  private historyCsManagers: CsManager[];
+
+  private currentCsManager: CsManager = null;
+
+  public hasBeenUpdated: boolean = false;
   public static NUM_RECOMMENDATIONS: number = 6;
   public static NUM_HISTORY: number = 8;
-  private patchInfo: any;
+  public patchInfo: any;
 
   constructor(patchInfo: any) {
     this.patchInfo = patchInfo;
     //if mode matches then handle their callbacks and set view
-    const that = this;
-    const onNewCsLcu = (managerAsking: any) => that.onNewCsLcu();
-    const onCsUpdateLcu = (change: string, managerAsking: any) => that.onCsUpdateLcu(change);
-    this.lcuCsManager = new CsManager(patchInfo, true, onNewCsLcu, onCsUpdateLcu, null, true, false);
-    this.manualCsManagers = [];
-    this.staticCsManager = new CsManager(patchInfo, false, () => {}, () => {}, null, false, false);
 
-    this.init();
+    this.lcuCsManager = new CsManager(this, true, null, true, false);
+    this.historyCsManagers = [];
+
+    /* await */ this.init();
   }
 
   private async init() {
     const that = this;
-    const onNewCsManual = (managerAsking: any) => that.onNewCsManual(managerAsking);
-    const onCsUpdateManual = (change: string, managerAsking: any) => that.onCsUpdateManual(change, managerAsking);
+    
+    await Subscriptions.updateSubscriptionStatus();
 
     const history = await LocalStorage.getCsHistory();
     for (let i in history) {
       const h = history[i];
-      this.manualCsManagers.push(new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, h, h.swappable, h.editable));
+      this.historyCsManagers.push(new CsManager(this, false, h, h.swappable, h.editable));
     }
     this.updateCSHistory();
 
-    if (this.manualCsManagers.length > 0) MainWindow.selectHistoryCS(0);
+    if (this.historyCsManagers.length > 0) await MainWindow.showHistoryCS(0);
     else MainWindow.selectHome();
 
     //Callbacks
@@ -57,7 +54,7 @@ export class CsTab {
       const idx = Math.round(parseInt(i) % 4);
       const team = Math.floor((parseInt(i) / 4) % 2);
       const role = Math.floor(parseInt(i) / 8);
-      $(roleSwappers[i]).on('click', () => that.swapRole(5 * team + role, idx + (role <= idx ? 1 : 0)));
+      $(roleSwappers[i]).on('click', async () => await that.swapRole(5 * team + role, idx + (role <= idx ? 1 : 0)));
     }
 
     const champSwappers = $('.cs-table-champion-swap-champion').get();
@@ -65,7 +62,7 @@ export class CsTab {
       const idx = Math.round(parseInt(i) % 4);
       const team = Math.floor((parseInt(i) / 4) % 2);
       const role = Math.floor(parseInt(i) / 8);
-      $(champSwappers[i]).on('click', () => that.swapChampion(5 * team + role, 5 * team + idx + (role <= idx ? 1 : 0)));
+      $(champSwappers[i]).on('click', async () => await that.swapChampion(5 * team + role, 5 * team + idx + (role <= idx ? 1 : 0)));
     }
 
     const defaultSwappers = $('.cs-table-champion-swap-default').get();
@@ -74,9 +71,9 @@ export class CsTab {
       const team = Math.floor((parseInt(i) / 2) % 2);
       const role = Math.floor(parseInt(i) / 4);
       if (idx == 0) {
-        $(defaultSwappers[i]).on('click', () => that.swapRole(5 * team + role, -1));
+        $(defaultSwappers[i]).on('click', async () => await that.swapRole(5 * team + role, -1));
       } else {
-        $(defaultSwappers[i]).on('click', () => that.swapChampion(5 * team + role, -1));
+        $(defaultSwappers[i]).on('click', async () => await that.swapChampion(5 * team + role, -1));
       }
     }
 
@@ -87,7 +84,7 @@ export class CsTab {
       const role = Math.floor(parseInt(i) / 4);
 
       const elm = editIcons[i]
-      $(elm).parent().on('mouseenter', async () => { if (that.getActiveManager().getCsView().editable && await Subscriptions.isSubscribed()) $(elm).show(); });
+      $(elm).parent().on('mouseenter', async () => { if (that.currentCsManager.getCsView().editable && Subscriptions.isSubscribed()) $(elm).show(); });
       $(elm).parent().on('mouseleave', () => $(elm).hide());
       if (idx == 0) {
         $(elm).on('click', () => that.editChampion(role + 5 * team));
@@ -96,143 +93,110 @@ export class CsTab {
       }
     }
     const regionEditIcon = $('.cs-region-edit-button').get(0);
-    $('.cs-region').on('mouseenter', async () => { if (that.getActiveManager().getCsView().editable && await Subscriptions.isSubscribed()) $(regionEditIcon).show(); });
+    $('.cs-region').on('mouseenter', async () => { if (that.currentCsManager.getCsView().editable && Subscriptions.isSubscribed()) $(regionEditIcon).show(); });
     $('.cs-region').on('mouseleave', () => $(regionEditIcon).hide());
     $(regionEditIcon).on('click', () => that.editRegion());
 
-    $('.cs-side-blue').on('change', () => { that.editSide(true); });
-    $('.cs-side-red').on('change', () => { that.editSide(false); });
+    $('.cs-side-blue').on('change', async () => { await that.editSide(true); });
+    $('.cs-side-red').on('change', async () => { await that.editSide(false); });
 
-    $('.cs-queue-solo').on('change', () => { that.editQueue(true); });
-    $('.cs-queue-flex').on('change', () => { that.editQueue(false); });
+    $('.cs-queue-solo').on('change', async () => { await that.editQueue(true); });
+    $('.cs-queue-flex').on('change', async () => { await that.editQueue(false); });
     
   }
 
-  private onNewCsLcu() {
-    this.addHistoryCs();
-    this.clearCurrentCSMenu();
-    this.onCsUpdateLcu('');
-    MainWindow.selectCurrentCS();
+  public async onNewCs(managerAsking: any) {
+    if (this.lcuCsManager.currCsFirstRunComplete) {
+      await this.addCurrentLcuCsToHistory();
+    }
+
+    $('.side-menu-current-cs .side-menu-current-cs-score').html('5.0');
+    this.currentCsManager = managerAsking;
+    await this.onCsUpdate(managerAsking, '');
+    MainWindow.showLcuCS();
   }
 
-  private onCsUpdateLcu(change: string) {
-    this.updateCurrentCSMenu();
+  public async onCsUpdate(managerAsking: any, change: string) {
+    if (managerAsking === this.lcuCsManager) {
+      await this.saveHistory();
+      this.updateLcuCSMenu();
+    } else if (this.historyCsManagers.includes(managerAsking)) {
+      await this.saveHistory();
+      this.updateCSHistory();
+    }
 
-    if (this.getActiveManager() === this.lcuCsManager) {
-      this.updateView(change);
+    this.hasBeenUpdated = true;
+
+    if (this.currentCsManager === managerAsking) {
+      this.update(managerAsking, change);
     }
   }
 
-  private onNewCsManual(managerAsking: any) {
-    this.onCsUpdateManual('', managerAsking);
-  }
-
-  private onCsUpdateManual(change: string, managerAsking: any) {
-    this.updateCSHistory();
-
-    if (this.getActiveManager() === managerAsking) {
-      this.updateView(change);
-    }
-  }
-
-  public hide() {
-    $('.cs-tab').hide();
-  }
-
-  public show() {
-    $('.cs-tab').show();
-  }
-
+  //Navigation
   public swapToLcu() {
-    this.lcuManagerActive = true;
-    this.lcuCsManager.ongoingProgressBar.setActive();
-    this.updateView('');
+    this.update(this.lcuCsManager, '');
   }
 
-  public swapToManual(i: number) {
-    this.lcuManagerActive = false;
-    this.currHistoryIndex = i;
-    this.manualCsManagers[i].ongoingProgressBar.setActive();
-    this.updateView('');
+  public swapToHistory(i: number) {
+    this.update(this.historyCsManagers[i], '');
   }
 
-  public swapToStatic(csView: any) {
-    this.lcuManagerActive = false;
-    this.currHistoryIndex = -1;
-    
-    const onNewCsManual = () => {};
-    const onCsUpdateManual = () => {};
-
-    this.staticCsManager = new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, csView, false, false);
-    this.staticCsManager.ongoingProgressBar.setActive();
-    this.updateView('');
+  public swapToPersonal(csView: any) {
+    const manager = new CsManager(this, false, csView, false, false);
+    this.update(manager, '');
   }
 
-  public getActiveManager() {
-    if (this.lcuManagerActive) return this.lcuCsManager;
-    if (this.currHistoryIndex == -1) return this.staticCsManager;
-    return this.manualCsManagers[this.currHistoryIndex];
-  }
-
-  public addHistoryCs() {
-    const manager = this.lcuCsManager;
-    if (!manager.currCsFirstRunComplete) return;
-
-    const csView = JSON.parse(JSON.stringify(manager.getCsView()));
+  //Menu
+  private async addCurrentLcuCsToHistory() {
+    const csView = JSON.parse(JSON.stringify(this.lcuCsManager.getCsView()));
     csView.date = new Date().getTime();
-    const newManager = new CsManager(this.patchInfo, false, () => {}, () => {}, csView, false, false);
 
-    this.manualCsManagers.unshift(newManager);
-    newManager.refreshView();
-
-    while (this.manualCsManagers.length > MainWindow.MAX_MENU_HISTORY_SIZE) {
-      this.manualCsManagers.pop();
-    }
-    this.updateCSHistory();
-    Popup.close();
+    const newManager = new CsManager(this, false, csView, false, false);
+    await this.addManagerToHistory(newManager);
   }
 
-  public addManualCs() {
-    const manager = this.getActiveManager();
-    const csView = JSON.parse(JSON.stringify(manager.getCsView()));
-
-    const that = this;
-    const onNewCsManual = (managerAsking: any) => that.onNewCsManual(managerAsking);
-    const onCsUpdateManual = (change: string, managerAsking: any) => that.onCsUpdateManual(change, managerAsking);
+  public async addEditableCsToHistory() {
+    const csView = JSON.parse(JSON.stringify(this.currentCsManager.getCsView()));
     csView.date = null;
     if (csView.csInput) csView.csInput.picking = [false, false, false, false, false, false, false, false, false, false];
     if (csView.csInputView) csView.csInputView.picking = [false, false, false, false, false, false, false, false, false, false];
-    const newManager = new CsManager(this.patchInfo, false, onNewCsManual, onCsUpdateManual, csView, true, true);
+    
+    const newManager = new CsManager(this, false, csView, true, true);
+    await this.addManagerToHistory(newManager);
+  }
 
-    this.manualCsManagers.unshift(newManager);
-    newManager.refreshView();
+  private async addManagerToHistory(csManager: CsManager) {
+    await csManager.refresh();
 
-    while (this.manualCsManagers.length > MainWindow.MAX_MENU_HISTORY_SIZE) {
-      this.manualCsManagers.pop();
+    this.historyCsManagers.unshift(csManager);
+    while (this.historyCsManagers.length > MainWindow.MAX_MENU_HISTORY_SIZE) {
+      this.historyCsManagers.pop();
     }
     this.updateCSHistory();
+
     Popup.close();
   }
 
   public deleteCSHistory(i: number) {
-    if (i >= this.manualCsManagers.length) return;
+    if (i >= this.historyCsManagers.length) return;
 
-    this.manualCsManagers.splice(i, 1);
-    this.currHistoryIndex = Math.min(this.currHistoryIndex, this.manualCsManagers.length - 1);
+    this.historyCsManagers.splice(i, 1);
     this.updateCSHistory();
   }
 
-  public getCSHistoryLength() {
-    return this.manualCsManagers.length;
+  public async saveHistory() {
+    const history = this.historyCsManagers.map(m => m.getCsView());
+    if (this.lcuCsManager.currCsFirstRunComplete) {
+      const csView = this.lcuCsManager.getCsView();
+      csView.date = new Date().getTime();
+      csView.editable = false;
+      csView.swappable = false;
+      history.unshift(csView);
+    }
+    await LocalStorage.setCsHistory(history);
   }
 
-  private clearCurrentCSMenu() {
-    $('.side-menu-current-cs .side-menu-current-cs-score').html('5.0');
-  }
-
-  private updateCurrentCSMenu() {
-    this.saveHistory();
-
+  private updateLcuCSMenu() {
     const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
       this.lcuCsManager.getCsView();
 
@@ -257,10 +221,29 @@ export class CsTab {
     $('.side-menu-current-cs .side-menu-champion').show();
     $('.side-menu-current-cs .side-menu-role').show();
     $('.side-menu-current-cs .side-menu-current-cs-score').show();
-    this.hasBeenInCS = true;
   }
 
-  private updateHistoryCSMenu(index: number, championId: string, role: number, tier: string, division: string, lp: string, score: number, date: number) {
+  public updateCSHistory() {
+    for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
+      if (i >= this.historyCsManagers.length) {
+        $($('.side-menu-old-cs')[i]).hide();
+        continue;
+      }
+      const csView = this.historyCsManagers[i].getCsView();
+      const csInput: CsInput = csView.csInput;
+      const ownerIdx = CsInput.getOwnerIdx(csInput);
+      const mergedTier = CsTab.mergeTiers(csView.lcuTiers, csView.apiTiers);
+
+      const tier = mergedTier[csInput.summonerNames[ownerIdx]] || {};
+      let score = csView.score && csView.score['full'] ? csView.score['full'][0][0] : 0.5;
+      score = ownerIdx < 5 ? score : 1 - score;
+
+      const swappedChamps = CsManager.applyChampionSwaps(csInput);
+      this.updateCSHistoryRow(i, swappedChamps[ownerIdx], (csView.rolePrediction || {})[ownerIdx] || 0, tier.tier, tier.division, tier.lp, score, csView.date);
+    }
+  }
+
+  private updateCSHistoryRow(index: number, championId: string, role: number, tier: string, division: string, lp: string, score: number, date: number) {
     const patchInfo = MainWindow.instance().patchInfo;
 
     CsTab.setChampionImg(patchInfo, $($('.side-menu-champion-old img')[index]), championId);
@@ -286,48 +269,10 @@ export class CsTab {
     $($('.side-menu-old-cs')[index]).show();
   }
 
-  private removeHistoryCSMenu(index: number) {
-    $($('.side-menu-old-cs')[index]).hide();
-  }
-
-  public saveHistory() {
-    const history = this.manualCsManagers.map(m => m.getCsView());
-    if (this.lcuCsManager.currCsFirstRunComplete) {
-      const csView = this.lcuCsManager.getCsView();
-      csView.date = new Date().getTime();
-      csView.editable = false;
-      csView.swappable = false;
-      history.unshift(csView);
-    }
-    LocalStorage.setCsHistory(history);
-  }
-
-  public updateCSHistory() {
-    this.saveHistory();
-
-    for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
-      if (i >= this.manualCsManagers.length) {
-        this.removeHistoryCSMenu(i);
-        continue;
-      }
-      const csView = this.manualCsManagers[i].getCsView();
-      const csInput: CsInput = csView.csInput;
-      const ownerIdx = CsInput.getOwnerIdx(csInput);
-      const mergedTier = CsTab.mergeTiers(csView.lcuTiers, csView.apiTiers);
-
-      const tier = mergedTier[csInput.summonerNames[ownerIdx]] || {};
-      let score = csView.score && csView.score['full'] ? csView.score['full'][0][0] : 0.5;
-      score = ownerIdx < 5 ? score : 1 - score;
-
-      const swappedChamps = CsManager.applyChampionSwaps(csInput);
-      this.updateHistoryCSMenu(i, swappedChamps[ownerIdx], (csView.rolePrediction || {})[ownerIdx] || 0, tier.tier, tier.division, tier.lp, score, csView.date);
-    }
-  }
-
   public static setChampionImg(patchInfo: any, element: any, championId: string) {
     const championName = patchInfo.ChampionIdToName[championId] || "";
     const currName = element.attr('title');
-    if (currName == championName) return;
+    if (currName == championName) return;  //Already showing this
     element.attr('title', championName);
 
     const champInfo = patchInfo.ChampionNameToSprite[championName];
@@ -367,12 +312,14 @@ export class CsTab {
   }
 
   // Heart of this class
-  private async updateView(change: string) {
-    const subscribed = await Subscriptions.isSubscribed();
+  private update(manager: CsManager, change: string) {
+    const subscribed = Subscriptions.isSubscribed();
+    this.currentCsManager = manager;
+    this.currentCsManager.ongoingProgressBar.setActive();
+
     let time = new Date().getTime();
     const timeStats = {};
     //Updates the html view, change is for optimization, if empty reset everything
-    const manager = this.getActiveManager();
     const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
       manager.getCsView();
 
@@ -522,15 +469,15 @@ export class CsTab {
     }
 
     $('.cs-wr-total-result').css('opacity', '1.0');
-    Utils.smoothChangeNumber($('.cs-wr-total-result').get(0), wr * 10);
+    /* await */ Utils.smoothChangeNumber($('.cs-wr-total-result').get(0), wr * 10);
     if (showSideScores) {
       $('.cs-wr-total-left-result').css('opacity', '1.0');
       $('.cs-wr-total-right-result').css('opacity', '1.0');
-      Utils.smoothChangeNumber($('.cs-wr-total-left-result').get(0), wrLeft * 10);
-      Utils.smoothChangeNumber($('.cs-wr-total-right-result').get(0), wrRight * 10);
+      /* await */ Utils.smoothChangeNumber($('.cs-wr-total-left-result').get(0), wrLeft * 10);
+      /* await */ Utils.smoothChangeNumber($('.cs-wr-total-right-result').get(0), wrRight * 10);
     } else {
-      Utils.stopSmoothChangeNumberAnimation($('.cs-wr-total-left-result').get(0));
-      Utils.stopSmoothChangeNumberAnimation($('.cs-wr-total-right-result').get(0));
+      /* await */ Utils.stopSmoothChangeNumberAnimation($('.cs-wr-total-left-result').get(0));
+      /* await */ Utils.stopSmoothChangeNumberAnimation($('.cs-wr-total-right-result').get(0));
       $('.cs-wr-total-left-result').html('');
       $('.cs-wr-total-right-result').html('');
     }
@@ -656,7 +603,7 @@ export class CsTab {
     }
   }
 
-  private async setBar(elem: HTMLElement, p: number) {
+  private setBar(elem: HTMLElement, p: number) {
     const w = (100 * p).toFixed(2).toString() + '%';
     if ($(elem).attr('title') == w) return;
     $(elem).stop();
@@ -1093,10 +1040,9 @@ export class CsTab {
     $('.cs-lds-ring').show();
   }
 
-  public swapRole(role: number, i: number) {
-    const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
-      manager.getCsView();
+  //Manual edits
+  public async swapRole(role: number, i: number) {
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
     const roleToIdx =  this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
@@ -1105,13 +1051,11 @@ export class CsTab {
       if (swapped.roleSwaps[j] == i) swapped.roleSwaps[j] = -1;
     }
     swapped.roleSwaps[roleToIdx[(role + (blue ? 0 : 5)) % 10]] = i;
-    manager.manualCsChange(swapped);
+    await this.currentCsManager.manualCsChange(swapped);
   }
 
-  public swapChampion(role: number, i: number) {
-    const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
-      manager.getCsView();
+  public async swapChampion(role: number, i: number) {
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
     const swappedChampsView = CsManager.applyChampionSwaps(csInputView);
 
@@ -1123,37 +1067,33 @@ export class CsTab {
       if (swapped.championSwaps[j] == targetChampion) swapped.championSwaps[j] = null;
     }
     swapped.championSwaps[roleToIdx[(role + (blue ? 0 : 5)) % 10]] = targetChampion;
-    manager.manualCsChange(swapped);
+    await this.currentCsManager.manualCsChange(swapped);
   }
 
   public editSummoner(role: number) {
-    const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
-      manager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
     const roleToIdx =  this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const idx = roleToIdx[(role + (blue ? 0 : 5)) % 10];
-    Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerName.english, csInputView.summonerNames[idx], [], result => {
+    Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerName.english, csInputView.summonerNames[idx], [], async result => {
       const edited = CsInput.clone(csInputView);
       if (edited.ownerName == edited.summonerNames[idx]) {
         edited.ownerName = result;
       }
       edited.summonerNames[idx] = result;
-      manager.manualCsChange(edited);
+      await this.currentCsManager.manualCsChange(edited);
     });
   }
 
   public editChampion(role: number) {
-    const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
-      manager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
     const roleToIdx =  this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const idx = roleToIdx[(role + (blue ? 0 : 5)) % 10];
     const currName = this.patchInfo.ChampionIdToName[csInputView.championIds[idx]] || "";
-    Popup.text(TranslatedText.editChampion.english, TranslatedText.enterChampionName.english, currName, Object.values(this.patchInfo.ChampionIdToName), result => {
+    Popup.text(TranslatedText.editChampion.english, TranslatedText.enterChampionName.english, currName, Object.values(this.patchInfo.ChampionIdToName), async result => {
       const picked = Object.keys(this.patchInfo.ChampionIdToName).filter(k => this.patchInfo.ChampionIdToName[k] == result);
       if (result.length > 0 && picked.length == 0) {
         Popup.message(TranslatedText.error.english, TranslatedText.championNotFound.english);
@@ -1162,18 +1102,16 @@ export class CsTab {
 
       const edited = CsInput.clone(csInputView);
       edited.championIds[idx] = picked.length == 0 ? '' : picked[0];
-      manager.manualCsChange(edited);
+      await this.currentCsManager.manualCsChange(edited);
     });
   }
 
   public editRegion() {
-    const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
-      manager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
     const currentRegion = (this.patchInfo.RegionIdToGg[csInputView.region] || '').toUpperCase();
     const regions = Object.values(this.patchInfo.RegionIdToGg).map(x => (<string>x).toUpperCase());
-    Popup.text(TranslatedText.editRegion.english, TranslatedText.enterRegionInitials.english, currentRegion, regions, result => {
+    Popup.text(TranslatedText.editRegion.english, TranslatedText.enterRegionInitials.english, currentRegion, regions, async result => {
 
       const picked = Object.keys(this.patchInfo.RegionIdToGg).filter(k => this.patchInfo.RegionIdToGg[k].toUpperCase() == result.toUpperCase());
       if (picked.length == 0) {
@@ -1183,14 +1121,12 @@ export class CsTab {
 
       const edited = CsInput.clone(csInputView);
       edited.region = picked[0];
-      manager.manualCsChange(edited);
+      await this.currentCsManager.manualCsChange(edited);
     });
   }
 
-  public editSide(blue: boolean) {
-    const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
-      manager.getCsView();
+  public async editSide(blue: boolean) {
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
     const edited = CsInput.clone(csInputView);
     if (edited.ownerName == null || edited.ownerName == "" || !edited.summonerNames.includes(edited.ownerName)) {
@@ -1215,7 +1151,7 @@ export class CsTab {
       edited.roleSwaps = this.flipArray(edited.roleSwaps);
       edited.championSwaps = this.flipArray(edited.championSwaps);
     
-      manager.manualCsChange(edited);
+      await this.currentCsManager.manualCsChange(edited);
     }
   }
 
@@ -1223,14 +1159,12 @@ export class CsTab {
     return [arr[5], arr[6], arr[7], arr[8], arr[9], arr[0], arr[1], arr[2], arr[3], arr[4]];
   }
 
-  public editQueue(soloQueue: boolean) {
-    const manager = this.getActiveManager();
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
-      manager.getCsView();
+  public async editQueue(soloQueue: boolean) {
+    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
     const edited = CsInput.clone(csInputView);
     edited.queueId = soloQueue ? '420' : '440';
-    manager.manualCsChange(edited);
+    await this.currentCsManager.manualCsChange(edited);
   }
 
 

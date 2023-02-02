@@ -7,10 +7,15 @@ export class Subscriptions {
 
   private static cscPlanID = 0;
   
-  public static TODO: boolean = false;
+  public static subscriptionStatus: boolean = true;
   private static lastChecked: number = 0;
-  public static async isSubscribed() {
-    return Subscriptions.TODO; //Just return atm since we don't have a cscPlanID
+  public static isSubscribed() {
+    /* await */ this.updateSubscriptionStatus();
+    return Subscriptions.subscriptionStatus;
+  }
+
+  public static async updateSubscriptionStatus() {
+    return; //TODO - Just return atm since we don't have a cscPlanID
     if (new Date().getTime() - Subscriptions.lastChecked > 1000 * 10) {
       const result = <boolean>await new Promise(resolve => {
         try {
@@ -22,10 +27,9 @@ export class Subscriptions {
         }
       });
   
-      Subscriptions.TODO = result;
+      Subscriptions.subscriptionStatus = result;
       Subscriptions.lastChecked = new Date().getTime(); //Just in case, prevent spam
     }
-    return Subscriptions.TODO;
   }
 
   public static async subscribe() {

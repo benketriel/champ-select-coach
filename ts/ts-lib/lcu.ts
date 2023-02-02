@@ -242,18 +242,10 @@ export class Lcu {
     }
   }
 
-  public static async isLcuRunningRetrying(): Promise<boolean> {
-    for (let i = 0; i < 5; ++i) {
-      if (i > 0) await Timer.wait(1000);
-      if (await Lcu.isLcuRunning()) return true;
-    }
-    return false;
-  }
-
-  public static async isLcuRunning(): Promise<boolean> {
-    const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
-    return !(!info || !info.res || !info.res.credentials);
-  }
+  // public static async isLcuRunning(): Promise<boolean> {
+  //   const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
+  //   return !(!info || !info.res || !info.res.credentials);
+  // }
 
   public static isLcuRunningFromInfo(launcherInfo) {
     if (!launcherInfo || !launcherInfo.launchers) {
@@ -272,7 +264,7 @@ export class Lcu {
       const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
       if (!info || !info.res || !info.res.credentials) return 'LcuConnectionFailed';
 
-      return await Promise.all(puuids.map(puuid => Lcu.getSummonerTierByPuuid(info.res.credentials, puuid)));
+      return await Promise.all(puuids.map(async puuid => await Lcu.getSummonerTierByPuuid(info.res.credentials, puuid)));
     } catch (ex) {
       ErrorReporting.report('getSummonersTierByPuuid', ex);
       return ex;
@@ -295,7 +287,7 @@ export class Lcu {
       const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
       if (!info || !info.res || !info.res.credentials) return 'LcuConnectionFailed';
 
-      return await Promise.all(names.map(name => Lcu.getSummonerPuuidByName(info.res.credentials, name)));
+      return await Promise.all(names.map(async name => await Lcu.getSummonerPuuidByName(info.res.credentials, name)));
     } catch (ex) {
       ErrorReporting.report('getSummonerPuuidsByName', ex);
       return ex;

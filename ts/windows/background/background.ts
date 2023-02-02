@@ -23,21 +23,21 @@ class BackgroundController {
 
     const that = this;
     //Set required features when LCU starts
-    const onLcuLaunch = () => { 
-      Lcu.setRequiredFeatures([interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]);
-      if (LocalStorage.getAutoOpenMode() == 0) that.run();
+    const onLcuLaunch = async () => { 
+      await Lcu.setRequiredFeatures([interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]);
+      if (LocalStorage.getAutoOpenMode() == 0) await that.run();
     };
     overwolf.games.launchers.onLaunched.removeListener(onLcuLaunch);
     overwolf.games.launchers.onLaunched.addListener(onLcuLaunch);
     overwolf.games.launchers.getRunningLaunchersInfo(info => { if (Lcu.isLcuRunningFromInfo(info)) { onLcuLaunch(); }});
 
     //Trigger run() when the app is manually launched
-    const onLaunch = (event: overwolf.extensions.AppLaunchTriggeredEvent) => { that.run();};
+    const onLaunch = async (event: overwolf.extensions.AppLaunchTriggeredEvent) => { await that.run();};
     overwolf.extensions.onAppLaunchTriggered.removeListener(onLaunch);
     overwolf.extensions.onAppLaunchTriggered.addListener(onLaunch);
 
     //Listen for champion select
-    const handleInfoUpdateEvent = (event: any) => that.handleInfoUpdateEvent(event);
+    const handleInfoUpdateEvent = async (event: any) => await that.handleInfoUpdateEvent(event);
     overwolf.games.launchers.events.onInfoUpdates.removeListener(handleInfoUpdateEvent);
     overwolf.games.launchers.events.onInfoUpdates.addListener(handleInfoUpdateEvent);
     overwolf.games.launchers.events.onNewEvents.removeListener(handleInfoUpdateEvent);
@@ -53,7 +53,7 @@ class BackgroundController {
     overwolf.windows.onMessageReceived.removeListener(handleCloseMessage);
     overwolf.windows.onMessageReceived.addListener(handleCloseMessage);
     
-    this.ensureModelLoads();
+    /* await */ this.ensureModelLoads();
   };
 
   private async ensureModelLoads() {
@@ -63,7 +63,8 @@ class BackgroundController {
 
       this._windows[windowNames.mainWindow].close();
       await Updates.updateOnAppClose();
-      await ErrorReporting.report('CSCAI.dll', 'Failed to load CSCAI.dll'); //await in case close kills it
+      ErrorReporting.report('CSCAI.dll', 'Failed to load CSCAI.dll');
+      await Timer.wait(5000); //await in case close kills it
       overwolf.windows.close(windowNames.background);
       return; // This line shouldn't happen
     }
@@ -114,7 +115,7 @@ class BackgroundController {
           Logger.log('Current champion select queue not supported, ignoring event:');
           Logger.log(JSON.stringify(event));
         } else {
-          this.run();
+          /* await */ this.run();
         }
       }
 
@@ -128,4 +129,4 @@ class BackgroundController {
 }
 
 const _instance = BackgroundController.instance();
-if (LocalStorage.getAutoOpenMode() == 0) _instance.run();
+if (LocalStorage.getAutoOpenMode() == 0) /* await */ _instance.run();

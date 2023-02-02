@@ -49,10 +49,10 @@ export class MainWindow {
     this.window = new OWWindow(windowNames.mainWindow);
 
     //Track window state to pause/resume ads
-    overwolf.windows.onStateChanged.removeListener(x => MainWindow.handleMinimizeStateChanged(x));
-    overwolf.windows.onStateChanged.addListener(x => MainWindow.handleMinimizeStateChanged(x));
+    overwolf.windows.onStateChanged.removeListener(async x => await MainWindow.handleMinimizeStateChanged(x));
+    overwolf.windows.onStateChanged.addListener(async x => await MainWindow.handleMinimizeStateChanged(x));
 
-    this.initWindow();
+    /* await */ this.initWindow();
   }
 
   public async initWindow() {
@@ -61,9 +61,9 @@ export class MainWindow {
     await this.setCallbacks();
     this.csTab = new CsTab(this.patchInfo);
     this.personalTab = new PersonalTab(this.patchInfo);
-    this.dynamicSettings = new DynamicSettings(MainWindow.setStatus);
-    MainWindow.waitForAdsLibToLoadThenInitAdObj();
-    MainWindow.versionButtonClick();
+    this.dynamicSettings = new DynamicSettings(async x => await MainWindow.setStatus(x));
+    /* await */ MainWindow.activateAds();
+    /* await */ MainWindow.versionButtonClick();
 
     //Popup.prompt('Subscription', 'BETA TESTING: Do you want to temporarily enable the subscribed-only mode?', () => Subscriptions.TODO = true, () => {}); //TODO remove completely
 
@@ -96,7 +96,7 @@ export class MainWindow {
   private static lastAdRefresh: number = 0;
   private static owAdObj: any = null;
   private static owAdObjReady: boolean = false;
-  private static async waitForAdsLibToLoadThenInitAdObj() {
+  private static async activateAds() {
     while(!_owAdConstructor) await Timer.wait(1000);
 
     //For testing use:
@@ -110,12 +110,27 @@ export class MainWindow {
     // _owAd = new OwAd(document.getElementById("owad"), {size: {width: 400, height: 300}});
 
     $('#owad').html('');
+    $('#owad').show();
     MainWindow.owAdObj = new _owAdConstructor(document.getElementById("owad"), {size: {width: 400, height: 300}});
-    MainWindow.owAdObj.addEventListener('ow_internal_rendered', () => {
-      // It is now safe to call any API you want ( e.g. MainWindow.owAdObj.refreshAd() or MainWindow.owAdObj.removeAd() )
+    MainWindow.owAdObj.addEventListener('ow_internal_rendered', async () => {
       MainWindow.owAdObjReady = true;
-      MainWindow.activity();
+      await MainWindow.activity();
     });
+  }
+
+  private static deactivateAds() {
+    if (MainWindow.owAdObj == null) return;
+
+    $('#owad').hide();
+    MainWindow.owAdObj.shutdown();
+    MainWindow.owAdObj = null;
+    //MainWindow.owAdObjReady = false;
+  }
+
+  private static async refreshAds() {
+    MainWindow.deactivateAds(); //Not calling this makes it a black screen forever sometimes
+    await Timer.wait(500);
+    await MainWindow.activateAds();
   }
 
   public static async handleMinimizeStateChanged(state: any) {
@@ -129,19 +144,17 @@ export class MainWindow {
         if (maxTries == 0) return;
       }
 
-      if (await Subscriptions.isSubscribed()) {
-        MainWindow.owAdObj.removeAd(); //No ads for subscribed
+      if (Subscriptions.isSubscribed()) {
+        MainWindow.deactivateAds(); //No ads for subscribed
         return;
       }
       if (state.window_state === "minimized") {
-        MainWindow.owAdObj.removeAd();
+        MainWindow.deactivateAds();
       }
       else if(state.window_previous_state === "minimized" && state.window_state === "normal"){
-        if (!await Subscriptions.isSubscribed()) {
+        if (!Subscriptions.isSubscribed()) {
           MainWindow.lastAdRefresh = new Date().getTime();
-          MainWindow.owAdObj.removeAd(); //Not calling this makes it a black screen forever sometimes
-          await Timer.wait(500);
-          MainWindow.owAdObj.refreshAd();
+          await this.refreshAds();
         }
       }
     }
@@ -155,8 +168,8 @@ export class MainWindow {
     MainWindow.lastActivity = new Date().getTime();
     await Timer.wait(100); //Just prevent things from happening exactly when you click the window
 
-    if (await Subscriptions.isSubscribed()) {
-      MainWindow.owAdObj.removeAd();
+    if (Subscriptions.isSubscribed()) {
+      MainWindow.deactivateAds();
       $('.side-menu-add-manual-cs').show();
       $('.owad-container-footer').hide();
     } else {
@@ -168,9 +181,9 @@ export class MainWindow {
       await Timer.wait(1000);
       if (new Date().getTime() - MainWindow.lastAdRefresh > 1000 * 60 * 10) {
         //Refresh AD if user comes back from being idle, but after 1 second of this happening
-        if (MainWindow.owAdObjReady && !await Subscriptions.isSubscribed()) {
+        if (MainWindow.owAdObjReady && !Subscriptions.isSubscribed()) {
           MainWindow.lastAdRefresh = new Date().getTime();
-          MainWindow.owAdObj.refreshAd();
+          await this.refreshAds();
         }
       }
     }
@@ -281,9 +294,9 @@ export class MainWindow {
     //Call this function once, else add .off() calls before each .on()
 
     //Menu navigation
-    $('.side-menu-current-cs').on('click', MainWindow.selectCurrentCS);
+    $('.side-menu-current-cs').on('click', MainWindow.showLcuCS);
     for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
-      $($('.side-menu-old-cs')[i]).on('click', () => MainWindow.selectHistoryCS(i));
+      $($('.side-menu-old-cs')[i]).on('click', async () => await MainWindow.showHistoryCS(i));
       $($('.deleteHistoryItem')[i]).on('click', event => { 
         Popup.prompt(
           TranslatedText.deleteHistory.english,
@@ -293,8 +306,8 @@ export class MainWindow {
         event.stopPropagation(); 
       });
     }
-    $('.side-menu-add-manual-cs').on('click', () => MainWindow.selectHistoryCS(null));
-    $('.s-lcu-status').on('click', MainWindow.selectPersonal);
+    $('.side-menu-add-manual-cs').on('click', async () => await MainWindow.showHistoryCS(null));
+    $('.s-lcu-status').on('click', async () => await MainWindow.showPersonalTab(true));
 
     //Small Windows
     $('.faqButton').on('click', async () => { 
@@ -336,17 +349,17 @@ export class MainWindow {
     $('.accordeon-content').hide();
     
 
-    $('.settings-button-version').on('click', () => MainWindow.versionButtonClick());
+    $('.settings-button-version').on('click', async () => await MainWindow.versionButtonClick());
     $('.settings-beta-version').prop('checked', await Beta.isBetaVersion());
-    $('.settings-beta-version').on('change', (e: any) => MainWindow.betaChange(e.currentTarget.checked));
+    $('.settings-beta-version').on('change', async (e: any) => await MainWindow.betaChange(e.currentTarget.checked));
 
     const autoOpenMode = LocalStorage.getAutoOpenMode();
     $('.settings-auto-open-lcu').prop('checked', autoOpenMode != 1 && autoOpenMode != 2);
-    $('.settings-auto-open-lcu').on('change', () => MainWindow.setAutoOpenMode(0));
+    $('.settings-auto-open-lcu').on('change', async () => await MainWindow.setAutoOpenMode(0));
     $('.settings-auto-open-cs').prop('checked', autoOpenMode == 1);
-    $('.settings-auto-open-cs').on('change', () => MainWindow.setAutoOpenMode(1));
+    $('.settings-auto-open-cs').on('change', async () => await MainWindow.setAutoOpenMode(1));
     $('.settings-auto-open-never').prop('checked', autoOpenMode == 2);
-    $('.settings-auto-open-never').on('change', () => MainWindow.setAutoOpenMode(2));
+    $('.settings-auto-open-never').on('change', async () => await MainWindow.setAutoOpenMode(2));
 
     $('.settings-auto-focus-cs').prop('checked', LocalStorage.getAutoFocusCs());
     $('.settings-auto-focus-cs').on('change', (e: any) => LocalStorage.setAutoFocusCs(e.currentTarget.checked));
@@ -355,12 +368,12 @@ export class MainWindow {
     $('.settings-single-thread-mode').on('change', (e: any) => LocalStorage.setSingleThreadedMode(e.currentTarget.checked));
 
     $('.settings-button-language img').attr('src', '/img/flags/' + LocalStorage.getLanguage() + '.png');
-    $('.settings-button-language').on('click', () => MainWindow.changeLanguage());
+    $('.settings-button-language').on('click', async () => await MainWindow.changeLanguage());
 
     $('.settings-button-overwolf-settings').on('click', () => { window.location.href = 'overwolf://settings/hotkeys'; });
 
-    $('.settings-button-subscribe').on('click', () => Subscriptions.subscribe());
-    $('.owad-container-footer').on('click', () => Subscriptions.subscribe());
+    $('.settings-button-subscribe').on('click', async () => await Subscriptions.subscribe());
+    $('.owad-container-footer').on('click', async () => await Subscriptions.subscribe());
     
     //Popup
     $('.popupCloseButton').on('click', () => { Popup.close(); });
@@ -375,100 +388,109 @@ export class MainWindow {
     const that = this;
 
     //Global
-    $('.drags-window').each((index, elem) => { this.setDrag(elem); });
+    $('.drags-window').each((index, elem) => { /* await */ this.setDrag(elem);});
     $('.closeButton').on('click', async () => { overwolf.windows.sendMessage(windowNames.background, 'close', '', () => {}); });
     $('.minimizeButton').on('click', () => { this.window.minimize(); });
     $('.rateApp').on('click', () => { overwolf.utils.openStore({ page:overwolf.utils.enums.eStorePage.ReviewsPage, uid:"ljkaeojllenacnoipfcdpdllhcfndmohikaiphgi"}); });
 
-    $('body').on('keyup', e => { if (e.key === "Escape") {
-      MainWindow.activity();
-      Popup.close();
-      $('.slide-overlay').stop();
-      $('.slide-overlay').animate({ left: '100%' });
-    } });
-    $('body').on('mousedown', () => MainWindow.activity());
+    $('body').on('keyup', async e => { 
+      if (e.key === "Escape") {
+        Popup.close();
+        $('.slide-overlay').stop();
+        $('.slide-overlay').animate({ left: '100%' });
+      } 
+      await MainWindow.activity();
+    });
+    $('body').on('mousedown', async () => await MainWindow.activity());
     $('.tooltip').on('mouseenter', e => that.repositionOverflowingPopup(e.currentTarget));
 
     $('.translated-text').on('DOMSubtreeModified', (e: any) => { Translator.updateTranslation(e.currentTarget); });
     Translator.updateAllTranslations();
 
-    if (!LocalStorage.languageHasBeenSet()) MainWindow.changeLanguage();
+    if (!LocalStorage.languageHasBeenSet()) await MainWindow.changeLanguage();
   }
 
   //Make callbacks static since the 'this' is confusing to pass to a callback, use MainWindow.instance() instead
-  public static selectCurrentCS() {
+  public static showLcuCS() {
     const main = MainWindow.instance();
-    if (!main.csTab.hasBeenInCS) return;
-    if (main.selectedView == 'lcu') return;
+    if (!main.csTab.hasBeenUpdated) return; //Prevent show garbage
+    if (main.selectedView == 'lcu') return; //Already selected
+
     MainWindow.clearAll();
+    $('.cs-tab').show();
+    $('.side-menu-current-cs').addClass('side-menu-selected-effect');
 
     main.selectedView = 'lcu';
     main.csTab.swapToLcu();
-    main.csTab.show();
-
-    $('.side-menu-current-cs').addClass('side-menu-selected-effect');
   }
 
-  public static async selectHistoryCS(i: number) {
+  public static async showHistoryCS(i: number) {
     const main = MainWindow.instance();
     if (null == i) {
-      main.csTab.addManualCs();
+      await main.csTab.addEditableCsToHistory();
       i = 0;
-    } else if (main.selectedView == 'hist' + i) return;
+    } else if (main.selectedView == 'hist' + i) return; //Already selected
 
     {
-      //Hack for better percieved responsiveness, the swapToManual takes some noticeable time and we want feedback from the menu before that time
+      //Hack for better percieved responsiveness, the swapToHistory takes some noticeable time and we want feedback from the menu before that time
       $($('.side-menu-old-cs')[i]).addClass('side-menu-selected-effect');
       await Timer.wait(1);
     }
 
     MainWindow.clearAll();
-    main.selectedView = 'hist' + i;
-    main.csTab.swapToManual(i);
-    main.csTab.show();
+    $('.cs-tab').show();
     $($('.side-menu-old-cs')[i]).addClass('side-menu-selected-effect');
+
+    main.selectedView = 'hist' + i;
+    main.csTab.swapToHistory(i);
   }
 
   public static deleteHistoryCS(i: number) {
     const main = MainWindow.instance();
 
     main.csTab.deleteCSHistory(i);
-
     if (main.selectedView.startsWith('hist')) {
       let currI = parseInt(main.selectedView.substring('hist'.length));
-      if (currI > i) currI--;
-      else if (currI == i) currI = Math.min(currI, main.csTab.getCSHistoryLength() - 1);
-      main.selectedView = '';
-      if (currI >= 0) MainWindow.selectHistoryCS(currI);
-      else MainWindow.selectHome();
+      if (currI == i) {
+        main.selectedView = 'deleted-hist';
+        $($('.side-menu-old-cs')[i]).removeClass('side-menu-selected-effect');
+      } else if (currI > i) {
+        main.selectedView = 'hist' + (currI - 1);
+        $($('.side-menu-old-cs')[currI - 1]).addClass('side-menu-selected-effect');
+        $($('.side-menu-old-cs')[currI]).removeClass('side-menu-selected-effect');
+      }
     }
   }
 
-  public static async selectPersonal() {
+  public static async showPersonalTab(resetSummoner: boolean) {
     const main = MainWindow.instance();
-    if (main.selectedView == 'personal') return;
+    if (main.selectedView == 'personal') return; //Already selected
+
     if (!main.personalTab.readyToBeDisplayed()) {
-      if (await Subscriptions.isSubscribed()) {
-        main.personalTab.editSummonerAndRegion();
+      if (Subscriptions.isSubscribed()) {
+        await main.personalTab.editSummonerAndRegion();
       } else {
         Popup.message(TranslatedText.lolDisconnected.english, TranslatedText.cscNotConnectingToLCU.english);
       }
       return;
     }
     MainWindow.clearAll();
+    $('.personal-tab').show();
+    $('.s-lcu-status').addClass('s-lcu-status-selected');
 
     main.selectedView = 'personal';
-    main.personalTab.show();
-    $('.s-lcu-status').addClass('s-lcu-status-selected');
+    await main.personalTab.load(resetSummoner);
   }
 
-  public static selectStatic(csView: any) {
+  public static showPersonalCS(csView: any) {
     const main = MainWindow.instance();
-    MainWindow.clearAll();
-    main.selectedView = 'static';
+    if (main.selectedView == 'personal-cs') return; //Already selected
 
-    main.csTab.show();
-    main.csTab.swapToStatic(csView);
+    MainWindow.clearAll();
+    $('.cs-tab').show();
+
+    main.selectedView = 'personal-cs';
+    main.csTab.swapToPersonal(csView);
   }
 
   public static selectHome() {
@@ -478,8 +500,8 @@ export class MainWindow {
 
   public static clearAll() {
     const main = MainWindow.instance();
-    main.personalTab.hide();
-    main.csTab.hide();
+    $('.personal-tab').hide();
+    $('.cs-tab').hide();
     main.selectedView = '';
 
     $('.home-tab').hide();
@@ -564,7 +586,7 @@ export class MainWindow {
       }
 
       if (MainWindow.currUpdateState != null && status.supportedVersions && status.supportedVersions.length > 0 && !status.supportedVersions.includes(version)) {
-        MainWindow.versionButtonClick(); //Force update if not supported and not up to date
+        await MainWindow.versionButtonClick(); //Force update if not supported and not up to date
       }
     } catch {
       Logger.warn('setStatus crashed on: ' + statusJSON);
@@ -577,39 +599,39 @@ export class MainWindow {
     $('.settings-version-loading-spinner').show();
     $('.settings-beta-version').attr("disabled", "disabled"); //Also prevents multiple concurrent clicks
 
-    if (MainWindow.currUpdateState == null || MainWindow.currUpdateState == 'UpToDate') {
+    if (MainWindow.currUpdateState == null || MainWindow.currUpdateState == Updates.updateStates.UpToDate) {
       $('.settings-version-text').html(TranslatedText.checkingForUpdates.english);
 
       await Timer.wait(500); //Give the user time to see that it did click the button
       let currState = await Updates.getUpdateState();
-      if (MainWindow.currUpdateState == null && currState != 'UpToDate') {
+      if (MainWindow.currUpdateState == null && currState != Updates.updateStates.UpToDate) {
         Popup.message(TranslatedText.update.english, TranslatedText.updateIsAvailable.english);
       }
       MainWindow.currUpdateState = currState;
-    } else if (MainWindow.currUpdateState == 'UpdateAvailable') {
+    } else if (MainWindow.currUpdateState == Updates.updateStates.UpdateAvailable) {
       const updateRes = <any>await Updates.update();
-      if (updateRes && updateRes.success && updateRes.state == 'PendingRestart') {
-        MainWindow.currUpdateState = 'PendingRestart';
+      if (updateRes && updateRes.success && updateRes.state == Updates.updateStates.PendingRestart) {
+        MainWindow.currUpdateState = Updates.updateStates.PendingRestart;
       } else {
         Popup.message(TranslatedText.error.english, TranslatedText.anErrorOccurred.english);
       }
-    } else if (MainWindow.currUpdateState == 'PendingRestart') {
+    } else if (MainWindow.currUpdateState == Updates.updateStates.PendingRestart) {
       overwolf.extensions.relaunch();
     }
 
-    if (MainWindow.currUpdateState == null || MainWindow.currUpdateState == 'UpToDate') {
+    if (MainWindow.currUpdateState == null || MainWindow.currUpdateState == Updates.updateStates.UpToDate) {
       $('.settings-version-text').html(TranslatedText.appIsUpToDate.english);
       $('.settings-button-version').html(TranslatedText.checkForUpdates.english);
-    } else if (MainWindow.currUpdateState == "UpdateAvailable") {
+    } else if (MainWindow.currUpdateState == Updates.updateStates.UpdateAvailable) {
       $('.settings-version-text').html(TranslatedText.updateAvailable.english);
       $('.settings-button-version').html(TranslatedText.downloadUpdate.english);
-    } else if (MainWindow.currUpdateState == "PendingRestart") {
+    } else if (MainWindow.currUpdateState == Updates.updateStates.PendingRestart) {
       $('.settings-version-text').html(TranslatedText.updateAvailable.english);
       $('.settings-button-version').html(TranslatedText.updateNow.english);
     }
 
     $('.settings-version-id').html(version);
-    if (await Beta.isBetaVersion() && (MainWindow.currUpdateState == null || MainWindow.currUpdateState == 'UpToDate')) {
+    if (await Beta.isBetaVersion() && (MainWindow.currUpdateState == null || MainWindow.currUpdateState == Updates.updateStates.UpToDate)) {
       $('.settings-version-id-beta').show();
     } else {
       $('.settings-version-id-beta').hide();
@@ -621,9 +643,9 @@ export class MainWindow {
   }
 
   private static async betaChange(beta: boolean) {
-    Beta.setBetaVersion(beta);
+    await Beta.setBetaVersion(beta);
     MainWindow.currUpdateState = null;
-    MainWindow.versionButtonClick();
+    await MainWindow.versionButtonClick();
   }
 
   private static async setAutoOpenMode(mode: number) {

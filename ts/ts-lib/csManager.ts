@@ -110,13 +110,11 @@ export class CsData {
 export class CsManager {
   private static cscaiOwner: CsManager = null;
   private static cscaiBeingUsed: boolean = false;
-  private patchInfo: any;
+  private csTab: CsTab;
   private connectedToLcu: boolean = false;
   private swappableCs: boolean = false;
   private editableCs: boolean = false;
   private date: number = null;
-  private onNewCs: any;
-  private onCsUpdate: any;
 
   private currCsInput = new CsInput();
   private currCsData = new CsData();
@@ -133,49 +131,47 @@ export class CsManager {
   private currCsRecommendations = null;
   public currCsFirstRunComplete = false;
 
-  private newCsInput: CsInput = null;
-  private ongoingRolePred = false;
-  private pendingRolePred = false;
+  private latestCsInput: CsInput = null;
+  private ongoingCsViewChange = false;
+  private pendingCsViewChange = false;
 
   private ongoingCsChange = false;
   private pendingCsChange = false;
 
   public ongoingProgressBar = new ProgressBar([], []);
 
-  constructor(patchInfo: any, connectedToLcu: boolean, onNewCs: any, onCsUpdate: any, csView: any, swappable: boolean, editable: boolean) {
-    this.patchInfo = patchInfo;
+  constructor(csTab: CsTab, connectedToLcu: boolean, csView: any, swappable: boolean, editable: boolean) {
+    this.csTab = csTab;
     this.connectedToLcu = connectedToLcu;
-    this.onNewCs = onNewCs;
-    this.onCsUpdate = onCsUpdate;
 
     if (this.connectedToLcu) {
       //Set required features when LCU starts
-      const setRequiredFeatures = () => { Lcu.setRequiredFeatures([interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]); };
+      const setRequiredFeatures = async () => { await Lcu.setRequiredFeatures([interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]); };
       overwolf.games.launchers.onLaunched.removeListener(setRequiredFeatures);
       overwolf.games.launchers.onLaunched.addListener(setRequiredFeatures);
       overwolf.games.launchers.getRunningLaunchersInfo(info => { if (Lcu.isLcuRunningFromInfo(info)) { setRequiredFeatures(); }});
 
       //Listen for champion select
       const that = this; //Need this trick else this will be window inside the callbacks
-      const handleLcuEvent = (event: any) => that.handleLcuEvent(event);
+      const handleLcuEvent = (event: any) => /* await */ that.handleLcuEvent(event);
       overwolf.games.launchers.events.onInfoUpdates.removeListener(handleLcuEvent);
       overwolf.games.launchers.events.onInfoUpdates.addListener(handleLcuEvent);
       overwolf.games.launchers.events.onNewEvents.removeListener(handleLcuEvent);
       overwolf.games.launchers.events.onNewEvents.addListener(handleLcuEvent);
       
-      this.handleLcuEvent(null); //Check if currently in champion select
-      this.pollForSpectator(1000, 10000);
+      /* await */ this.handleLcuEvent(null); //Check if currently in champion select
+      /* await */ CsManager.pollForSpectator(this, 1000, 10000);
     }
 
     this.swappableCs = swappable;
     this.editableCs = editable;
     this.init(csView);
 
-    this.debug();
+    /* await */ this.debug();
   }
 
   private async debug() {
-    await Timer.wait(5000);
+    
 
   }
 
@@ -201,78 +197,79 @@ export class CsManager {
     this.date = date;
   }
 
-  public manualCsChange(newCsInput: CsInput) {
+  public async manualCsChange(newCsInput: CsInput) {
     if (!this.editableCs && !this.swappableCs) return;
-    this.handleCsChange(newCsInput);
+    await this.update(newCsInput);
   }
 
   private async handleLcuEvent(info: any) {
     const newCsInput = await Lcu.getCsInput(this.currCsInputView, info);
     if (newCsInput == null) return;
 
-    this.handleCsChange(newCsInput);
-    this.handleGameStarting(info);
+    await this.update(newCsInput);
+    await this.handleGameStarting(info);
   }
 
-  public async refreshView() {
-    await this.handleCsChange(this.currCsInputView);
+  public async refresh() {
+    await this.update(this.currCsInputView);
   }
 
   //Main function of CsManager
-  private async handleCsChange(newCsInput: CsInput) {
-    if (!CsInput.anyVisibleChange(this.newCsInput, newCsInput)) {
+  private async update(newCsInput: CsInput) {
+    if (!CsInput.anyVisibleChange(this.latestCsInput, newCsInput)) {
       return;
     }
-    if (CsInput.isOlderVersionOfTheSameCS(this.newCsInput, newCsInput)) {
+    if (CsInput.isOlderVersionOfTheSameCS(this.latestCsInput, newCsInput)) {
       //Ignore, these messages can come out of order between CS and spectator and we don't want it to think it's a new CS all of the sudden
       return;
     }
 
-    this.newCsInput = newCsInput;
-    if (this.ongoingRolePred) {
-      this.pendingRolePred = true;
-      return;
+    this.latestCsInput = newCsInput;
+    if (await this.updateView()) {
+      await this.updateRest();
     }
+  }
 
-    let newRolePred = null;
-    let newSwappedChamps = null;
-    while(true) {
-      if (this.pendingRolePred) {
-        newCsInput = this.newCsInput;
-        this.pendingRolePred = false;
-      }
-      try {
-        this.ongoingRolePred = true;
-        newSwappedChamps = CsManager.applyChampionSwaps(newCsInput);
-        newRolePred = await CSCAI.getRolePredictions(newCsInput, newSwappedChamps);
-
-      } finally {
-        this.ongoingRolePred = false;
-      }
-      if (!this.pendingRolePred) break;
+  private async updateView() {
+    this.pendingCsViewChange = true;
+    if (this.ongoingCsViewChange) {
+      return false;
     }
-    
-    this.currCsInputView = newCsInput;
-    this.currCsRolePredictionView = newRolePred;
-    this.onCsUpdate('instant', this);
+    try {
+      this.ongoingCsViewChange = true;
+      while (this.pendingCsViewChange) {
+        this.pendingCsViewChange = false;
 
+        const newCsInput = this.latestCsInput;
+        const newSwappedChamps = CsManager.applyChampionSwaps(newCsInput);
+        const newRolePred = await CSCAI.getRolePredictions(newCsInput, newSwappedChamps);
+
+        this.currCsInputView = newCsInput;
+        this.currCsRolePredictionView = newRolePred;
+        await this.csTab.onCsUpdate(this, 'instant');
+      }
+    } finally {
+      this.ongoingCsViewChange = false;
+    }
+    return true;
+  }
+
+  private async updateRest() {
+    this.pendingCsChange = true;
     if (this.ongoingCsChange) {
-      this.pendingCsChange = true;
       return;
     }
-
-    while(true) {
-      if (this.pendingCsChange) { //This would never happen on the first iteration, it's to be able to just do 'continue' to abort for pending
-        newCsInput = this.currCsInputView;
-        newRolePred = this.currCsRolePredictionView;
-        newSwappedChamps = CsManager.applyChampionSwaps(newCsInput);
+    try {
+      this.ongoingCsChange = true;
+      while (this.pendingCsChange) {
         this.pendingCsChange = false;
-      }
 
-      try {
-        this.ongoingCsChange = true;
+        const newCsInput = this.currCsInputView;
+        const newRolePred = this.currCsRolePredictionView;
+        const newSwappedChamps = CsManager.applyChampionSwaps(newCsInput);
+
         const newCs = CsInput.triggersNewCs(this.currCsInput, newCsInput);
-        if (this.connectedToLcu && newCs) this.onNewCs(this);
+        if (this.connectedToLcu && newCs) await this.csTab.onNewCs(this);
 
         //Find out what needs to be done
         const loadData = !this.currCsFirstRunComplete || CsInput.triggersLoadCsData(this.currCsInput, newCsInput);
@@ -315,19 +312,19 @@ export class CsManager {
         if (loadData) {
           this.currCsFirstRunComplete = false;
           if (newCs) {
-            this.onCsUpdate('clearData', this);
+            await this.csTab.onCsUpdate(this, 'clearData');
           }
 
-          this.currCsData = await CsDataFetcher.getCsData(this.patchInfo, this.currCsInput);
+          this.currCsData = await CsDataFetcher.getCsData(this.csTab.patchInfo, this.currCsInput);
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
         }
         
-        //Mutex the usage of CSCAI since it's a singleton
+        //Mutex the usage of CSCAI since it's a singleton and prepareData sets up for some of the functions
         while (CsManager.cscaiBeingUsed) await Timer.wait(500);
         try {
           CsManager.cscaiBeingUsed = true;
 
-          //Do not abort before this task because it's important that the loaded data is loaded to the AI
+          //Do not abort before this task because it's important that the loaded data is loaded to the AI because you make it the owner
           const dataIsInPlace = CsManager.cscaiOwner == this && !loadData;
           const prepData = await CSCAI.prepareData(this.currCsInput, dataIsInPlace ? null : this.currCsData, newRolePred, newSwappedChamps);
           CsManager.cscaiOwner = this;
@@ -338,7 +335,7 @@ export class CsManager {
           this.currCsHistoryStats = this.extractHistoryStats(this.currCsHistory);
           this.currCsHistory = this.compressHistory(this.currCsHistory);
 
-          this.onCsUpdate('data', this);
+          await this.csTab.onCsUpdate(this, 'data');
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
 
           if (this.currCsFirstRunComplete && this.pendingCsChange) continue;
@@ -358,7 +355,7 @@ export class CsManager {
             this.currCsScore['partial'] = [ await bluePartialTask, await redPartialTask ];
           }
           this.compressScore(this.currCsScore);
-          this.onCsUpdate('score', this);
+          await this.csTab.onCsUpdate(this, 'score');
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
 
           if (individualScoresNeedUpdate) {
@@ -374,12 +371,12 @@ export class CsManager {
             }
             if (useProgressBar) this.ongoingProgressBar.taskCompleted();
           }
-          this.onCsUpdate('missing', this);
+          await this.csTab.onCsUpdate(this, 'missing');
 
           if (computeBans) {
             if (this.currCsFirstRunComplete && this.pendingCsChange) continue;
             this.currCsBans = await CSCAI.getBans();
-            this.onCsUpdate('bans', this);
+            await this.csTab.onCsUpdate(this, 'bans');
             if (useProgressBar) this.ongoingProgressBar.taskCompleted();
           }
 
@@ -393,25 +390,25 @@ export class CsManager {
           this.currCsRecommendations = {};
           for (let i = 0; i < 10; ++i) {
             this.currCsRecommendations[i] = await recommendationTasks[i];
-            this.onCsUpdate('picks' + i, this);
+            await this.csTab.onCsUpdate(this, 'picks' + i);
           }
           this.currCsFirstRunComplete = true;
-          this.onCsUpdate('finished', this);
+          await this.csTab.onCsUpdate(this, 'finished');
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
 
           if (!this.pendingCsChange && this.connectedToLcu && CsInput.readyToBeUploaded(this.currCsInput)) {
-            this.uploadCurrentCS();
+            /* await */ CsManager.uploadCurrentCS(this.getCsView());
           }
 
         } finally {
           CsManager.cscaiBeingUsed = false;
         }
-      
-      } finally {
-        this.ongoingCsChange = false;
+        
       }
-      if (!this.pendingCsChange) break;
+    } finally {
+      this.ongoingCsChange = false;
     }
+    
   }
 
   public static applyChampionSwaps(csInput: CsInput) {
@@ -506,7 +503,7 @@ export class CsManager {
       for (const i in score.full) {
         const arr = score.full[i];
         for (const j in arr) {
-          arr[j] = Math.round(arr[j] * 1000) / 1000;
+          arr[j] = Math.round(arr[j] * 10000) / 10000;
         }
       }
     }
@@ -515,7 +512,7 @@ export class CsManager {
         for (const i in score.partial[side]) {
           const arr = score.partial[side][i];
           for (const j in arr) {
-            arr[j] = Math.round(arr[j] * 1000) / 1000;
+            arr[j] = Math.round(arr[j] * 10000) / 10000;
           }
         }
       }
@@ -554,21 +551,22 @@ export class CsManager {
     };
   }
 
+  //When CS ends
   private async handleGameStarting(info: any) {
     try {
       if (!info || !info.info || !info.info.champ_select || !info.info.champ_select.raw) return;
       const lcuInfo = JSON.parse(info.info.champ_select.raw);
       if (!lcuInfo || !lcuInfo.timer || lcuInfo.timer.phase != 'GAME_STARTING' && lcuInfo.timer.phase != 'FINALIZATION') return;
       
-      this.pollForSpectator(lcuInfo.timer.adjustedTimeLeftInPhase);
+      await CsManager.pollForSpectator(this, lcuInfo.timer.adjustedTimeLeftInPhase);
 
     } catch (ex) {
       ErrorReporting.report('handleGameStarting', ex);
     }
   }
 
-  private pollingUntil: number = 0;
-  private async pollForSpectator(msBeforePollingStart: number, msToKeepPolling: number = 60000) {
+  private static pollingUntil: number = 0;
+  private static async pollForSpectator(manager: CsManager, msBeforePollingStart: number, msToKeepPolling: number = 60000) {
     let pollingIntervalMs = 3000;
     const now = Date.now();
     const alreadyPolling = now < this.pollingUntil;
@@ -606,18 +604,21 @@ export class CsManager {
         csInput.picking = [false, false, false, false, false, false, false, false, false, false];
         csInput.summonerSpells = spect.result.participants.map(x => [x.spell1Id || -1, x.spell2Id || -1]);
 
-        const sToCs = this.findSpectatorToCsMapping(this.currCsInputView.summonerNames, csInput.summonerNames);
-        if (sToCs) {
-          //roles not in the data here
-          csInput.assignedRoles =  this.applyMapping(this.currCsInputView.assignedRoles, sToCs);
-          // csInput.assignedRoles = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]; //alt
-          // csInput.assignedRoles = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //or maybe it's like this? TODO check
+        //Note: no await between you start to use manager and when you call update on it
+        {
+          const sToCs = this.findSpectatorToCsMapping(manager.currCsInputView.summonerNames, csInput.summonerNames);
+          if (sToCs) {
+            //roles not in the data here
+            csInput.assignedRoles =  this.applyMapping(manager.currCsInputView.assignedRoles, sToCs);
+            // csInput.assignedRoles = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]; //alt
+            // csInput.assignedRoles = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //or maybe it's like this? TODO check
+            
+            csInput.roleSwaps =  this.applyMapping(manager.currCsInputView.roleSwaps, sToCs);
+            csInput.championSwaps =  this.applyMapping(manager.currCsInputView.championSwaps, sToCs);
+          }
           
-          csInput.roleSwaps =  this.applyMapping(this.currCsInputView.roleSwaps, sToCs);
-          csInput.championSwaps =  this.applyMapping(this.currCsInputView.championSwaps, sToCs);
+          await manager.update(csInput);
         }
-        
-        this.handleCsChange(csInput);
         break;
       } catch (ex) {
         ErrorReporting.report('pollForSpectator', ex);
@@ -627,7 +628,7 @@ export class CsManager {
     }
   }
 
-  private findSpectatorToCsMapping(csNames: string[], spectNames: string[]) {
+  private static findSpectatorToCsMapping(csNames: string[], spectNames: string[]) {
     const mapping = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     for (let i = 0; i < 10; ++i) {
       const name = csNames[i];
@@ -640,7 +641,7 @@ export class CsManager {
     return mapping;
   }
 
-  private applyMapping(arr: any[], mapping: number[]) {
+  private static applyMapping(arr: any[], mapping: number[]) {
     const res = [];
     for (let i = 0; i < 10; ++i) {
       res[i] = arr[mapping[i]];
@@ -648,7 +649,7 @@ export class CsManager {
     return res;
   }
 
-  private async uploadCurrentCS() {
+  private static async uploadCurrentCS(data: any) {
     const nr = await Lcu.getCurrentNameAndRegion();
     if (nr == null) {
       ErrorReporting.report('uploadCurrentCS', 'Lcu.getCurrentNameAndRegion');
@@ -656,7 +657,6 @@ export class CsManager {
     }
     
     const puuid = await CsDataFetcher.getPuuidByRegionAndName(nr.region, nr.name);
-    const data = this.getCsView(); //Need the full view to be able to load an old CS from personal tab
     //TODO: Add more data to view such as usage statistics here
     //TODO: Wrap this in error reporting
 

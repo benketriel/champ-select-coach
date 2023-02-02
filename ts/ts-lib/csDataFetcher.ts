@@ -108,7 +108,7 @@ export class CsDataFetcher {
     }
 
     //Get LCU tiers
-    const lcuTiers = await this.cacheAndFetch(region, [name], false, this.lcuTierCache, (region: string, sIds: string[]) => Lcu.getSummonersTierByName(sIds));
+    const lcuTiers = await this.cacheAndFetch(region, [name], false, this.lcuTierCache, async (region: string, sIds: string[]) => await Lcu.getSummonersTierByName(sIds));
     csData.lcuTiers = {};
     for (let name in lcuTiers) {
       csData.lcuTiers[name] = CsDataFetcher.parseLCUTier(lcuTiers[name], soloQueue);
@@ -166,7 +166,7 @@ export class CsDataFetcher {
     }
 
     //Get LCU tiers
-    const lcuTiers = await this.cacheAndFetch(csInput.region, csInput.summonerNames, false, this.lcuTierCache, (region: string, sIds: string[]) => Lcu.getSummonersTierByName(sIds));
+    const lcuTiers = await this.cacheAndFetch(csInput.region, csInput.summonerNames, false, this.lcuTierCache, async (region: string, sIds: string[]) => await Lcu.getSummonersTierByName(sIds));
     currCsData.lcuTiers = {};
     for (let name in lcuTiers) {
       currCsData.lcuTiers[name] = CsDataFetcher.parseLCUTier(lcuTiers[name], !isFlex);

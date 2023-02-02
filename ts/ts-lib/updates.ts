@@ -29,13 +29,6 @@ export class Updates {
     return updateRes;
   }
 
-  public static async restartToApplyUpdate() {
-    if (await this.getUpdateState() == this.updateStates.PendingRestart) {
-      overwolf.extensions.relaunch();
-    }
-    return false;
-  }
-
   public static async updateOnAppClose() {
     if (await Updates.getUpdateState() == 'UpdateAvailable') {
       await Updates.update();
