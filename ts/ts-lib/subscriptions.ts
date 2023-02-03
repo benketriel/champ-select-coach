@@ -5,7 +5,7 @@ import { TranslatedText } from "./textLanguage";
 
 export class Subscriptions {
 
-  private static cscPlanID = 0;
+  private static cscPlanID = 116;
   
   public static subscriptionStatus: boolean = true;
   private static lastChecked: number = 0;
@@ -15,7 +15,6 @@ export class Subscriptions {
   }
 
   public static async updateSubscriptionStatus() {
-    return; //TODO - Just return atm since we don't have a cscPlanID
     if (new Date().getTime() - Subscriptions.lastChecked > 1000 * 10) {
       const result = <boolean>await new Promise(resolve => {
         try {
@@ -33,8 +32,7 @@ export class Subscriptions {
   }
 
   public static async subscribe() {
-    Popup.message(TranslatedText.subscription.english, 'BETA TESTING: Not currently available, try again later'); //TODO
-    //overwolf.utils.openStore(<any>{ page:overwolf.utils.enums.eStorePage.SubscriptionPage });
+    overwolf.utils.openStore(<any>{ page:overwolf.utils.enums.eStorePage.SubscriptionPage });
   }
 
 
