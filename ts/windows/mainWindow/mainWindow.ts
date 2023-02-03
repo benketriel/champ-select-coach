@@ -133,6 +133,7 @@ export class MainWindow {
     await MainWindow.activateAds();
   }
 
+  private static minimized = false;
   public static async handleMinimizeStateChanged(state: any) {
     if (state && state.window_name == windowNames.mainWindow) {
       if (!MainWindow.owAdObjReady){
@@ -149,9 +150,11 @@ export class MainWindow {
         return;
       }
       if (state.window_state === "minimized") {
+        MainWindow.minimized = true;
         MainWindow.deactivateAds();
       }
       else if(state.window_previous_state === "minimized" && state.window_state === "normal"){
+        MainWindow.minimized = false;
         if (!Subscriptions.isSubscribed()) {
           MainWindow.lastAdRefresh = new Date().getTime();
           await this.refreshAds();
@@ -162,6 +165,8 @@ export class MainWindow {
 
   private static lastActivity: number = 0;
   public static async activity() {
+    if (MainWindow.minimized) return; //Activity triggered by lcu
+
     if (new Date().getTime() - MainWindow.lastActivity < 1000) {
       return; //Prevent spamming of this function
     }
@@ -307,7 +312,7 @@ export class MainWindow {
       });
     }
     $('.side-menu-add-manual-cs').on('click', async () => await MainWindow.showHistoryCS(null));
-    $('.s-lcu-status').on('click', async () => await MainWindow.showPersonalTab(true));
+    $('.s-lcu-status').on('click', async () => await MainWindow.showPersonalTab());
 
     //Small Windows
     $('.faqButton').on('click', async () => { 
@@ -462,7 +467,7 @@ export class MainWindow {
     }
   }
 
-  public static async showPersonalTab(resetSummoner: boolean) {
+  public static async showPersonalTab() {
     const main = MainWindow.instance();
     if (main.selectedView == 'personal') return; //Already selected
 
@@ -479,7 +484,7 @@ export class MainWindow {
     $('.s-lcu-status').addClass('s-lcu-status-selected');
 
     main.selectedView = 'personal';
-    await main.personalTab.load(resetSummoner);
+    await main.personalTab.updateView();
   }
 
   public static showPersonalCS(csView: any) {

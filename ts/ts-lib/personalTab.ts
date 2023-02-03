@@ -117,7 +117,7 @@ export class PersonalTab {
         this.region = x.region;
         this.customSummoner = false;
         if (change && !await Lcu.inChampionSelect()) {
-          await MainWindow.showPersonalTab(false);
+          await MainWindow.showPersonalTab();
         }
       });
     } else {
@@ -207,7 +207,7 @@ export class PersonalTab {
     }
   }
 
-  private async updateView() {
+  public async updateView() {
     if (this.summonerName == null || this.region == null) {
       this.clearView(false);
       return;
@@ -247,7 +247,7 @@ export class PersonalTab {
     this.tier = CsTab.mergeTiers(this.data.lcuTiers, this.stats.apiTiers)[this.summonerName] || {};
 
     const puuid = this.data.summonerInfo[this.summonerName].puuid;
-    this.cscHistory = puuid ? await CsDataFetcher.getCscHistoryData(this.region, puuid) : {};
+    this.cscHistory = await CsDataFetcher.getCscHistoryData(this.region, puuid);
   }
 
   private updateChampionRoleStats() {
@@ -639,14 +639,6 @@ export class PersonalTab {
     $('.personal-graph-canvas-mouseover').html('');
   }
 
-  public async load(resetSummoner: boolean) {
-    if (resetSummoner && this.customSummoner) {
-      await this.syncWithLCU();
-    } else {
-      await this.updateView();
-    }
-  }
-
   public showCscHistoryCs(i: number) {
     const cscHistory = this.cscHistory.personalHistory || [];
     const hist = cscHistory[cscHistory.length - 1 - (this.cscHistoryIndex + i)];
@@ -671,7 +663,8 @@ export class PersonalTab {
           this.region = picked[0];
           this.customSummoner = true;
           if (change && !await Lcu.inChampionSelect()) {
-            await MainWindow.showPersonalTab(false);
+            await this.updateView();
+            MainWindow.showPersonalTab();
           }
         });
       });

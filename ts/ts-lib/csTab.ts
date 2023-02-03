@@ -16,7 +16,7 @@ export class CsTab {
   private lcuCsManager: CsManager;
   private historyCsManagers: CsManager[];
 
-  private currentCsManager: CsManager = null;
+  private currentCsManager: CsManager;
 
   public hasBeenUpdated: boolean = false;
   public static NUM_RECOMMENDATIONS: number = 6;
@@ -27,7 +27,7 @@ export class CsTab {
     this.patchInfo = patchInfo;
     //if mode matches then handle their callbacks and set view
 
-    this.lcuCsManager = new CsManager(this, true, null, true, false);
+    this.currentCsManager = this.lcuCsManager = new CsManager(this, true, null, true, false);
     this.historyCsManagers = [];
 
     /* await */ this.init();
@@ -129,6 +129,7 @@ export class CsTab {
     if (this.currentCsManager === managerAsking) {
       this.update(managerAsking, change);
     }
+    /* await */ MainWindow.activity();
   }
 
   //Navigation
@@ -418,13 +419,14 @@ export class CsTab {
         res[name] = lcuTiers[name];
       }
     }
-    if (apiTiers) {
-      for (const i in apiTiers) {
-        const x = apiTiers[i];
-        if (res[x.name] && res[x.name].tier != '') continue;
-        res[x.name] = { tier: x.tier.toLowerCase(), division: x.division, lp: x.lp };
-      }
-    }
+    //Api tiers removed because they are just too outdated
+    // if (apiTiers) {
+    //   for (const i in apiTiers) {
+    //     const x = apiTiers[i];
+    //     if (res[x.name] && res[x.name].tier != '') continue;
+    //     res[x.name] = { tier: x.tier.toLowerCase(), division: x.division, lp: x.lp };
+    //   }
+    // }
     return res;
   }
 

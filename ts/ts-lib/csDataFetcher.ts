@@ -118,7 +118,7 @@ export class CsDataFetcher {
   }
 
   public static async getCscHistoryData(region: string, puuid: string) {
-    const t0 = Aws.getCscHistory(region, puuid);
+    const t0 = puuid == null ? (() => {}) : Aws.getCscHistory(region, puuid);
     const t1 = Aws.getCscHistogram();
 
     const personalHistory = (await t0 || {}).result || [];
