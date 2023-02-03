@@ -139,6 +139,7 @@ export class CsManager {
   private pendingCsChange = false;
 
   public ongoingProgressBar = new ProgressBar([], []);
+  public ongoingUpdaters: number = 0;
 
   constructor(csTab: CsTab, connectedToLcu: boolean, csView: any, swappable: boolean, editable: boolean) {
     this.csTab = csTab;
@@ -170,6 +171,7 @@ export class CsManager {
     /* await */ this.debug();
   }
 
+  private static debugDone = false;
   private async debug() {
     
 
@@ -199,35 +201,36 @@ export class CsManager {
 
   public async manualCsChange(newCsInput: CsInput) {
     if (!this.editableCs && !this.swappableCs) return;
-    await this.update(newCsInput);
+    await (await this.update(newCsInput))[0];
   }
 
   private async handleLcuEvent(info: any) {
     const newCsInput = await Lcu.getCsInput(this.currCsInputView, info);
     if (newCsInput == null) return;
 
-    await this.update(newCsInput);
+    await (await this.update(newCsInput))[0];
     await this.handleGameStarting(info);
   }
 
   public async refresh() {
-    await this.update(this.currCsInputView);
+    return await this.update(this.currCsInputView);
   }
 
   //Main function of CsManager
   private async update(newCsInput: CsInput) {
     if (!CsInput.anyVisibleChange(this.latestCsInput, newCsInput)) {
-      return;
+      return [() => {}];
     }
     if (CsInput.isOlderVersionOfTheSameCS(this.latestCsInput, newCsInput)) {
       //Ignore, these messages can come out of order between CS and spectator and we don't want it to think it's a new CS all of the sudden
-      return;
+      return [() => {}];
     }
 
     this.latestCsInput = newCsInput;
-    if (await this.updateView()) {
-      await this.updateRest();
-    }
+
+    await this.updateView();
+    const result = [/* await */ this.updateRest()];
+    return result;
   }
 
   private async updateView() {
@@ -236,6 +239,7 @@ export class CsManager {
       return false;
     }
     try {
+      this.ongoingUpdaters++;
       this.ongoingCsViewChange = true;
       while (this.pendingCsViewChange) {
         this.pendingCsViewChange = false;
@@ -250,6 +254,7 @@ export class CsManager {
       }
     } finally {
       this.ongoingCsViewChange = false;
+      this.ongoingUpdaters--;
     }
     return true;
   }
@@ -260,6 +265,7 @@ export class CsManager {
       return;
     }
     try {
+      this.ongoingUpdaters++;
       this.ongoingCsChange = true;
       while (this.pendingCsChange) {
         this.pendingCsChange = false;
@@ -407,8 +413,8 @@ export class CsManager {
       }
     } finally {
       this.ongoingCsChange = false;
+      this.ongoingUpdaters--;
     }
-    
   }
 
   public static applyChampionSwaps(csInput: CsInput) {
@@ -617,7 +623,7 @@ export class CsManager {
             csInput.championSwaps =  this.applyMapping(manager.currCsInputView.championSwaps, sToCs);
           }
           
-          await manager.update(csInput);
+          await (await manager.update(csInput))[0];
         }
         break;
       } catch (ex) {

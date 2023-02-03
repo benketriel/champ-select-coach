@@ -43,7 +43,7 @@ export class CsTab {
       const h = history[i];
       this.historyCsManagers.push(new CsManager(this, false, h, h.swappable, h.editable));
     }
-    this.updateCSHistory();
+    this.updateCSHistoryView();
 
     if (this.historyCsManagers.length > 0) await MainWindow.showHistoryCS(0);
     else MainWindow.selectHome();
@@ -106,11 +106,10 @@ export class CsTab {
   }
 
   public async onNewCs(managerAsking: any) {
-    if (this.lcuCsManager.currCsFirstRunComplete) {
+    if (managerAsking.currCsFirstRunComplete) {
       await this.addCurrentLcuCsToHistory();
     }
 
-    $('.side-menu-current-cs .side-menu-current-cs-score').html('5.0');
     this.currentCsManager = managerAsking;
     await this.onCsUpdate(managerAsking, '');
     MainWindow.showLcuCS();
@@ -119,10 +118,10 @@ export class CsTab {
   public async onCsUpdate(managerAsking: any, change: string) {
     if (managerAsking === this.lcuCsManager) {
       await this.saveHistory();
-      this.updateLcuCSMenu();
+      this.updateLcuCSMenuView();
     } else if (this.historyCsManagers.includes(managerAsking)) {
       await this.saveHistory();
-      this.updateCSHistory();
+      this.updateCSHistoryView();
     }
 
     this.hasBeenUpdated = true;
@@ -148,40 +147,43 @@ export class CsTab {
 
   //Menu
   private async addCurrentLcuCsToHistory() {
-    const csView = JSON.parse(JSON.stringify(this.lcuCsManager.getCsView()));
-    csView.date = new Date().getTime();
-
-    const newManager = new CsManager(this, false, csView, false, false);
-    await this.addManagerToHistory(newManager);
+    await this.cloneManagerToHistory(this.lcuCsManager, new Date().getTime(), false, false);
   }
 
   public async addEditableCsToHistory() {
-    const csView = JSON.parse(JSON.stringify(this.currentCsManager.getCsView()));
-    csView.date = null;
-    if (csView.csInput) csView.csInput.picking = [false, false, false, false, false, false, false, false, false, false];
-    if (csView.csInputView) csView.csInputView.picking = [false, false, false, false, false, false, false, false, false, false];
-    
-    const newManager = new CsManager(this, false, csView, true, true);
-    await this.addManagerToHistory(newManager);
+    await this.cloneManagerToHistory(this.currentCsManager, null, true, true);
   }
 
-  private async addManagerToHistory(csManager: CsManager) {
-    await csManager.refresh();
+  private async cloneManagerToHistory(manager: CsManager, date: number, swappable: boolean, editable: boolean) {
+    const csView = JSON.parse(JSON.stringify(manager.getCsView()));
+    csView.date = date;
 
-    this.historyCsManagers.unshift(csManager);
+    const newManager = new CsManager(this, false, csView, swappable, editable);
+
+    const shortTask = newManager.refresh();
+    const longTask = await shortTask;
+
+    this.historyCsManagers.unshift(newManager);
     while (this.historyCsManagers.length > MainWindow.MAX_MENU_HISTORY_SIZE) {
       this.historyCsManagers.pop();
     }
-    this.updateCSHistory();
-
+    this.updateCSHistoryView();
     Popup.close();
+
+    await this.saveHistory();
+
+    /* await */ (async () => {
+      await longTask[0];
+      await this.saveHistory(); //I mean, it did save every single update as it called onCsUpdate so this is redundant, but keep for completeness (what is one more when we have so many anyway :) )
+    })()
   }
 
-  public deleteCSHistory(i: number) {
+  public async deleteCSHistory(i: number) {
     if (i >= this.historyCsManagers.length) return;
 
     this.historyCsManagers.splice(i, 1);
-    this.updateCSHistory();
+    this.updateCSHistoryView();
+    await this.saveHistory();
   }
 
   public async saveHistory() {
@@ -196,16 +198,14 @@ export class CsTab {
     await LocalStorage.setCsHistory(history);
   }
 
-  private updateLcuCSMenu() {
+  private updateLcuCSMenuView() {
     const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
       this.lcuCsManager.getCsView();
 
     const ownerIdx = CsInput.getOwnerIdx(csInputView);
     const mergedTier = CsTab.mergeTiers(lcuTiers, apiTiers)[csInputView.summonerNames[ownerIdx]] || {};
-    let fullScore = score && score['full'] ? score['full'][0][0] : null;
-    if (fullScore != null) {
-      fullScore = ownerIdx < 5 ? fullScore : 1 - fullScore;
-    }
+    let fullScore = score && score['full'] ? score['full'][0][0] : 0.5;
+    fullScore = ownerIdx < 5 ? fullScore : 1 - fullScore;
 
     const patchInfo = MainWindow.instance().patchInfo;
 
@@ -213,17 +213,14 @@ export class CsTab {
     CsTab.setChampionImg(patchInfo, $('.side-menu-current-cs .side-menu-champion img'), swappedChamps[ownerIdx]);
     CsTab.setRoleImg($('.side-menu-current-cs .side-menu-role img'), rolePredictionView[ownerIdx], mergedTier.tier, mergedTier.division, mergedTier.lp);
 
-    if (fullScore != null) {
-      $('.side-menu-current-cs .side-menu-current-cs-score').html(Utils.probabilityToScore(fullScore));
-    }
-
+    $('.side-menu-current-cs .side-menu-current-cs-score').html(Utils.probabilityToScore(fullScore));
     $('.side-menu-current-cs .side-menu-waiting').hide();
     $('.side-menu-current-cs .side-menu-champion').show();
     $('.side-menu-current-cs .side-menu-role').show();
     $('.side-menu-current-cs .side-menu-current-cs-score').show();
   }
 
-  public updateCSHistory() {
+  public updateCSHistoryView() {
     for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
       if (i >= this.historyCsManagers.length) {
         $($('.side-menu-old-cs')[i]).hide();
@@ -239,11 +236,11 @@ export class CsTab {
       score = ownerIdx < 5 ? score : 1 - score;
 
       const swappedChamps = CsManager.applyChampionSwaps(csInput);
-      this.updateCSHistoryRow(i, swappedChamps[ownerIdx], (csView.rolePrediction || {})[ownerIdx] || 0, tier.tier, tier.division, tier.lp, score, csView.date);
+      this.updateCSHistoryViewRow(i, swappedChamps[ownerIdx], (csView.rolePrediction || {})[ownerIdx] || 0, tier.tier, tier.division, tier.lp, score, csView.date);
     }
   }
 
-  private updateCSHistoryRow(index: number, championId: string, role: number, tier: string, division: string, lp: string, score: number, date: number) {
+  private updateCSHistoryViewRow(index: number, championId: string, role: number, tier: string, division: string, lp: string, score: number, date: number) {
     const patchInfo = MainWindow.instance().patchInfo;
 
     CsTab.setChampionImg(patchInfo, $($('.side-menu-champion-old img')[index]), championId);
@@ -341,12 +338,12 @@ export class CsTab {
     timeStats['init'] = new Date().getTime() - time; time = new Date().getTime();
     if (!change || change == '' || change == 'instant') {
       const roleToIdxView = this.roleToIdx(rolePredictionView);
-      this.setAllToLoading();
+      this.setAllToLoading(manager.ongoingUpdaters > 0);
       this.updateDistributionLegend(patchInfo, side, swappedChampsView, rolePredictionView);
       this.updateFooter(patchInfo, csInputView, editable && subscribed);
-      this.updateSwaps(patchInfo, side, csInputView, roleToIdxView, mergedTier);
+      this.updateSwaps(patchInfo, side, csInputView, roleToIdxView, mergedTier, !editable);
       this.updateSummonersAndRoles(patchInfo, side, csInputView, rolePredictionView, mergedTier);
-      this.updatePicking(side, csInputView, rolePredictionView);
+      this.updatePicking(side, csInputView, rolePredictionView, swappable && !editable);
     }
     timeStats['instant'] = new Date().getTime() - time; time = new Date().getTime();
     if (!change || change == '' || change == 'data') {
@@ -354,7 +351,7 @@ export class CsTab {
       this.updateHistory(patchInfo, side, rolePrediction, csInput, history, historyStats, mergedTier);
       if (change == 'data') {
         const roleToIdx =  this.roleToIdx(rolePrediction);
-        this.updateSwaps(patchInfo, side, csInput, roleToIdx, mergedTier); //Now the tiers are updated
+        this.updateSwaps(patchInfo, side, csInput, roleToIdx, mergedTier, !editable); //Now the tiers are updated
         this.updateSummonersAndRoles(patchInfo, side, csInput, rolePrediction, mergedTier); //Now the tiers are updated
       }
     }
@@ -644,7 +641,7 @@ export class CsTab {
   }
 
   public static setSubScore(elem: any, score: number, isMyTeam: boolean, fadeIn: boolean = true) {
-    const signedScore = (Math.round(score * 100) >= 0 ? "+" : "") + (Math.round(score * 100) / 10).toFixed(1);
+    const signedScore = (Math.round(score * 100) >= 0 ? "+" : "") + Utils.probabilityToScore(score);
 
     elem.html(signedScore);
 
@@ -738,7 +735,7 @@ export class CsTab {
     
   }
 
-  private updateSwaps(patchInfo: any, side: number, inputView: CsInput, roleToIdx: number[], lcuTiers: any) {
+  private updateSwaps(patchInfo: any, side: number, inputView: CsInput, roleToIdx: number[], lcuTiers: any, showDefaults: boolean) {
     if (!inputView || !roleToIdx) {
       return;
     } 
@@ -761,6 +758,15 @@ export class CsTab {
       const cElems1 = $(e1).find('.cs-table-champion-swap-champion').get();
       const cImgElems0 = $(e0).find('.cs-table-champion-swap-champion img').get();
       const cImgElems1 = $(e1).find('.cs-table-champion-swap-champion img').get();
+      const cDefaultElem0 = $(e0).find('.cs-table-champion-swap-default').get();
+      const cDefaultElem1 = $(e1).find('.cs-table-champion-swap-default').get();
+      if (showDefaults) {
+        $(cDefaultElem0).show();
+        $(cDefaultElem1).show();
+      } else {
+        $(cDefaultElem0).hide();
+        $(cDefaultElem1).hide();
+      }
       for (let otherRole = 0; otherRole < 5; ++otherRole) {
         if (otherRole == role) continue;
 
@@ -768,14 +774,14 @@ export class CsTab {
         CsTab.setRoleImg($(rImgElems1[z]), otherRole, lcuTier1.tier, lcuTier1.division, lcuTier1.lp)
 
         const cId0 = swappedChampsView[roleToIdx[otherRole]];
-        if (cId0 && cId0 != '' && cId0 != '0') {
+        if (cId0 && cId0 != '' && cId0 != '0' && cId0 != '-1' && cId0.length > 0) {
           CsTab.setChampionImg(patchInfo, $(cImgElems0[z]), cId0);
           $(cElems0[z]).show();
         } else {
           $(cElems0[z]).hide();
         }
         const cId1 = swappedChampsView[roleToIdx[5 + otherRole]];
-        if (cId1 && cId1 != '' && cId1 != '0') {
+        if (cId1 && cId1 != '' && cId1 != '0' && cId1 != '-1' && cId1.length > 0) {
           CsTab.setChampionImg(patchInfo, $(cImgElems1[z]), cId1);
           $(cElems1[z]).show();
         } else {
@@ -823,7 +829,7 @@ export class CsTab {
     }
   }
 
-  private updatePicking(side: number, inputView: CsInput, rolePrediction: number[]) {
+  private updatePicking(side: number, inputView: CsInput, rolePrediction: number[], showPicking: boolean) {
     const elems = [
       $('.cs-table-champion-icon-cell').get(),
       $('.cs-table-summoner-name-cell').get(),
@@ -837,18 +843,20 @@ export class CsTab {
       const role1 = rolePrediction[5 + i];
       const pick0 = inputView.picking[i];
       const pick1 = inputView.picking[5 + i];
-      const champ0 = inputView.championIds[i];
-      const champ1 = inputView.championIds[5 + i];
-      const assigned0 = inputView.assignedRoles[i];
-      const assigned1 = inputView.assignedRoles[5 + i];
+      // const champ0 = inputView.championIds[i];
+      // const champ1 = inputView.championIds[5 + i];
+      // const assigned0 = inputView.assignedRoles[i];
+      // const assigned1 = inputView.assignedRoles[5 + i];
+      // && assigned1 != -1 && champ1 != '0' && champ1 != '-1' && champ1.length > 0
+      const allPicking = [inputView.picking.slice(0, 5).filter(x => x).length, inputView.picking.slice(5).filter(x => x).length]
 
       for (let j = 0; j < elems.length; ++j) {
-        if (pick0 && assigned0 != -1 && champ0 != '0' && champ0 != '-1' && champ0.length > 0) {
+        if (showPicking && pick0 && allPicking[0]) {
           $(elems[j][2 * role0 + side]).addClass('picking');
         } else {
           $(elems[j][2 * role0 + side]).removeClass('picking');
         }
-        if (pick1 && assigned1 != -1 && champ1 != '0' && champ1 != '-1' && champ1.length > 0) {
+        if (showPicking && pick1 && allPicking[1]) {
           $(elems[j][2 * role1 + 1 - side]).addClass('picking');
         } else {
           $(elems[j][2 * role1 + 1 - side]).removeClass('picking');
@@ -861,6 +869,7 @@ export class CsTab {
   private updateHistory(patchInfo: any, side: number, rolePrediction: number[], inputView: CsInput, history: any, historyStats: any, lcuTiers: any) {
     if (!rolePrediction || !inputView || !history) {
       $('.cs-table-history-border').hide();
+      $('.cs-table-history-cell-warning').hide();
       $('.cs-table-history-separator').hide();
       $('.cs-table-role-wr').hide();
       $('.cs-table-role-win-lose-cell img').hide();
@@ -1024,7 +1033,7 @@ export class CsTab {
     $($('.cs-lds-ring').get(partI)).hide();
   }
 
-  private setAllToLoading() {
+  private setAllToLoading(workingOnIt: boolean) {
     $('.cs-wr-total-result').css('opacity', '0.6');
     $('.cs-wr-total-left-result').css('opacity', '0.6');
     $('.cs-wr-total-right-result').css('opacity', '0.6');
@@ -1037,24 +1046,28 @@ export class CsTab {
     $('.cs-table-recommended-champion-border img').css('opacity', '0.6');
     // $('.cs-table-history-border').css('opacity', '0.6'); //Too flickery
 
-    $('.cs-lds-ring').show();
+    if (workingOnIt) {
+      $('.cs-lds-ring').show();
+    } else {
+      $('.cs-lds-ring').hide();
+    }
   }
 
   //Manual edits
-  public async swapRole(role: number, i: number) {
+  public async swapRole(roleFrom: number, role5to: number) {
     const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
     const roleToIdx =  this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const swapped = CsInput.clone(csInputView);
     for (const j in swapped.roleSwaps) {
-      if (swapped.roleSwaps[j] == i) swapped.roleSwaps[j] = -1;
+      if (swapped.roleSwaps[j] == role5to) swapped.roleSwaps[j] = -1;
     }
-    swapped.roleSwaps[roleToIdx[(role + (blue ? 0 : 5)) % 10]] = i;
+    swapped.roleSwaps[roleToIdx[(roleFrom + (blue ? 0 : 5)) % 10]] = role5to;
     await this.currentCsManager.manualCsChange(swapped);
   }
 
-  public async swapChampion(role: number, i: number) {
+  public async swapChampion(roleFrom: number, role5to: number) {
     const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
     const swappedChampsView = CsManager.applyChampionSwaps(csInputView);
@@ -1062,11 +1075,21 @@ export class CsTab {
     const roleToIdx =  this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const swapped = CsInput.clone(csInputView);
-    const targetChampion = i == -1 ? null : swappedChampsView[roleToIdx[(i + (blue ? 0 : 5)) % 10]];
-    for (const j in swapped.championSwaps) {
-      if (swapped.championSwaps[j] == targetChampion) swapped.championSwaps[j] = null;
+    if (editable) {
+      if (role5to != -1) {
+        const t1 = swapped.championIds[roleToIdx[(roleFrom + (blue ? 0 : 5)) % 10]];
+        const t2 = swapped.championIds[roleToIdx[(role5to + (blue ? 0 : 5)) % 10]];
+        swapped.championIds[roleToIdx[(roleFrom + (blue ? 0 : 5)) % 10]] = t2;
+        swapped.championIds[roleToIdx[(role5to + (blue ? 0 : 5)) % 10]] = t1;
+      }
+    } else {
+      const targetChampion = role5to == -1 ? null : swappedChampsView[roleToIdx[(role5to + (blue ? 0 : 5)) % 10]];
+      for (const j in swapped.championSwaps) {
+        if (swapped.championSwaps[j] == targetChampion) swapped.championSwaps[j] = null;
+      }
+      swapped.championSwaps[roleToIdx[(roleFrom + (blue ? 0 : 5)) % 10]] = targetChampion;
     }
-    swapped.championSwaps[roleToIdx[(role + (blue ? 0 : 5)) % 10]] = targetChampion;
+
     await this.currentCsManager.manualCsChange(swapped);
   }
 

@@ -466,7 +466,7 @@ export class PersonalTab {
 
       CsTab.setChampionImg(this.patchInfo, elmn.find('.personal-history-champion-icon img'), championId);
       CsTab.setRoleImg($(elmn.find('.personal-history-role-icon img').get(0)), role, this.tier.tier, this.tier.division, this.tier.lp);
-      elmn.find('.personal-history-score').html((Math.round(pred * 100) / 10).toFixed(1));
+      elmn.find('.personal-history-score').html(Utils.probabilityToScore(pred));
       elmn.find('.personal-history-date').html(dateHtml);
       elmn.removeClass('personal-history-table-container-' + (!hist.userWon ? 'win' : 'lose'));
       elmn.addClass('personal-history-table-container-' + (hist.userWon ? 'win' : 'lose'));

@@ -301,7 +301,7 @@ export class MainWindow {
         Popup.prompt(
           TranslatedText.deleteHistory.english,
           TranslatedText.thisWillRemoveLobbyAreYouSure.english,
-          () => MainWindow.deleteHistoryCS(i), 
+          async () => await MainWindow.deleteHistoryCS(i), 
           () => null);
         event.stopPropagation(); 
       });
@@ -445,10 +445,10 @@ export class MainWindow {
     main.csTab.swapToHistory(i);
   }
 
-  public static deleteHistoryCS(i: number) {
+  public static async deleteHistoryCS(i: number) {
     const main = MainWindow.instance();
 
-    main.csTab.deleteCSHistory(i);
+    await main.csTab.deleteCSHistory(i);
     if (main.selectedView.startsWith('hist')) {
       let currI = parseInt(main.selectedView.substring('hist'.length));
       if (currI == i) {
