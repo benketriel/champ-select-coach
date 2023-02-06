@@ -89,16 +89,18 @@ export class Lcu {
   }
 
   public static async getCsInput(prevCsInput: CsInput, all_info_alt: any): Promise<CsInput> {
+    let info = {};
     try {
-      let info = {};
-      if (!all_info_alt || !all_info_alt.info || !all_info_alt.info.champ_select || !all_info_alt.info.champ_select.raw) {
+      if (all_info_alt && all_info_alt.info && all_info_alt.info.champ_select && all_info_alt.info.champ_select.raw) {
+        info = JSON.parse(all_info_alt.info.champ_select.raw);
+      } else {
         const all_info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
         if (!all_info || !all_info.res || !all_info.res.champ_select || !all_info.res.champ_select.raw || !all_info.res.summoner_info || !all_info.res.summoner_info.platform_id) { Logger.log("InvalidInfo"); return null; }
       
         info = JSON.parse(all_info.res.champ_select.raw);
-      } else {
-        info = JSON.parse(all_info_alt.info.champ_select.raw);
       }
+
+      Logger.debug(info);
 
       if (!info || !info["myTeam"]) { Logger.log("InvalidInfo"); return null; }
       if (info["myTeam"].length == 0) { Logger.log("NotInChampionSelect"); return null; }
@@ -155,7 +157,9 @@ export class Lcu {
                   //if (championId != "0") {
                       cellLastChamp[cellId] = { champId: championId, finished: completed && !inProgress, picking: inProgress && !completed };
                   //}
-              } catch (ex) { }
+              } catch (ex) {
+                ErrorReporting.report('getCsInput', {ex, info, msg: 'while parsing actions'});
+              }
           }
       }
 
@@ -237,7 +241,7 @@ export class Lcu {
 
       return newCsInput;
     } catch (ex) {
-      ErrorReporting.report('getChampionSelectStatus', ex);
+      ErrorReporting.report('getCsInput', {ex, info});
       return null;
     }
   }
@@ -266,7 +270,7 @@ export class Lcu {
 
       return await Promise.all(puuids.map(async puuid => await Lcu.getSummonerTierByPuuid(info.res.credentials, puuid)));
     } catch (ex) {
-      ErrorReporting.report('getSummonersTierByPuuid', ex);
+      ErrorReporting.report('getSummonersTierByPuuid', {ex, puuids});
       return ex;
     }
   }
@@ -277,7 +281,7 @@ export class Lcu {
         let tierInfo = await Lcu.lcuRequest(creds, lcuUrls.RankedStatsQuery + puuid);
         return tierInfo;
     } catch (ex) {
-      ErrorReporting.report('getSummonerTierByPuuid', ex);
+      ErrorReporting.report('getSummonerTierByPuuid', {ex, puuid});
       return ex;
     }
   }
@@ -289,7 +293,7 @@ export class Lcu {
 
       return await Promise.all(names.map(async name => await Lcu.getSummonerPuuidByName(info.res.credentials, name)));
     } catch (ex) {
-      ErrorReporting.report('getSummonerPuuidsByName', ex);
+      ErrorReporting.report('getSummonerPuuidsByName', {ex, names});
       return ex;
     }
   }
@@ -304,7 +308,7 @@ export class Lcu {
 
         return puuid;
     } catch (ex) {
-      ErrorReporting.report('getSummonerPuuidByName', ex);
+      ErrorReporting.report('getSummonerPuuidByName', {ex, summonerName});
       return ex;
     }
   }

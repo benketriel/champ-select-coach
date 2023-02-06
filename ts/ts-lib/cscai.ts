@@ -33,10 +33,24 @@ export class CSCAI {
     });
   }
 
+  private static rethrowStrings(result: any) {
+    if (typeof result === 'string' || result instanceof String) {
+      throw result;
+    }
+    return result;
+  }
+
+  private static rethrowBadJSON(result: any) {
+    try {
+      return JSON.parse(result);
+    } catch {
+      throw result;
+    }
+  }
+
   public static async debugView() {
     const ai = await this.instance();
-    const json = await new Promise<any>(resolve => ai.DebugView(resolve))
-    return JSON.parse(json);
+    return CSCAI.rethrowBadJSON(await new Promise<any>(resolve => ai.DebugView(resolve)));
   }
 
   public static async setSingleThreadMode(mode: boolean) {
@@ -46,59 +60,56 @@ export class CSCAI {
 
   public static async getPatchInfo() {
     const ai = await this.instance();
-    const json = await new Promise<any>(resolve => ai.GetPatchInfo(resolve))
-    return JSON.parse(json);
+    return CSCAI.rethrowBadJSON(await new Promise<any>(resolve => ai.GetPatchInfo(resolve)));
   }
 
   public static async analyzePersonalData(summonerName: string, region: string, soloQueue: boolean, data: CsData) {
     const ai = await this.instance();
     const dataJSON = JSON.stringify(data);
-    return await new Promise<any>(resolve => ai.AnalyzePersonalData(summonerName, region, soloQueue, dataJSON, resolve));
+    return CSCAI.rethrowStrings(await new Promise<any>(resolve => ai.AnalyzePersonalData(summonerName, region, soloQueue, dataJSON, resolve)));
   }
 
   public static async getRolePredictions(csInput: CsInput, swappedChampions: string[]) {
     const ai = await this.instance();
     const inputJSON = JSON.stringify(csInput);
-    return await new Promise<any>(resolve => ai.GetRolePredictions(inputJSON, swappedChampions, resolve));
+    return CSCAI.rethrowStrings(await new Promise<any>(resolve => ai.GetRolePredictions(inputJSON, swappedChampions, resolve)));
   }
 
   public static async prepareData(csInput: CsInput, csData: CsData, roles: number[], swappedChampions: string[]) {
     const ai = await this.instance();
     const inputJSON = JSON.stringify(csInput);
     const dataJSON = JSON.stringify(csData);
-    return await new Promise<any>(resolve => ai.PrepareData(inputJSON, dataJSON, roles, swappedChampions, resolve));
+    return CSCAI.rethrowStrings(await new Promise<any>(resolve => ai.PrepareData(inputJSON, dataJSON, roles, swappedChampions, resolve)));
   }
 
   public static async getBans() {
     const ai = await this.instance();
-    const json = await new Promise<any>(resolve => ai.GetBans(resolve));
-    return JSON.parse(json);
+    return CSCAI.rethrowBadJSON(await new Promise<any>(resolve => ai.GetBans(resolve)));
   }
 
   public static async getFullScore() {
     const ai = await this.instance();
-    return await new Promise<any>(resolve => ai.GetFullScore(resolve));
+    return CSCAI.rethrowStrings(await new Promise<any>(resolve => ai.GetFullScore(resolve)));
   }
   
   public static async getPartialScore(blue: boolean) {
     const ai = await this.instance();
-    return await new Promise<any>(resolve => ai.GetPartialScore(blue, resolve));
+    return CSCAI.rethrowStrings(await new Promise<any>(resolve => ai.GetPartialScore(blue, resolve)));
   }
   
   public static async getMissingScore(i: number) {
     const ai = await this.instance();
-    return await new Promise<any>(resolve => ai.GetMissingScore(i, resolve));
+    return CSCAI.rethrowStrings(await new Promise<any>(resolve => ai.GetMissingScore(i, resolve)));
   }
   
   public static async getRecommendations(i: number, championIds: string[]) {
     const ai = await this.instance();
-    return await new Promise<any>(resolve => ai.GetRecommendations(i, championIds, resolve));
+    return CSCAI.rethrowStrings(await new Promise<any>(resolve => ai.GetRecommendations(i, championIds, resolve)));
   }
   
   public static async unzip(b64zip: string) {
     const ai = await this.instance();
-    const json = await new Promise<any>(resolve => ai.Unzip(b64zip, resolve));
-    return JSON.parse(json);
+    return CSCAI.rethrowBadJSON(await new Promise<any>(resolve => ai.Unzip(b64zip, resolve)));
   }
 
   public static async zip(msg: any) {

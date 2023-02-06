@@ -201,14 +201,14 @@ export class CsManager {
 
   public async manualCsChange(newCsInput: CsInput) {
     if (!this.editableCs && !this.swappableCs) return;
-    await (await this.update(newCsInput))[0];
+    await ((await this.update(newCsInput)) || {})[0];
   }
 
   private async handleLcuEvent(info: any) {
     const newCsInput = await Lcu.getCsInput(this.currCsInputView, info);
     if (newCsInput == null) return;
 
-    await (await this.update(newCsInput))[0];
+    await ((await this.update(newCsInput)) || {})[0];
     await this.handleGameStarting(info);
   }
 
@@ -227,10 +227,13 @@ export class CsManager {
     }
 
     this.latestCsInput = newCsInput;
+    return await ErrorReporting.reportIfException(async () => {
+      await this.updateView();
+      const result = [/* await */ this.updateRest()];
+      return result;
 
-    await this.updateView();
-    const result = [/* await */ this.updateRest()];
-    return result;
+    }, 'CsManager.update()', {newCsInput, csView: this.getCsView()});
+    
   }
 
   private async updateView() {
@@ -567,7 +570,7 @@ export class CsManager {
       await CsManager.pollForSpectator(this, lcuInfo.timer.adjustedTimeLeftInPhase);
 
     } catch (ex) {
-      ErrorReporting.report('handleGameStarting', ex);
+      ErrorReporting.report('handleGameStarting', {ex, info});
     }
   }
 
@@ -581,7 +584,7 @@ export class CsManager {
 
     const nr = await Lcu.getCurrentNameAndRegion();
     if (nr == null) {
-      ErrorReporting.report('pollForSpectator', 'Lcu.getCurrentNameAndRegion');
+      Logger.warn('Could not check if in an active game because could not get name and region from LoL client.');
       return;
     }
     const sId = await CsDataFetcher.getSummonerIdByRegionAndName(nr.region, nr.name); //Typically cached already
@@ -623,7 +626,7 @@ export class CsManager {
             csInput.championSwaps =  this.applyMapping(manager.currCsInputView.championSwaps, sToCs);
           }
           
-          await (await manager.update(csInput))[0];
+          await ((await manager.update(csInput)) || {})[0];
         }
         break;
       } catch (ex) {
@@ -658,7 +661,7 @@ export class CsManager {
   private static async uploadCurrentCS(data: any) {
     const nr = await Lcu.getCurrentNameAndRegion();
     if (nr == null) {
-      ErrorReporting.report('uploadCurrentCS', 'Lcu.getCurrentNameAndRegion');
+      ErrorReporting.report('uploadCurrentCS', {ex: 'Lcu.getCurrentNameAndRegion', data});
       return;
     }
     

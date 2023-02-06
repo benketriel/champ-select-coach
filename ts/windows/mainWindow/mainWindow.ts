@@ -9,13 +9,15 @@ import { CSCAI } from "../../ts-lib/cscai";
 import { Popup } from "../../ts-lib/popup";
 import { Subscriptions } from "../../ts-lib/subscriptions";
 import { PatchNotes } from "../../ts-lib/patchNotes";
-import { Lcu } from "../../ts-lib/lcu";
 import { Aws } from "../../ts-lib/aws";
 import { DynamicSettings } from "../../ts-lib/dynamicSettings";
 import { TranslatedText, Translator } from "../../ts-lib/textLanguage";
 import { Beta } from "../../ts-lib/beta";
 import { LocalStorage } from "../../ts-lib/localStorage";
 import { Updates } from "../../ts-lib/updates";
+import { ErrorReporting } from "../../ts-lib/errorReporting";
+import { Lcu } from "../../ts-lib/lcu";
+import { CsDataFetcher } from "../../ts-lib/csDataFetcher";
 
 
 declare var _owAdConstructor: any;
@@ -56,12 +58,15 @@ export class MainWindow {
   }
 
   public async initWindow() {
+    ErrorReporting.LazyLcu = Lcu;
+    ErrorReporting.LazyCsDataFetcher = CsDataFetcher;
+
     this.patchInfo = await CSCAI.getPatchInfo();
     await this.loadHTML();
     await this.setCallbacks();
     this.csTab = new CsTab(this.patchInfo);
     this.personalTab = new PersonalTab(this.patchInfo);
-    this.dynamicSettings = new DynamicSettings(async x => await MainWindow.setStatus(x));
+    this.dynamicSettings = new DynamicSettings(async (x: any) => await MainWindow.setStatus(x));
     /* await */ MainWindow.activateAds();
     /* await */ MainWindow.versionButtonClick();
 
@@ -298,6 +303,8 @@ export class MainWindow {
   private async setCallbacks() {
     //Call this function once, else add .off() calls before each .on()
 
+    const that = this;
+
     //Menu navigation
     $('.side-menu-current-cs').on('click', MainWindow.showLcuCS);
     for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
@@ -373,7 +380,7 @@ export class MainWindow {
     $('.settings-single-thread-mode').on('change', (e: any) => LocalStorage.setSingleThreadedMode(e.currentTarget.checked));
 
     $('.settings-button-language img').attr('src', '/img/flags/' + LocalStorage.getLanguage() + '.png');
-    $('.settings-button-language').on('click', async () => await MainWindow.changeLanguage());
+    $('.settings-button-language').on('click', async () => await MainWindow.changeLanguage(that.patchInfo));
 
     $('.settings-button-overwolf-settings').on('click', () => { window.location.href = 'overwolf://settings/hotkeys'; });
 
@@ -389,8 +396,6 @@ export class MainWindow {
     $('.popup-input-text-input').on('keypress', event => { if (event.key === "Enter") { Popup.yes(); event.preventDefault(); } });
     
     $('.popup-flag').on('click', event => { Popup.flagClick(event); });
-
-    const that = this;
 
     //Global
     $('.drags-window').each((index, elem) => { /* await */ this.setDrag(elem);});
@@ -409,10 +414,10 @@ export class MainWindow {
     $('body').on('mousedown', async () => await MainWindow.activity());
     $('.tooltip').on('mouseenter', e => that.repositionOverflowingPopup(e.currentTarget));
 
-    $('.translated-text').on('DOMSubtreeModified', (e: any) => { Translator.updateTranslation(e.currentTarget); });
-    Translator.updateAllTranslations();
+    $('.translated-text').on('DOMSubtreeModified', (e: any) => { Translator.updateTranslation(this.patchInfo, e.currentTarget); });
+    Translator.updateAllTranslations(this.patchInfo);
 
-    if (!LocalStorage.languageHasBeenSet()) await MainWindow.changeLanguage();
+    if (!LocalStorage.languageHasBeenSet()) await MainWindow.changeLanguage(that.patchInfo);
   }
 
   //Make callbacks static since the 'this' is confusing to pass to a callback, use MainWindow.instance() instead
@@ -545,7 +550,7 @@ export class MainWindow {
           data.summoner = nameRegion.name;
           data.region = nameRegion.region;
         }
-      }catch{}
+      } catch{}
 
       if (!(await Aws.feedback(JSON.stringify(data)))) {
         $('.feedback-error').html(TranslatedText.unableToConnect.english);
@@ -559,18 +564,16 @@ export class MainWindow {
       $('.feedback-success').hide();
       $('.feedback-success').fadeIn();
       $('.feedback-error').html('');
-    }catch (ex) {
+    } catch (ex) {
       $('.feedback-error').html(TranslatedText.anErrorOccurred.english);
       $('.feedback-error').hide();
       $('.feedback-error').fadeIn();
-      Logger.log(ex);
+      ErrorReporting.report('submitFeedback', {ex});
     } finally {
       $('#feedback-name').removeAttr("disabled");
       $('#feedback-contact').removeAttr("disabled");
       $('#feedback-message').removeAttr("disabled");
     }
-
-
   }
 
   public static async setStatus(statusJSON: string) {
@@ -593,8 +596,8 @@ export class MainWindow {
       if (MainWindow.currUpdateState != null && status.supportedVersions && status.supportedVersions.length > 0 && !status.supportedVersions.includes(version)) {
         await MainWindow.versionButtonClick(); //Force update if not supported and not up to date
       }
-    } catch {
-      Logger.warn('setStatus crashed on: ' + statusJSON);
+    } catch (ex) {
+      ErrorReporting.report('setStatus', {ex, statusJSON});
     }
   }
 
@@ -661,11 +664,11 @@ export class MainWindow {
     LocalStorage.setAutoOpenMode(mode);
   }
 
-  private static async changeLanguage() {
+  private static async changeLanguage(patchInfo: any) {
     Popup.selectLanguage((newLang: string) => {
       LocalStorage.setLanguage(newLang);
       $('.settings-button-language img').attr('src', '/img/flags/' + newLang + '.png');
-      Translator.updateAllTranslations();
+      Translator.updateAllTranslations(patchInfo);
     });
   }
 

@@ -77,9 +77,9 @@ export const TranslatedText = {
   },
 
   editPlayer: {
-    english: 'Edit Player',
-    spanish: 'Editar Jugador',
-    french: 'Modifier le joueur',
+    english: 'Player',
+    spanish: 'Jugador',
+    french: 'Joueur',
   },
   enterPlayerName: {
     english: 'Enter player name',
@@ -108,9 +108,9 @@ export const TranslatedText = {
     french: 'Impossible de trouver le nom du champion',
   },
   editRegion: {
-    english: 'Edit Region',
-    spanish: 'Editar Región',
-    french: 'Modifier la région',
+    english: 'Region',
+    spanish: 'Región',
+    french: 'Région',
   },
   enterRegionInitials: {
     english: 'Enter region initials',
@@ -219,6 +219,18 @@ export const TranslatedText = {
     french: 'ENTRER RÉGION',
   },
   
+  fatalError: {
+    english: '⚠ Fatal Error',
+    spanish: '⚠ Fatal Error', //TODO
+    french: '⚠ Fatal Error', //TODO
+  },
+
+  fatalErrorMsg: {
+    english: 'An error from which CSC wasn\'t able to recover occurred.<br>Try restarting the app and sorry for the inconvenience.',
+    spanish: 'An error from which CSC wasn\'t able to recover occurred.<br>Try restarting the app and sorry for the inconvenience.', //TODO
+    french: 'An error from which CSC wasn\'t able to recover occurred.<br>Try restarting the app and sorry for the inconvenience.', //TODO
+  },
+
 
   /////////////////////
   //Extracted from HTML
@@ -874,7 +886,7 @@ export class Translator {
     return Translator.reversedCache;
   }
 
-  public static updateTranslation(e: HTMLElement) {
+  public static updateTranslation(patchInfo: any, e: HTMLElement) {
     const je = $(e);
     const currHTML = je.html();
     if (currHTML.length == 0) return;
@@ -894,12 +906,14 @@ export class Translator {
         je.html(newHTML);
       }
     } else {
-      Logger.warn('No translation found for: ' + currHTML);
+      if (currHTML != '&nbsp;' && !Object.values(patchInfo.RegionIdToGg).includes(currHTML.toLowerCase())) {
+        Logger.warn('No translation found for: ' + currHTML);
+      }
     }
   }
 
-  public static updateAllTranslations() {
-    for (const e of $('.translated-text').get()) Translator.updateTranslation(e);
+  public static updateAllTranslations(patchInfo: any) {
+    for (const e of $('.translated-text').get()) Translator.updateTranslation(patchInfo, e);
   }
 
 

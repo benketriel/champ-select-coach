@@ -162,7 +162,10 @@ export class CsTab {
     const newManager = new CsManager(this, false, csView, swappable, editable);
 
     const shortTask = newManager.refresh();
+    if (!shortTask) return; //An error occured
+
     const longTask = await shortTask;
+    if (!longTask) return; //An error occured
 
     this.historyCsManagers.unshift(newManager);
     while (this.historyCsManagers.length > MainWindow.MAX_MENU_HISTORY_SIZE) {
@@ -174,7 +177,7 @@ export class CsTab {
     await this.saveHistory();
 
     /* await */ (async () => {
-      await longTask[0];
+      await (longTask || {})[0];
       await this.saveHistory(); //I mean, it did save every single update as it called onCsUpdate so this is redundant, but keep for completeness (what is one more when we have so many anyway :) )
     })()
   }

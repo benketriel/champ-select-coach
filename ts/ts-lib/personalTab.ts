@@ -5,6 +5,7 @@ import { CSCAI } from "./cscai";
 import { CsDataFetcher } from "./csDataFetcher";
 import { CsData, CsInput, CsManager } from "./csManager";
 import { CsTab } from "./csTab";
+import { ErrorReporting } from "./errorReporting";
 import { Lcu } from "./lcu";
 import { Popup } from "./popup";
 import { ProgressBar } from "./progressBar";
@@ -214,27 +215,33 @@ export class PersonalTab {
     }
     const loadData = this.summonerName != this.dataLoadedForName || this.region != this.dataLoadedForRegion || this.soloQueue != this.dataLoadedForSoloQueue ||
       new Date().getTime() - this.dataLoadedTimestamp > PersonalTab.DATA_TIMEOUT_MS;
-    if (loadData) {
-      this.clearView(true);
-      $($('.personal-title').get(0)).html(this.summonerName + ' - ' + this.patchInfo.RegionIdToGg[this.region].toUpperCase());
-      $('.personal-graph-legend-personal .personal-graph-legend-text').html(this.summonerName);
+    ErrorReporting.reportIfException(async () => {
+      if (loadData) {
+        this.clearView(true);
+        $($('.personal-title').get(0)).html(this.summonerName + ' - ' + this.patchInfo.RegionIdToGg[this.region].toUpperCase());
+        $('.personal-graph-legend-personal .personal-graph-legend-text').html(this.summonerName);
 
-      this.ongoingProgressBar = new ProgressBar(['loadPersonalData'], [1]);
-      this.ongoingProgressBar.setActive();
+        this.ongoingProgressBar = new ProgressBar(['loadPersonalData'], [1]);
+        this.ongoingProgressBar.setActive();
 
-      this.lockOptions();
-      await this.loadData();
-      this.unlockOptions();
-      this.ongoingProgressBar.taskCompleted();
-      $($('.personal-title').get(0)).html(this.summonerName + ' - ' + (this.tier.tier == '' ? '' : Utils.capitalizeFirstLetter(this.tier.tier) + ' ' + this.tier.division + ' ' + this.tier.lp + ' LP ') + ' ' + this.patchInfo.RegionIdToGg[this.region].toUpperCase());
-    } else {
-      this.ongoingProgressBar.setActive();
-    }
+        try {
+          this.lockOptions();
+          await this.loadData();
+        } finally {
+          this.unlockOptions();
+        }
+        this.ongoingProgressBar.taskCompleted();
+        $($('.personal-title').get(0)).html(this.summonerName + ' - ' + (this.tier.tier == '' ? '' : Utils.capitalizeFirstLetter(this.tier.tier) + ' ' + this.tier.division + ' ' + this.tier.lp + ' LP ') + ' ' + this.patchInfo.RegionIdToGg[this.region].toUpperCase());
+      } else {
+        this.ongoingProgressBar.setActive();
+      }
 
-    this.updateChampionRoleStats();
-    this.updateAverageSoloScores();
-    this.updateCSCHistoryStats();
-    this.updateCSCHistoryHistogram();
+      this.updateChampionRoleStats();
+      this.updateAverageSoloScores();
+      this.updateCSCHistoryStats();
+      this.updateCSCHistoryHistogram();
+
+    }, 'PersonalTab.updateView()', { summoner: this.summonerName, region: this.region });
   }
 
   private async loadData() {
