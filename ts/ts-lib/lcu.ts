@@ -100,7 +100,7 @@ export class Lcu {
         info = JSON.parse(all_info.res.champ_select.raw);
       }
 
-      Logger.debug(info);
+      //Logger.debug(info);
 
       if (!info || !info["myTeam"]) { Logger.log("InvalidInfo"); return null; }
       if (info["myTeam"].length == 0) { Logger.log("NotInChampionSelect"); return null; }
