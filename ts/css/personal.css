@@ -11,12 +11,24 @@
     font-weight: 500;
     font-size: 24px;
     line-height: 24px;  
+    
+    max-width: 630px;
+    overflow: hidden;
+    display: inline-flex;
 }
 
 .personal-title-edit-button {
     position: absolute;
     display: inline-block;
     top: -10px;
+    height: 0px;
+    width: 0px;
+}
+
+.personal-sync-button {
+    position: absolute;
+    display: inline-block;
+    transform: translate(-29px, -3px);
     height: 0px;
     width: 0px;
 }
@@ -300,6 +312,18 @@
     color: rgb(240, 234, 217);
     font-size: 25px;
 }
+.personal-history-stats-total-games {
+    color: #755663;
+}
+.personal-history-stats-total-all {
+    color: #DFDACB;
+}
+.personal-history-stats-total-csc {
+    color: #3B6284;
+}
+.personal-history-stats-total-user {
+    color: #755663;
+}
 
 .personal-history-list-warning {
     position: absolute;
@@ -321,6 +345,22 @@
     position: absolute;
     top: 84px;
     left: 641px;
+}
+
+.personal-history-left-arrow-text {
+    font-size: 10px;
+    display: block;
+    position: absolute;
+    top: 105px;
+    left: 133px;
+}
+
+.personal-history-right-arrow-text {
+    font-size: 10px;
+    display: block;
+    position: absolute;
+    top: 105px;
+    left: 652px;
 }
 
 .personal-history-list {

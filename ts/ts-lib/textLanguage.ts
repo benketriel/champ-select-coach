@@ -119,13 +119,18 @@ export const TranslatedText = {
   },
   regionNotFound: {
     english: 'Region not found<br>Available: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
-    spanish: 'No se encontró ninguna region con esas iniciales<br>Existentes: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
-    french: 'Impossible de trouver la région<br>Existantes: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
+    spanish: 'No se encontró ninguna region con esas iniciales<br>Disponibles: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
+    french: 'Impossible de trouver la région<br>Existantes: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR', //TODO Change existing to available? Considering they added more regions which we don't offer
   },
   inputOneSummonerName: {
     english: 'Please input at least one summoner name',
     spanish: 'Por favor primero ingrese el nombre de un invocador',
     french: 'Merci d\'entrer au moins un nom d\'invocateur',
+  },
+  badSummonerName: {
+    english: 'Invalid summoner name',
+    spanish: 'Nombre inválido',
+    french: 'Invalid summoner name', //TODO
   },
 
   deleteHistory: {
@@ -428,6 +433,11 @@ export const TranslatedText = {
     english: "Results will be less accurate",
     spanish: 'Los resultados serán menos exactos',
     french: 'Les resultats seront moins précis',
+  },
+  noSummonerFound: {
+    english: 'No summoner selected',
+    spanish: 'Ningún invocador seleccionado', //TODO
+    french: 'No summoner selected', //TODO
   },
   side: {
     english: "Side",

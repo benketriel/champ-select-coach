@@ -310,6 +310,9 @@
 .cs-table-champion-icon-cell:nth-child(7) .cs-table-edit-button {
     right: -35px;
 }
+.cs-table-summoner-name-cell:nth-child(6) .cs-table-edit-button {
+    left: 0px;
+}
 
 /* Winrates */
 .cs-table-main-role-win-lose-cell .cs-table-cell {

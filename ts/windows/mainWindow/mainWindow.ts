@@ -306,9 +306,9 @@ export class MainWindow {
     const that = this;
 
     //Menu navigation
-    $('.side-menu-current-cs').on('click', MainWindow.showLcuCS);
+    $('.side-menu-current-cs').on('click', async () => { $('.slide-overlay-close').trigger('click'); MainWindow.showLcuCS(); });
     for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
-      $($('.side-menu-old-cs')[i]).on('click', async () => await MainWindow.showHistoryCS(i));
+      $($('.side-menu-old-cs')[i]).on('click', async () => { $('.slide-overlay-close').trigger('click'); await MainWindow.showHistoryCS(i); });
       $($('.deleteHistoryItem')[i]).on('click', event => { 
         Popup.prompt(
           TranslatedText.deleteHistory.english,
@@ -318,8 +318,9 @@ export class MainWindow {
         event.stopPropagation(); 
       });
     }
-    $('.side-menu-add-manual-cs').on('click', async () => await MainWindow.showHistoryCS(null));
-    $('.s-lcu-status').on('click', async () => await MainWindow.showPersonalTab());
+    $('.side-menu-add-manual-cs').on('click', async () => { $('.slide-overlay-close').trigger('click'); await MainWindow.addNewEditableHistoryCS(); });
+    $('.s-lcu-status').on('click', async () => { $('.slide-overlay-close').trigger('click'); await MainWindow.showPersonalTab(); });
+    $('.homeButton').on('click', async () => { $('.slide-overlay-close').trigger('click'); await MainWindow.showPersonalTab(); });
 
     //Small Windows
     $('.faqButton').on('click', async () => { 
@@ -434,12 +435,30 @@ export class MainWindow {
     main.csTab.swapToLcu();
   }
 
+  public static async addNewEditableHistoryCS() {
+    const main = MainWindow.instance();
+    if (await main.csTab.currentManagerHasRegion()) {
+      await main.csTab.addEditableCsToHistory(null);
+      MainWindow.showHistoryCS(0);
+    } else {
+      const patchInfo = main.patchInfo;
+      const regions = Object.values(patchInfo.RegionIdToGg).map(x => (<string>x).toUpperCase());
+      Popup.text(TranslatedText.editRegion.english, TranslatedText.enterRegionInitials.english, '', regions, async rawRegion => {
+        const picked = Object.keys(patchInfo.RegionIdToGg).filter(k => patchInfo.RegionIdToGg[k].toUpperCase() == rawRegion.toUpperCase());
+        if (picked.length == 0) {
+          Popup.message(TranslatedText.error.english, TranslatedText.regionNotFound.english);
+          return;
+        }
+        await main.csTab.addEditableCsToHistory(picked[0]);
+        MainWindow.showHistoryCS(0);
+      });  
+    }
+  }
+
+
   public static async showHistoryCS(i: number) {
     const main = MainWindow.instance();
-    if (null == i) {
-      await main.csTab.addEditableCsToHistory();
-      i = 0;
-    } else if (main.selectedView == 'hist' + i) return; //Already selected
+    if (main.selectedView == 'hist' + i) return; //Already selected
 
     {
       //Hack for better percieved responsiveness, the swapToHistory takes some noticeable time and we want feedback from the menu before that time
@@ -476,14 +495,14 @@ export class MainWindow {
     const main = MainWindow.instance();
     if (main.selectedView == 'personal') return; //Already selected
 
-    if (!main.personalTab.readyToBeDisplayed()) {
-      if (Subscriptions.isSubscribed()) {
-        await main.personalTab.editSummonerAndRegion();
-      } else {
-        Popup.message(TranslatedText.lolDisconnected.english, TranslatedText.cscNotConnectingToLCU.english);
-      }
-      return;
-    }
+    // if (!main.personalTab.readyToBeDisplayed()) {
+    //   if (Subscriptions.isSubscribed()) {
+    //     await main.personalTab.editSummonerAndRegion();
+    //   } else {
+    //     Popup.message(TranslatedText.lolDisconnected.english, TranslatedText.cscNotConnectingToLCU.english);
+    //   }
+    //   return;
+    // }
     MainWindow.clearAll();
     $('.personal-tab').show();
     $('.s-lcu-status').addClass('s-lcu-status-selected');

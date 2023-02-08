@@ -48,7 +48,7 @@ export class CsInput {
       oldCsInput.championIds.filter(x => x != null && x != '' && x != '0').length == 10 &&
       newCsInput.championIds.filter(x => x != null && x != '' && x != '0').length == 10 && 
       oldCsInput.summonerNames.filter(name => name && name.length > 0).length == 10 &&
-      newCsInput.summonerNames.filter(name => name && name.length > 0).length == 5 &&
+      newCsInput.summonerNames.filter(name => name && name.length > 0).length <= 5 && //also less than 5 because names are hidden in solo, and because there could be a bug someone is missing?
       Utils.setIncludes(new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(newCsInput.summonerNames.filter(name => name && name.length > 0))) &&
       new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)).size > new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)).size;
   }
@@ -225,6 +225,8 @@ export class CsManager {
       //Ignore, these messages can come out of order between CS and spectator and we don't want it to think it's a new CS all of the sudden
       return [() => {}];
     }
+
+    Logger.debug(newCsInput);
 
     this.latestCsInput = newCsInput;
     return await ErrorReporting.reportIfException(async () => {
@@ -589,9 +591,11 @@ export class CsManager {
     }
     const sId = await CsDataFetcher.getSummonerIdByRegionAndName(nr.region, nr.name); //Typically cached already
     await Timer.wait(msBeforePollingStart);
+    let spect = null;
+    let csInput = null;
     while (Date.now() < this.pollingUntil) {
       try {
-        let spect = await Aws.getRunningGame(nr.region, sId);
+        spect = await Aws.getRunningGame(nr.region, sId);
 
         if (spect == null || !spect.result || !spect.result.participants || spect.result.participants.length != 10) {
           await Timer.wait(pollingIntervalMs);
@@ -599,11 +603,14 @@ export class CsManager {
           Logger.log("Active game not found = " + JSON.stringify(spect));
           continue;
         }
+
+        Logger.debug(spect);
+
         //Not currently used:
         //spect.gameId;
         //spect.gameStartTime;
 
-        const csInput = new CsInput();
+        csInput = new CsInput();
         csInput.queueId = spect.result.gameQueueConfigId.toString();
         csInput.region = nr.region;
         csInput.ownerName = nr.name;
@@ -630,7 +637,7 @@ export class CsManager {
         }
         break;
       } catch (ex) {
-        ErrorReporting.report('pollForSpectator', ex);
+        ErrorReporting.report('pollForSpectator', {ex, spect, csInput});
         await Timer.wait(pollingIntervalMs);
         continue;
       }

@@ -20,6 +20,12 @@ export class ErrorReporting {
   }
 
   public static async reportAsync(type: string, data: any) {
+    for (const key of Object.keys(data)) {
+      if (data[key].message && data[key].stack && !data[key].messageStr && !data[key].stackStr) {
+        data[key].messageStr = data[key].message.toString();
+        data[key].stackStr = data[key].stack.toString();
+      }
+    }
     const json = JSON.stringify({ type, data });
     /* await */ Logger.warn('⚠⚠⚠ Unexpected Error ⚠⚠⚠');
     /* await */ Logger.warn(json);

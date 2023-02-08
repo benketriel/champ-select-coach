@@ -44,14 +44,18 @@
   fill: #958FB2;
   stroke: none;
 }
-.s-icon-button-fill-no-hover {
-  fill: #958FB2;
-  stroke: none;
-}
 .s-icon-button-fill:hover {
   fill: #F4F2FF;
   stroke: none;
   background-color: #332E4D;
+}
+.s-icon-button-fill-no-box {
+  fill: #958FB2;
+  stroke: none;
+}
+.s-icon-button-fill-no-box:hover {
+  fill: #F4F2FF;
+  stroke: none;
 }
 .s-icon-no-fill {
   fill: none;

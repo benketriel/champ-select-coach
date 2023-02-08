@@ -17,10 +17,17 @@
 
 <span class="personal-champions-container">
     <span>
+        <span class="personal-sync-button">
+            <button class="s-icon-button-fill-no-box s-icon-button">
+                <svg class="s-icon-button-svg s-icon-svg-smaller"><use href="/img/icons/icons.svg#sync"></use></svg>
+            </button>
+        </span>
         <span class="personal-title">
+            <span class="personal-title-empty translated-text">No summoner selected</span>&nbsp;
+            <span class="personal-title-content"></span>
         </span>
         <span class="personal-title-edit-button" style="display: none;">
-            <button class="s-icon-button-fill-no-hover s-icon-button">
+            <button class="s-icon-button-fill-no-box s-icon-button">
                 <svg class="s-icon-button-svg s-icon-svg-smaller"><use href="/img/icons/icons.svg#pencil"></use></svg>
             </button>
         </span>
@@ -107,16 +114,19 @@
     <span class="personal-title"><span class="translated-text">CSC History</span></span>
     <span class="personal-history-stats">
         <span class="translated-text">Total games</span><br>
-        <span class="personal-history-stats-total">0</span><br>
+        <span class="personal-history-stats-total personal-history-stats-total-games">0</span><br>
         <br>
         <span class="translated-text">Accuracy</span><br>
-        <span class="personal-history-stats-total">60</span>%
+        <span class="personal-history-stats-total personal-history-stats-total-all">??</span>/
+        <span class="personal-history-stats-total personal-history-stats-total-csc">??</span>/
+        <span class="personal-history-stats-total personal-history-stats-total-user">??</span>%
     </span>
     <span class="personal-history-left-arrow">
         <button class="s-icon-button s-icon-button-fill">
             <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#left"></use></svg>
         </button>
     </span>
+    <span class="personal-history-left-arrow-text"></span>
     <span class="personal-history-list">
         <span class="personal-history-list-warning translated-text">CSC history is empty</span>
     </span>
@@ -125,12 +135,13 @@
             <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#right"></use></svg>
         </button>
     </span>
+    <span class="personal-history-right-arrow-text"></span>
     <span class="personal-history-options-score">
         <span class="tooltip">
             <span class="tooltiptext tooltiptext-sm"><span class="translated-text">Which score to show</span></span>
-            <input class="personal-history-options-score-pre-game" type="radio" checked>
+            <input class="personal-history-options-score-pre-game" type="radio">
             <span class="translated-text">Champion Select</span>
-            <input class="personal-history-options-score-in-game" type="radio">
+            <input class="personal-history-options-score-in-game" type="radio" checked>
             <span class="translated-text">In-Game</span>
         </span>
     </span>

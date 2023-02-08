@@ -11,16 +11,13 @@ export class Lcu {
   public static WHITELISTED_QUEUES = [
     '-1', 
     '400', 
-    '420', 
+    '420', //Ranked solo
     '430', 
     '440', 
     '700', 
     '0',
     //'450', //ARAM
   ];
-
-  public static MaxHistoryAgeDays = 90; //This variable is in APIStructs.cs as well
-  public static MaxHistoryLen = 100; //This variable is in APIStructs.cs as well
 
   private static LCU_TIMEOUT_MILLIS = 12000;
 
@@ -100,7 +97,7 @@ export class Lcu {
         info = JSON.parse(all_info.res.champ_select.raw);
       }
 
-      //Logger.debug(info);
+      Logger.debug(info);
 
       if (!info || !info["myTeam"]) { Logger.log("InvalidInfo"); return null; }
       if (info["myTeam"].length == 0) { Logger.log("NotInChampionSelect"); return null; }
@@ -264,6 +261,8 @@ export class Lcu {
   }
 
   public static async getSummonersTierByPuuid(puuids: Array<string>) {
+    if (!puuids) return null;
+
     try {
       const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
       if (!info || !info.res || !info.res.credentials) return 'LcuConnectionFailed';
@@ -271,7 +270,7 @@ export class Lcu {
       return await Promise.all(puuids.map(async puuid => await Lcu.getSummonerTierByPuuid(info.res.credentials, puuid)));
     } catch (ex) {
       ErrorReporting.report('getSummonersTierByPuuid', {ex, puuids});
-      return ex;
+      return puuids.map(() => null);
     }
   }
 
@@ -282,11 +281,13 @@ export class Lcu {
         return tierInfo;
     } catch (ex) {
       ErrorReporting.report('getSummonerTierByPuuid', {ex, puuid});
-      return ex;
+      return null;
     }
   }
 
   public static async getSummonerPuuidsByName(names: Array<string>) {
+    if (!names) return null;
+
     try {
       const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
       if (!info || !info.res || !info.res.credentials) return 'LcuConnectionFailed';
@@ -294,7 +295,7 @@ export class Lcu {
       return await Promise.all(names.map(async name => await Lcu.getSummonerPuuidByName(info.res.credentials, name)));
     } catch (ex) {
       ErrorReporting.report('getSummonerPuuidsByName', {ex, names});
-      return ex;
+      return names.map(() => null);;
     }
   }
 
@@ -309,7 +310,7 @@ export class Lcu {
         return puuid;
     } catch (ex) {
       ErrorReporting.report('getSummonerPuuidByName', {ex, summonerName});
-      return ex;
+      return null;
     }
   }
 

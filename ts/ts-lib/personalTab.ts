@@ -18,8 +18,8 @@ export class PersonalTab {
   private static DATA_TIMEOUT_MS: number = 1000 * 60 * 5;
   private patchInfo: any;
 
-  private summonerName: string = null;
-  private region: string = null;
+  private summonerName: string = '';
+  private region: string = '';
   private customSummoner: boolean = false;
   private data: CsData = null;
   private dataLoadedTimestamp: number = 0;
@@ -38,7 +38,7 @@ export class PersonalTab {
   //Settings
   private soloQueue: boolean = true;
   private sortByMostPlayed: boolean = true;
-  private cscHistoryPreGame: boolean = true;
+  private cscHistoryPreGame: boolean = false;
 
   //State
   private championRoleIndex: number = 0;
@@ -86,10 +86,11 @@ export class PersonalTab {
     for (const i in historyElems) {
       $(historyElems[i]).on('click', () => { that.showCscHistoryCs(parseInt(i)); });
     }
-    const editElm = $('.personal-title-edit-button').get(0);
-    $(editElm).parent().on('mouseenter', () => { if (Subscriptions.isSubscribed()) $(editElm).show(); });
-    $(editElm).parent().on('mouseleave', () => $(editElm).hide());
-    $(editElm).on('click', async () => await that.editSummonerAndRegion());
+
+    Utils.setCallbacksForEditButton($('.personal-title-edit-button').get(0), async () => Subscriptions.isSubscribed(), async () => await that.editSummonerAndRegion());
+
+    const syncElm = $('.personal-sync-button').get(0);
+    $(syncElm).on('click', async () => {if (!(await that.syncWithLCU())) Popup.message(TranslatedText.error.english, TranslatedText.cscNotConnectingToLCU.english)});
 
     $('.personal-graph-canvas').on('mousemove', e => { that.mouseOverCanvas(e); });
     $('.personal-graph-canvas').on('mouseleave', () => { that.mouseLeaveCanvas(); });
@@ -109,7 +110,7 @@ export class PersonalTab {
       $('.lcuStatusLightConnected').show();
       $('.s-lcu-status-text').removeClass('s-lcu-status-text-disconnected');
       $('.s-lcu-status-text').removeClass('translated-text');
-      $('.s-lcu-status-text').off('DOMSubtreeModified');
+      $('.s-lcu-status-text').off('DOMSubtreeModified'); //This is needed to remove the translation callback as well
       $('.s-lcu-status-text').html(x.name)
 
       this.enqueueUpdate(async () => {
@@ -117,24 +118,29 @@ export class PersonalTab {
         this.summonerName = x.name;
         this.region = x.region;
         this.customSummoner = false;
-        if (change && !await Lcu.inChampionSelect()) {
-          await MainWindow.showPersonalTab();
+        if (change) {
+          await this.updateView();
+          if (!await Lcu.inChampionSelect()){
+            await MainWindow.showPersonalTab();
+          }
         }
       });
+      return true;
     } else {
       $('.lcuStatusLightDisconnected').show();
       $('.lcuStatusLightConnected').hide();
       $('.s-lcu-status-text').addClass('s-lcu-status-text-disconnected');
+      return false;
     }
   }
 
   public readyToBeDisplayed() {
-    return this.summonerName != null && this.region != null;
+    return this.summonerName.length > 0 && this.region.length > 0;
   }
 
   private clearView(keepResidual: boolean) {
     if (!keepResidual) {
-      $($('.personal-title').get(0)).html('');
+      $('.personal-title-content').html('');
 
       $('.personal-champions-left-arrow').hide();
       $('.personal-champions-table-container').hide();
@@ -155,9 +161,12 @@ export class PersonalTab {
       $('.personal-history-table-container').hide();
       $($('.personal-history-stats-total').get(0)).html('0');
       $($('.personal-history-stats-total').get(1)).html('??');
+      $($('.personal-history-stats-total').get(2)).html('??');
+      $($('.personal-history-stats-total').get(3)).html('??');
 
       const clear = [null, null, null, null, null, null, null, null, null, null, null];
-      this.canvasDraw(clear, clear, clear);
+      const clearCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      this.canvasDraw(clear, clear, clear, clearCount, clearCount, clearCount);
     }
     
 
@@ -209,39 +218,55 @@ export class PersonalTab {
   }
 
   public async updateView() {
-    if (this.summonerName == null || this.region == null) {
-      this.clearView(false);
-      return;
-    }
-    const loadData = this.summonerName != this.dataLoadedForName || this.region != this.dataLoadedForRegion || this.soloQueue != this.dataLoadedForSoloQueue ||
-      new Date().getTime() - this.dataLoadedTimestamp > PersonalTab.DATA_TIMEOUT_MS;
-    ErrorReporting.reportIfException(async () => {
-      if (loadData) {
-        this.clearView(true);
-        $($('.personal-title').get(0)).html(this.summonerName + ' - ' + this.patchInfo.RegionIdToGg[this.region].toUpperCase());
-        $('.personal-graph-legend-personal .personal-graph-legend-text').html(this.summonerName);
-
-        this.ongoingProgressBar = new ProgressBar(['loadPersonalData'], [1]);
-        this.ongoingProgressBar.setActive();
-
-        try {
-          this.lockOptions();
-          await this.loadData();
-        } finally {
-          this.unlockOptions();
-        }
-        this.ongoingProgressBar.taskCompleted();
-        $($('.personal-title').get(0)).html(this.summonerName + ' - ' + (this.tier.tier == '' ? '' : Utils.capitalizeFirstLetter(this.tier.tier) + ' ' + this.tier.division + ' ' + this.tier.lp + ' LP ') + ' ' + this.patchInfo.RegionIdToGg[this.region].toUpperCase());
-      } else {
-        this.ongoingProgressBar.setActive();
+    this.enqueueUpdate(async () => {
+      if (this.summonerName == null || this.region == null) {
+        this.clearView(false);
+        return;
       }
+      const loadData = this.summonerName != this.dataLoadedForName || this.region != this.dataLoadedForRegion || this.soloQueue != this.dataLoadedForSoloQueue ||
+        new Date().getTime() - this.dataLoadedTimestamp > PersonalTab.DATA_TIMEOUT_MS;
+      ErrorReporting.reportIfException(async () => {
+        if (loadData) {
+          this.clearView(true);
+          this.updateTitle();
 
-      this.updateChampionRoleStats();
-      this.updateAverageSoloScores();
-      this.updateCSCHistoryStats();
-      this.updateCSCHistoryHistogram();
+          this.ongoingProgressBar = new ProgressBar(['loadPersonalData'], [1]);
+          this.ongoingProgressBar.setActive();
 
-    }, 'PersonalTab.updateView()', { summoner: this.summonerName, region: this.region });
+          try {
+            this.lockOptions();
+            await this.loadData();
+          } finally {
+            this.unlockOptions();
+          }
+
+          this.ongoingProgressBar.taskCompleted();
+          this.updateTitle();
+        } else {
+          this.ongoingProgressBar.setActive();
+        }
+
+        this.updateChampionRoleStats();
+        this.updateAverageSoloScores();
+        this.updateCSCHistoryStats();
+        this.updateCSCHistoryHistogram();
+
+      }, 'PersonalTab.updateView()', { summoner: this.summonerName, region: this.region });
+    });
+  }
+
+  private updateTitle() {
+    const nameString = this.summonerName;
+    const tierString = this.summonerName == '' || !this.tier || !this.tier.tier || this.tier.tier == '' ? '' : Utils.capitalizeFirstLetter(this.tier.tier) + ' ' + this.tier.division + ' ' + this.tier.lp + ' LP ';
+    const regionString = this.summonerName == '' || !this.region || this.region == '' ? '' : this.patchInfo.RegionIdToGg[this.region].toUpperCase();
+    $('.personal-title-content').html(nameString + ' - ' + tierString + ' ' + regionString);
+    $('.personal-graph-legend-personal .personal-graph-legend-text').html(this.summonerName);
+
+    if (this.summonerName == '') {
+      $('.personal-title-empty').show();
+    } else {
+      $('.personal-title-empty').hide();
+    }
   }
 
   private async loadData() {
@@ -253,7 +278,7 @@ export class PersonalTab {
     this.stats = await CSCAI.analyzePersonalData(this.summonerName, this.region, this.soloQueue, this.data);
     this.tier = CsTab.mergeTiers(this.data.lcuTiers, this.stats.apiTiers)[this.summonerName] || {};
 
-    const puuid = this.data.summonerInfo[this.summonerName].puuid;
+    const puuid = (this.data.summonerInfo[this.summonerName] || {}).puuid;
     this.cscHistory = await CsDataFetcher.getCscHistoryData(this.region, puuid);
   }
 
@@ -434,13 +459,17 @@ export class PersonalTab {
     const cscHistory = this.cscHistory.personalHistory || [];
     if (this.cscHistoryIndex > 0) {
       $('.personal-history-left-arrow').show();
+      $('.personal-history-left-arrow-text').html('+' + this.cscHistoryIndex);
     } else {
       $('.personal-history-left-arrow').hide();
+      $('.personal-history-left-arrow-text').html('');
     }
     if (this.cscHistoryIndex < cscHistory.length - numCscHistoryObjects) {
       $('.personal-history-right-arrow').show();
+      $('.personal-history-right-arrow-text').html('+' + (cscHistory.length - numCscHistoryObjects - this.cscHistoryIndex));
     } else {
       $('.personal-history-right-arrow').hide();
+      $('.personal-history-right-arrow-text').html('');
     }
 
     if (cscHistory.length == 0) {
@@ -488,8 +517,31 @@ export class PersonalTab {
       }
     }
 
-    $($('.personal-history-stats-total').get(0)).html(cscHistory.length.toString());
-    $($('.personal-history-stats-total').get(1)).html(cscHistory.length == 0 ? '??' : Math.round(100 * hits / cscHistory.length).toString());
+    const cscHistogram = this.cscHistory.globalHistogram || [];
+    let allHit = 0;
+    let allCount = 0;
+    let cscHit = 0;
+    let cscCount = 0;
+    for (const h of cscHistogram) {
+      if (this.cscHistoryPreGame != h.isPartial) continue;
+
+      const tp = h.wins.slice(10).reduce((partialSum, a) => partialSum + a, 0);
+      const fp = h.wins.slice(0, 10).reduce((partialSum, a) => partialSum + a, 0);
+      const fn = h.losses.slice(10).reduce((partialSum, a) => partialSum + a, 0);
+      const tn = h.losses.slice(0, 10).reduce((partialSum, a) => partialSum + a, 0);
+      if (h.isCSCuser) {
+        cscHit += tp + tn;
+        cscCount += tp + tn + fp + fn;
+      } else {
+        allHit += tp + tn;
+        allCount += tp + tn + fp + fn;
+      }
+    }
+
+    $($('.personal-history-stats-total-games').get(0)).html(cscHistory.length.toString());
+    $($('.personal-history-stats-total-all').get(0)).html(allCount == 0 ? '??' : Math.round(100 * allHit / allCount).toString());
+    $($('.personal-history-stats-total-csc').get(0)).html(cscCount == 0 ? '??' : Math.round(100 * cscHit / cscCount).toString());
+    $($('.personal-history-stats-total-user').get(0)).html(cscHistory.length == 0 ? '??' : Math.round(100 * hits / cscHistory.length).toString());
 
   }
 
@@ -527,13 +579,91 @@ export class PersonalTab {
     const all = [null, null, null, null, null, null, null, null, null, null, null];
     const csc = [null, null, null, null, null, null, null, null, null, null, null];
     const player = [null, null, null, null, null, null, null, null, null, null, null];
+    const allCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    const cscCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    const playerCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     for (let i = 0; i < 11; ++i) {
       all[i] = allWins[i] + allLosses[i] > 100 ? allWins[i] / (allWins[i] + allLosses[i]) : null;
+      allCount[i] += allWins[i] + allLosses[i];
       csc[i] = cscWins[i] + cscLosses[i] > 100 ? cscWins[i] / (cscWins[i] + cscLosses[i]) : null;
+      cscCount[i] += cscWins[i] + cscLosses[i];
       player[i] = playerWins[i] + playerLosses[i] != 0 ? playerWins[i] / (playerWins[i] + playerLosses[i]) : null;
+      playerCount[i] += playerWins[i] + playerLosses[i];
     }
 
-    this.canvasDraw(all, csc, player);
+    this.canvasDraw(all, csc, player, allCount, cscCount, playerCount);
+  }
+
+  private canvasDraw(all: number[], csc: number[], player: number[], allCount: number[], cscCount: number[], playerCount: number[]) {
+    const canvas : any = $('.personal-graph-canvas').get()[0];
+    canvas.width = 320;
+    canvas.height = 220;
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "#BE943A";
+    const yellow = "#BE943A"; //Yellowish
+    const white = "#DFDACB"; //White
+    const blue = "#3B6284"; //Blue
+    const red = "#755663"; //Red
+    const whiteShadow = "#DFDACB55"; //White
+    const blueShadow = "#3B628455"; //Blue
+    const redShadow = "#75566355"; //Red
+    const shadow = "#000000"; //Shadow
+    // ctx.fillRect(0, 0, 150, 75);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.lineWidth = 1;
+    for (let sh = 0; sh < 2; ++sh) {
+      const o = sh == 0 ? 2 : 0;
+      ctx.strokeStyle = sh == 0 ? shadow : yellow;
+
+      ctx.beginPath();
+      ctx.moveTo(o + 10, o + 10);
+      ctx.lineTo(o + 10, o + 210);
+      ctx.lineTo(o + 310, o + 210);
+      // ctx.closePath();
+      ctx.stroke();
+      for (let i = 1; i <= 9; ++i){
+        ctx.beginPath();
+        ctx.moveTo(o + 10, o + 10 + 20 * i);
+        ctx.lineTo(o + 3, o + 10 + 20 * i);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(o + 10 + 30 * i, o + 210);
+        ctx.lineTo(o + 10 + 30 * i, o + 217);
+        ctx.stroke();
+      }
+    }
+
+    for (const arr of [allCount, cscCount, playerCount]) {
+      const sum = arr.reduce((partialSum, a) => partialSum + a, 0);
+      if (sum <= 0) continue;
+      for (let i in arr) {
+        arr[i] /= sum;
+      }
+    }
+
+    for (let wh = 0; wh < 6; ++wh) {
+      ctx.strokeStyle = wh == 0 ? whiteShadow : wh == 1 ? blueShadow : wh == 2 ? redShadow : wh == 3 ? white : wh == 4 ? blue : red;
+      const data = wh == 0 ? allCount : wh == 1 ? cscCount : wh == 2 ? playerCount : wh == 3 ? all : wh == 4 ? csc : player;
+      ctx.lineWidth = wh < 3 ? 1 : 2;
+
+      for (let i = 1; i < 9; ++i) {
+        var y0 = data[i];
+        var y1 = data[i + 1];
+        if (y0 != null && y1 != null) {
+          ctx.beginPath();
+          ctx.moveTo(10 + 30 * i, 210 - 200 * y0);
+          ctx.lineTo(10 + 30 * (i + 1), 210 - 200 * y1);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // // the fill color
+    // ctx.fill();
+        
   }
 
   public setSortByMostPlayed(value: boolean) {
@@ -573,65 +703,6 @@ export class PersonalTab {
     });
   }
 
-  private canvasDraw(all: number[], csc: number[], player: number[]) {
-    const canvas : any = $('.personal-graph-canvas').get()[0];
-    canvas.width = 320;
-    canvas.height = 220;
-    const ctx = canvas.getContext("2d");
-
-    ctx.fillStyle = "#BE943A";
-    const yellow = "#BE943A"; //Yellowish
-    const white = "#DFDACB"; //White
-    const blue = "#3B6284"; //Blue
-    const red = "#755663"; //Red
-    const shadow = "#000000"; //Shadow
-    // ctx.fillRect(0, 0, 150, 75);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.lineWidth = 1;
-    for (let sh = 0; sh < 2; ++sh) {
-      const o = sh == 0 ? 2 : 0;
-      ctx.strokeStyle = sh == 0 ? shadow : yellow;
-
-      ctx.beginPath();
-      ctx.moveTo(o + 10, o + 10);
-      ctx.lineTo(o + 10, o + 210);
-      ctx.lineTo(o + 310, o + 210);
-      // ctx.closePath();
-      ctx.stroke();
-      for (let i = 1; i <= 9; ++i){
-        ctx.beginPath();
-        ctx.moveTo(o + 10, o + 10 + 20 * i);
-        ctx.lineTo(o + 3, o + 10 + 20 * i);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(o + 10 + 30 * i, o + 210);
-        ctx.lineTo(o + 10 + 30 * i, o + 217);
-        ctx.stroke();
-      }
-    }
-
-    for (let wh = 0; wh < 10; ++wh) {
-      ctx.strokeStyle = wh == 0 ? white : wh == 1 ? blue : red;
-      const data = wh == 0 ? all : wh == 1 ? csc : player;
-      for (let i = 1; i < 9; ++i) {
-        var y0 = data[i];
-        var y1 = data[i + 1];
-        if (y0 != null && y1 != null) {
-          ctx.beginPath();
-          ctx.moveTo(10 + 30 * i, 210 - 200 * y0);
-          ctx.lineTo(10 + 30 * (i + 1), 210 - 200 * y1);
-          ctx.stroke();
-        }
-      }
-    }
-
-    // // the fill color
-    // ctx.fill();
-        
-  }
-
   public mouseOverCanvas(e: any) {
     var rect = e.target.getBoundingClientRect();
     var x = e.clientX - rect.left;
@@ -654,7 +725,14 @@ export class PersonalTab {
   }
 
   public async editSummonerAndRegion() {
+    if (!Subscriptions.isSubscribed()) return;
+    
     Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerName.english, this.summonerName || '', [], name => {
+      if (name.length == 0 || name.search('<') != -1 || name.search('>') != -1) {
+        Popup.message(TranslatedText.error.english, TranslatedText.badSummonerName.english);
+        return;
+      }
+
       const currentRegion = (this.patchInfo.RegionIdToGg[this.region] || '').toUpperCase();
       const regions = Object.values(this.patchInfo.RegionIdToGg).map(x => (<string>x).toUpperCase());
       Popup.text(TranslatedText.editRegion.english, TranslatedText.enterRegionInitials.english, currentRegion, regions, rawRegion => {
@@ -669,9 +747,11 @@ export class PersonalTab {
           this.summonerName = name;
           this.region = picked[0];
           this.customSummoner = true;
-          if (change && !await Lcu.inChampionSelect()) {
+          if (change) {
             await this.updateView();
-            MainWindow.showPersonalTab();
+            if (!await Lcu.inChampionSelect()) {
+              MainWindow.showPersonalTab();
+            }
           }
         });
       });

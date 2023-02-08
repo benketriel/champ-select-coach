@@ -45,8 +45,9 @@ export class CsTab {
     }
     this.updateCSHistoryView();
 
-    if (this.historyCsManagers.length > 0) await MainWindow.showHistoryCS(0);
-    else MainWindow.selectHome();
+    // if (this.historyCsManagers.length > 0) await MainWindow.showHistoryCS(0);
+    // else MainWindow.selectHome();
+    MainWindow.showPersonalTab();
 
     //Callbacks
     const roleSwappers = $('.cs-table-champion-swap-role').get();
@@ -84,18 +85,11 @@ export class CsTab {
       const role = Math.floor(parseInt(i) / 4);
 
       const elm = editIcons[i]
-      $(elm).parent().on('mouseenter', async () => { if (that.currentCsManager.getCsView().editable && Subscriptions.isSubscribed()) $(elm).show(); });
-      $(elm).parent().on('mouseleave', () => $(elm).hide());
-      if (idx == 0) {
-        $(elm).on('click', () => that.editChampion(role + 5 * team));
-      } else {
-        $(elm).on('click', () => that.editSummoner(role + 5 * team));
-      }
+      const isActive = async () => that.currentCsManager.getCsView().editable && Subscriptions.isSubscribed();
+      const onClick = idx == 0 ? async () => that.editChampion(role + 5 * team) : async () => that.editSummoner(role + 5 * team);
+      Utils.setCallbacksForEditButton(elm, isActive, onClick);
     }
-    const regionEditIcon = $('.cs-region-edit-button').get(0);
-    $('.cs-region').on('mouseenter', async () => { if (that.currentCsManager.getCsView().editable && Subscriptions.isSubscribed()) $(regionEditIcon).show(); });
-    $('.cs-region').on('mouseleave', () => $(regionEditIcon).hide());
-    $(regionEditIcon).on('click', () => that.editRegion());
+    Utils.setCallbacksForEditButton($('.cs-region-edit-button').get(0), async () => that.currentCsManager.getCsView().editable && Subscriptions.isSubscribed(), async () => that.editRegion());
 
     $('.cs-side-blue').on('change', async () => { await that.editSide(true); });
     $('.cs-side-red').on('change', async () => { await that.editSide(false); });
@@ -148,16 +142,21 @@ export class CsTab {
 
   //Menu
   private async addCurrentLcuCsToHistory() {
-    await this.cloneManagerToHistory(this.lcuCsManager, new Date().getTime(), false, false);
+    await this.cloneManagerToHistory(this.lcuCsManager, new Date().getTime(), null, false, false);
   }
 
-  public async addEditableCsToHistory() {
-    await this.cloneManagerToHistory(this.currentCsManager, null, true, true);
+  public async currentManagerHasRegion() {
+    return this.currentCsManager.getCsView().csInput.region != '';
   }
 
-  private async cloneManagerToHistory(manager: CsManager, date: number, swappable: boolean, editable: boolean) {
+  public async addEditableCsToHistory(region: string) {
+    await this.cloneManagerToHistory(this.currentCsManager, null, region, true, true);
+  }
+
+  private async cloneManagerToHistory(manager: CsManager, date: number, region: string, swappable: boolean, editable: boolean) {
     const csView = JSON.parse(JSON.stringify(manager.getCsView()));
     csView.date = date;
+    if (region != null && region.length > 0) csView.csInput.region = region;
 
     const newManager = new CsManager(this, false, csView, swappable, editable);
 
@@ -358,6 +357,7 @@ export class CsTab {
         this.updateSwaps(patchInfo, side, csInput, roleToIdx, mergedTier, !editable); //Now the tiers are updated
         this.updateSummonersAndRoles(patchInfo, side, csInput, rolePrediction, mergedTier); //Now the tiers are updated
       }
+      $('.s-icon-button').trigger('mouseleave');
     }
     timeStats['data'] = new Date().getTime() - time; time = new Date().getTime();
     if (!change || change == '' || change == 'score') {
@@ -856,15 +856,19 @@ export class CsTab {
       const allPicking = [inputView.picking.slice(0, 5).filter(x => x).length, inputView.picking.slice(5).filter(x => x).length]
 
       for (let j = 0; j < elems.length; ++j) {
-        if (showPicking && pick0 && allPicking[0]) {
-          $(elems[j][2 * role0 + side]).addClass('picking');
+        //Show only on your side because else it shows on arbitrary two since you don't know the roles and it looks ugly
+        if (side == 0) {
+          if (showPicking && pick0 && allPicking[0]) {
+            $(elems[j][2 * role0 + side]).addClass('picking');
+          } else {
+            $(elems[j][2 * role0 + side]).removeClass('picking');
+          }
         } else {
-          $(elems[j][2 * role0 + side]).removeClass('picking');
-        }
-        if (showPicking && pick1 && allPicking[1]) {
-          $(elems[j][2 * role1 + 1 - side]).addClass('picking');
-        } else {
-          $(elems[j][2 * role1 + 1 - side]).removeClass('picking');
+          if (showPicking && pick1 && allPicking[1]) {
+            $(elems[j][2 * role1 + 1 - side]).addClass('picking');
+          } else {
+            $(elems[j][2 * role1 + 1 - side]).removeClass('picking');
+          }
         }
       }
     }
