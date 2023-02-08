@@ -107,4 +107,12 @@ export class Utils {
     $(elem).data('i', myI);
   }
 
+  public static setCallbacksForEditButton(element: any, isActive: any, onClick: any) {
+    $(element).parent().on('mouseenter', async () => { if (await isActive()) {$(element).show(); $(element).css('opacity', '100%') } else { $(element).hide(); }});
+    $(element).parent().on('mouseleave', async () => { if (await isActive()) {$(element).show(); $(element).css('opacity', '30%') } else { $(element).hide(); }});
+    $(element).parent().trigger('mouseleave');
+    $(element).on('click', async () => { if (await isActive()) await onClick() });
+
+  }
+
 }
