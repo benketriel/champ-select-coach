@@ -11,32 +11,36 @@
     <span class="settings-sub-title">Discord</span>
     <ul><li>
       <span class="translated-text">
-        The best way to contact us is via the <a href="https://discord.gg/YGcWxhyXmn">CSC discord</a>.
-        You can <a href="https://discord.gg/Fw9QFKstFk">report issues</a>, <a href="https://discord.gg/fFFaVxCYCQ">propose new features</a>, 
+        The best way to contact us is via the <a class="inline-a-link-button" href="https://discord.gg/YGcWxhyXmn">CSC discord</a>.
+        You can <a class="inline-a-link-button" href="https://discord.gg/Fw9QFKstFk">Report issues</a>, <a class="inline-a-link-button" href="https://discord.gg/fFFaVxCYCQ">Propose new features</a>, 
         discuss ideas or results with other users, check the ongoing status of development, and get in-depth info about the app
       </span>
     </li></ul>
     <br>
-    <span class="settings-sub-title translated-text">Direct feedback</span>
-    <ul><li>
-      <span class="translated-text">Name</span>
-      <input maxlength="100" type="text" class="feedback-textbox" id="feedback-name"/>
-    </li><li>
-      <span class="translated-text">Contact (optional)</span>
-      <input maxlength="100" type="text" class="feedback-textbox" id="feedback-contact"/>
-    </li><li>
-      <span class="translated-text">Message</span>
-      <textarea maxlength="5000" class="feedback-textarea" id="feedback-message"></textarea>
-    </li><li>
-      <span class="submitFeedback">
-        <button class="s-icon-button s-icon-button-fill" title="Send">
-          <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#send" class="scale-icon-24"></use></svg>
-        </button>
-      </span> <span class="feedback-error translated-text"></span><span class="feedback-success translated-text"></span>
-      </li>
-      <li><span class="translated-text">Note: Replies will be slower on this channel</span></li>
-      <li><span class="translated-text">You can also email champselectcoach@gmail.com</span></li>
-    </ul>
+    <span class="direct-feedback-form">
+      <span class="settings-sub-title translated-text">Direct feedback</span>
+      <ul><li>
+        <span class="feedback-label translated-text">Name</span>
+        <input maxlength="100" type="text" class="feedback-textbox" id="feedback-name"/>
+        <input maxlength="100" type="text" class="feedback-textbox" id="feedback-contact" style="float: right;"/>
+        <span class="feedback-label translated-text" style="float: right;">Contact (optional)</span>
+      </li><li>
+        <span class="translated-text">Message</span>
+        <textarea maxlength="5000" class="feedback-textarea" id="feedback-message"></textarea>
+      </li><li>
+        <span class="large-button submitFeedback">
+          <button class="s-icon-button s-icon-button-fill-no-box ow-settings-icon">
+            <svg class="s-icon-button-svg"><use href="/img/icons/icons.svg#send"></use></svg>
+          </button><span class="settings-sub-title translated-text">Send</span>
+        </span>
+        <span class="feedback-error translated-text"></span>
+        <span class="feedback-success translated-text"></span>
+        </li>
+      </ul>
+    </span>
+    <br>
+    <span class="translated-text">Note: Replies will be slower on this channel</span><br>
+    <span class="translated-text">You can also email champselectcoach@gmail.com</span>
 
   </div>
 </div>

@@ -70,6 +70,8 @@ export class PersonalTab {
   private async init() {
     const that = this;
 
+    await Subscriptions.updateSubscriptionStatus(); //For the edit buttons
+
     $('.personal-champions-left-arrow').on('click', () => { that.scrollChampRole(-1); });
     $('.personal-champions-right-arrow').on('click', () => { that.scrollChampRole(1); });
     $('.personal-champions-options-sort-most-played').on('change', () => { that.setSortByMostPlayed(true); });
@@ -259,7 +261,7 @@ export class PersonalTab {
     const nameString = this.summonerName;
     const tierString = this.summonerName == '' || !this.tier || !this.tier.tier || this.tier.tier == '' ? '' : Utils.capitalizeFirstLetter(this.tier.tier) + ' ' + this.tier.division + ' ' + this.tier.lp + ' LP ';
     const regionString = this.summonerName == '' || !this.region || this.region == '' ? '' : this.patchInfo.RegionIdToGg[this.region].toUpperCase();
-    $('.personal-title-content').html(nameString + ' - ' + tierString + ' ' + regionString);
+    $('.personal-title-content').html(this.summonerName == '' ? '' : nameString + ' - ' + tierString + ' ' + regionString);
     $('.personal-graph-legend-personal .personal-graph-legend-text').html(this.summonerName);
 
     if (this.summonerName == '') {

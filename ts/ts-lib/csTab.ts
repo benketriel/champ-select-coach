@@ -221,6 +221,7 @@ export class CsTab {
     $('.side-menu-current-cs .side-menu-champion').show();
     $('.side-menu-current-cs .side-menu-role').show();
     $('.side-menu-current-cs .side-menu-current-cs-score').show();
+    $('.side-menu-current-cs').addClass('side-menu-hover-effect');
   }
 
   public updateCSHistoryView() {

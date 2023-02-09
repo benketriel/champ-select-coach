@@ -2,12 +2,16 @@
     height: 100%;
 }
 .window-container {
-    height: 100%;
+    height: 718px;
+    width: 1298px;
+    /* height: 100%; */
     display: flex;
     flex-direction: column;
     border: 1px solid #1E282D;
     /* border: 1px solid #785A28; */
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.5);
+
+    transform-origin: top left;
 }
 .window-container .window-header {
     display: flex;

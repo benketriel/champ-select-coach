@@ -236,6 +236,11 @@ export class Lcu {
         newCsInput.championSwaps = prevCsInput.championSwaps;
       }
 
+      if (!Lcu.WHITELISTED_QUEUES.includes(newCsInput.queueId)) {
+        Logger.log("Not whitelisted queue");
+        return null;
+      }
+
       return newCsInput;
     } catch (ex) {
       ErrorReporting.report('getCsInput', {ex, info});

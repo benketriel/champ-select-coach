@@ -9,6 +9,9 @@ export class Popup {
   public static close() {
     $('.popup-bg').hide();
     $('.popup-content').hide();
+    Popup.onYes = null;
+    Popup.onNo = null;
+    Popup.onLanguage = null;
   }
 
   public static show() {
@@ -36,8 +39,8 @@ export class Popup {
     pc.css('top', 'calc(50% - ' + Math.floor(h/2) + 'px)');
   }
 
-  private static onYes: any;
-  private static onNo: any;
+  private static onYes: any = null;
+  private static onNo: any = null;
   public static prompt(title: string, content: string, onYes: any, onNo: any) {
     Popup.onYes = onYes;
     Popup.onNo = onNo;
@@ -54,13 +57,17 @@ export class Popup {
   }
 
   public static yes() {
+    if (!Popup.onYes) return;
+    const toRun = Popup.onYes;
     Popup.close();
-    Popup.onYes();
+    toRun();
   }
 
   public static no() {
+    if (!Popup.onNo) return;
+    const toRun = Popup.onNo;
     Popup.close();
-    Popup.onNo();
+    toRun();
   }
 
   private static autocompleteOptions: string[] = [];
@@ -112,7 +119,7 @@ export class Popup {
   }
 
   // https://www.flaticon.com/packs/countrys-flags
-  private static onLanguage: any = () => null;
+  private static onLanguage: any = null;
   public static selectLanguage(onLanguage: any) {
     Popup.onLanguage = onLanguage;
     $('.popup-title-text').html(TranslatedText.language.english);
@@ -128,8 +135,9 @@ export class Popup {
 
   public static flagClick(e: any) {
     const language = $(e.currentTarget).attr('class').split(/\s+/).filter(c => c.startsWith('popup-flag-'))[0].split('-')[2];
+    const toRun = Popup.onLanguage;
     Popup.close();
-    Popup.onLanguage(language);
+    toRun(language);
   }
 
 

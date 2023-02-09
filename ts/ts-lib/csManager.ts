@@ -612,6 +612,12 @@ export class CsManager {
 
         csInput = new CsInput();
         csInput.queueId = spect.result.gameQueueConfigId.toString();
+
+        if (!Lcu.WHITELISTED_QUEUES.includes(csInput.queueId)) {
+          Logger.log("Active game not whitelisted queue = " + JSON.stringify(spect));
+          return;
+        }
+
         csInput.region = nr.region;
         csInput.ownerName = nr.name;
         csInput.summonerNames = spect.result.participants.map(x => x.summonerName);

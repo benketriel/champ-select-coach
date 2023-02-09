@@ -101,7 +101,20 @@ button:focus {
     cursor: -webkit-grab;
 }
 
-/* Content */
+.inline-a-link-button {
+    background: linear-gradient(145deg, rgba(30, 35, 40, 1) 0%, rgba(27, 32, 38, 1) 100%);
+    color: rgb(205, 190, 145);
+    border: 1px solid black;
+    outline: 1px solid rgb(190, 148, 58);
+    text-decoration: none;
+    padding: 1px 3px 0px 3px;
+    display: inline-block;
+}
+
+.inline-a-link-button:hover {
+    filter: brightness(130%);
+}
+
 .content {
     padding: 0px 12px 0px 12px;
 }

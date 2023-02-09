@@ -460,10 +460,11 @@
 .personal-graph-y-axis {
     display: block;
     position: absolute;
-    top: 138px;
-    left: -18px;
+    top: 181px;
+    left: 5px;
     transform: rotate(-90deg);
     font-size: 14px;
+    transform-origin: top left;
 }
 
 .personal-graph-y-axis-ticks {

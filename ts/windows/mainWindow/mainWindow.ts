@@ -87,7 +87,9 @@ export class MainWindow {
 
     const notes = PatchNotes.get();
 
-    if (notes.length > 0 && LocalStorage.getLatestSeenPatchNote() != notes[notes.length - 1][0]) {
+    if (notes.length > 0 && LocalStorage.getLatestSeenPatchNote() == null) {
+      LocalStorage.setLatestSeenPatchNote(<string>notes[notes.length - 1][0]);
+    } else if (notes.length > 0 && LocalStorage.getLatestSeenPatchNote() != notes[notes.length - 1][0]) {
       await Timer.wait(100);
       $('.newsButton').trigger('click');
       await Timer.wait(100);
@@ -300,10 +302,20 @@ export class MainWindow {
 
   }
 
+  private static lastKeyPress: number = 0;
   private async setCallbacks() {
     //Call this function once, else add .off() calls before each .on()
 
     const that = this;
+
+    //Body resize
+    const onResize = () => {
+      const ws = $('body').width() / 1300.0;
+      const hs = $('body').height() / 720.0;
+      $('.window-container').css('transform', 'scaleX(' + ws + ') scaleY(' + hs + ')');
+    };
+    window.addEventListener("resize", onResize);
+    onResize();
 
     //Menu navigation
     $('.side-menu-current-cs').on('click', async () => { $('.slide-overlay-close').trigger('click'); MainWindow.showLcuCS(); });
@@ -354,9 +366,13 @@ export class MainWindow {
     $('.accordeon-title').on('click', e => { 
       if ($(e.currentTarget).siblings('.accordeon-content').is(':visible')) {
         $(e.currentTarget).siblings('.accordeon-content').slideUp();
+        $('.accordeon-title').removeClass('accordeon-title-selected');
       } else {
         $('.accordeon-content').slideUp();
+        $('.accordeon-title').removeClass('accordeon-title-selected');
+
         $(e.currentTarget).siblings('.accordeon-content').slideDown();
+        $(e.currentTarget).addClass('accordeon-title-selected');
       }
     });
     $('.accordeon-content').hide();
@@ -394,7 +410,7 @@ export class MainWindow {
     $('.popup-button-no').on('click', () => { Popup.no(); });
 
     $('.popup-input-text-input').on('input', () => { Popup.textChange(); });
-    $('.popup-input-text-input').on('keypress', event => { if (event.key === "Enter") { Popup.yes(); event.preventDefault(); } });
+    //$('.popup-input-text-input').on('keypress', event => { if (event.key === "Enter") { Popup.yes(); event.preventDefault(); } });
     
     $('.popup-flag').on('click', event => { Popup.flagClick(event); });
 
@@ -404,11 +420,17 @@ export class MainWindow {
     $('.minimizeButton').on('click', () => { this.window.minimize(); });
     $('.rateApp').on('click', () => { overwolf.utils.openStore({ page:overwolf.utils.enums.eStorePage.ReviewsPage, uid:"ljkaeojllenacnoipfcdpdllhcfndmohikaiphgi"}); });
 
-    $('body').on('keyup', async e => { 
+    $('body').on('keyup', async e => {
+      if (new Date().getTime() - MainWindow.lastKeyPress < 250) return;
+      MainWindow.lastKeyPress = new Date().getTime();
       if (e.key === "Escape") {
         Popup.close();
         $('.slide-overlay').stop();
         $('.slide-overlay').animate({ left: '100%' });
+      } 
+      if (e.key === "Enter") {
+        Popup.yes();
+        e.preventDefault(); 
       } 
       await MainWindow.activity();
     });
@@ -702,4 +724,7 @@ export class MainWindow {
 
 }
 
-MainWindow.instance().run();
+
+if (document.getElementById("owad")) {  //The background controller imports this class but we don't want it to run then and cause havoc
+  MainWindow.instance().run();
+}

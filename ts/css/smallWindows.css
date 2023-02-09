@@ -63,6 +63,35 @@
     margin-bottom: -1px;
 }
 
+.accordeon-title button {
+    /*transform: translate(0px, 8px) rotate(-90deg);*/
+    animation: accordeon-rotation-not-selected 0.5s forwards;
+}
+
+.accordeon-title-selected button {
+    /*transform: translate(0px, 8px) rotate(0deg);*/
+    animation: accordeon-rotation-selected 0.5s forwards;
+    
+}
+
+@keyframes accordeon-rotation-selected {
+    from {
+        transform: translate(0px, 8px) rotate(-90deg);
+    }
+    to {
+        transform: translate(0px, 8px) rotate(0deg);
+    }
+}
+
+@keyframes accordeon-rotation-not-selected {
+    from {
+        transform: translate(0px, 8px) rotate(0deg);
+    }
+    to {
+        transform: translate(0px, 8px) rotate(-90deg);
+    }
+}
+
 a, a:visited {
     /* color: rgb(240, 234, 217); */
     color: #E7D5AE;
@@ -92,44 +121,7 @@ a:hover, a:active {
     transform: scale(0.7) translate(6px, 6px);
 }
 
-/* Patch notes */
-.patch-notes-short-title {
-    font-style: italic;
-}
-
-.patch-notes-date {
-    font-size: 12px;
-    font-style: italic;
-}
-
-/* Feedback */
-.feedback-textbox {
-    float: right;
-}
-
-.feedback-textarea {
-    resize: none;
-    width: 100%;
-    height: 210px;
-}
-
-.submitFeedback {
-    margin-right: 12px;
-}
-
-.feedback-error {
-    color: rgb(170, 96, 34);
-    vertical-align: super;
-}
-
-.feedback-success {
-    color: rgb(95, 154, 55);
-    vertical-align: super;
-}
-
-/* Settings */
-
-.settings-button {
+.large-button {
     cursor: pointer;
 
     width: 250px;
@@ -145,8 +137,74 @@ a:hover, a:active {
     color: rgb(205, 190, 145);
 }
 
-.settings-button:hover {
+.large-button:hover {
     filter: brightness(130%);
+}
+
+/* Patch notes */
+.patch-notes-short-title {
+    font-style: italic;
+}
+
+.patch-notes-date {
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* Feedback */
+.feedback-textbox {
+    width: 150px;
+    margin-left: 10px;
+}
+
+.feedback-label {
+    /* width: 100px; */
+    display: inline-block;
+}
+
+.feedback-textarea {
+    resize: none;
+    width: 100%;
+    height: 90px;
+    margin-top: 10px;
+}
+
+.submitFeedback {
+    margin-left: 1px;
+    padding: 5px 20px 5px 20px;
+    width: fit-content;
+    height: 42px;
+    margin-right: 12px;
+}
+
+.feedback-error {
+    color: rgb(170, 96, 34);
+    vertical-align: super;
+}
+
+.feedback-success {
+    color: rgb(95, 154, 55);
+    vertical-align: super;
+}
+.direct-feedback-form {
+    background: linear-gradient(145deg, rgba(30, 35, 40, 1) 0%, rgba(27, 32, 38, 1) 100%);
+    color: rgb(205, 190, 145);
+    border: 1px solid black;
+    outline: 1px solid rgb(190, 148, 58);
+    
+    padding: 10px 23px 5px 15px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* Settings */
+
+.advanced-settings {
+    display: block;
+    position: absolute;
+    right: 10px;
+    top: 104px;
+    width: 50%;
 }
 
 .settings-button-version {
@@ -173,7 +231,7 @@ a:hover, a:active {
 .settings-button-language {
     position: absolute;
     top: 100px;
-    right: 20px;
+    left: 20px;
 }
 
 .settings-flag {
@@ -185,13 +243,19 @@ a:hover, a:active {
 .settings-button-subscribe {
     position: absolute;
     top: 196px;
-    right: 20px;
+    left: 20px;
+}
+
+.settings-button-reset-tutorial {
+    position: absolute;
+    top: 292px;
+    left: 20px;
 }
 
 .settings-button-overwolf-settings {
     position: absolute;
-    top: 294px;
-    right: 20px;
+    top: 388px;
+    left: 20px;
 }
 
 

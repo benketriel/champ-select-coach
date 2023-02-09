@@ -3,7 +3,7 @@ import { OWWindow } from '../../ts-lib/ow-window';
 import { CSCAI } from "../../ts-lib/cscai";
 import { Lcu } from '../../ts-lib/lcu';
 import { Updates } from "../../ts-lib/updates";
-import { ErrorReporting } from "../../ts-lib/errorReporting";
+import { ErrorReporting } from "../../ts-lib/errorReporting"; //Consider that this reporting may not connect to LCU nor CsDataFetcher
 import { Logger } from "../../ts-lib/logger";
 import { Timer } from "../../ts-lib/timer";
 import { LocalStorage } from "../../ts-lib/localStorage";

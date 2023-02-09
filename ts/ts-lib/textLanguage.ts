@@ -130,7 +130,7 @@ export const TranslatedText = {
   badSummonerName: {
     english: 'Invalid summoner name',
     spanish: 'Nombre inválido',
-    french: 'Invalid summoner name', //TODO
+    french: 'Nom invalide',
   },
 
   deleteHistory: {
@@ -226,14 +226,14 @@ export const TranslatedText = {
   
   fatalError: {
     english: '⚠ Fatal Error',
-    spanish: '⚠ Fatal Error', //TODO
-    french: '⚠ Fatal Error', //TODO
+    spanish: '⚠ Error Fatal',
+    french: '⚠ Erreur Fatale',
   },
 
   fatalErrorMsg: {
-    english: 'An error from which CSC wasn\'t able to recover occurred.<br>Try restarting the app and sorry for the inconvenience.',
-    spanish: 'An error from which CSC wasn\'t able to recover occurred.<br>Try restarting the app and sorry for the inconvenience.', //TODO
-    french: 'An error from which CSC wasn\'t able to recover occurred.<br>Try restarting the app and sorry for the inconvenience.', //TODO
+    english: 'An unexpected error occurred.',
+    spanish: 'Ocurrió un error inesperado.',
+    french: 'Une erreur inattendue est apparue.', //TODO check translation
   },
 
 
@@ -281,7 +281,7 @@ export const TranslatedText = {
   },
   personalInfoText: {
     english: "\n                When connected to the League of Legends client, you can open a page displaying personal machine learning scores and some performance statistics.\n                Subscribed members can also see the scores for other players.\n              ",
-    spanish: '\n                Al estar conectado al cliente de League of Legends, podrá abrir una página mostrando puntuajes personales otorgadas por la inteligencia artificial y ciertas estadísticas de las partidas anteriores.\n                Miembros suscritos pueden además abrir esta información de otros jugadores.\n              ',
+    spanish: '\n                Al estar conectado al cliente de League of Legends, podrá abrir una página mostrando puntuaciones personales otorgadas por la inteligencia artificial y ciertas estadísticas de las partidas anteriores.\n                Miembros suscritos pueden además abrir esta información de otros jugadores.\n              ',
     french: '\n                Connecté au client League of Legends, vous pouvez ouvrir une page affichant les scores personels de l\'IA et des statistiques sur ses performances.\n                Les abonnés peuvent aussi voir les scores de l\'IA pour les autres joueurs.\n              ',
   },
   swapRole: {
@@ -296,13 +296,13 @@ export const TranslatedText = {
   },
   soloScoreInfo: {
     english: "Solo score<br>This score shows the predicted score difference from <br>5.0 which this player would have in this lobby, <br>if all other players are replaced with unknown.",
-    spanish: 'Puntaje Solo<br>Este puntaje muestra la diferencia entre 5.0 <br>y el puntuaje que recibe este jugador sólo, si los <br>demás jugadores se remplazan con un jugador vacío',
+    spanish: 'Puntuación Solo<br>Esta puntuación muestra la diferencia entre 5.0 <br>y la puntuación que recibe este jugador sólo, si los <br>demás jugadores se remplazan con un jugador vacío',
     french: 'Score individuel<br>Ce score indique la difference avec un score de <br>5.0, pour le joueur en question, si l\'on masque l\'information <br>provenant des autres joueurs de la selection de champion.',
   },
   teamScoreInfo: {
     english: "Team score<br>This score shows the difference <br>where we to remove this player <br>and replace with an unknown player. <br>So the score represents the synergy <br>with the rest of the team",
-    spanish: 'Puntaje sinergia<br>Este puntaje muestra la diferencia <br>en puntaje si este jugador se <br>remmplaza por un jugador vacío. <br>Por lo cual este puntaje representa la sinergia <br>este jugador tiene con el resto del equipo',
-    french: 'Score d\'équipe<br>Ce score indique la difference avec un score de 5.0, si l\'on masque l\'information provenant du joueur en question. Ce score represente donc la synergie du reste de l\'équipe.',
+    spanish: 'Puntuación sinergia<br>Esta puntuación muestra la diferencia <br>en puntuación si este jugador se <br>remmplaza por un jugador vacío. <br>Por lo cual esta puntuación representa la sinergia <br>este jugador tiene con el resto del equipo',
+    french: 'Score d\'équipe<br>Ce score indique la difference avec un score de 5.0, <br>si l\'on masque l\'information provenant du joueur en question. <br>Ce score represente donc la synergie du reste de l\'équipe.',
   },
   recentGames: {
     english: "Recent Games",
@@ -317,7 +317,7 @@ export const TranslatedText = {
   winRate: {
     english: "Win Rate",
     spanish: 'Ganadas',
-    french: 'Ratio de victoires',
+    french: 'Ratio victoires', //changed from "Ratio de victoires" since it didn't fit
   },
   percentOnMainRole: {
     english: "Percentage of games on main role",
@@ -332,11 +332,11 @@ export const TranslatedText = {
   daysAgo: {
     english: "Days ago",
     spanish: 'Hace cuantos días',
-    french: 'Dernière partie (en jours)',
+    french: 'Dernière partie', //removed "(en jours)" because it doesn't fit
   },
   prioScoreInfo: {
     english: "Prio score<br>Role XP difference at minute 3:00",
-    spanish: 'Puntaje temprano<br>Diferencia en XP de esta posición al minuto 3:00',
+    spanish: 'Puntuación temprana<br>Diferencia en XP de esta posición al minuto 3:00',
     french: 'Score de priorité<br>Difference d\'XP prédite à 3 minutes',
   },
   percentOnSecondaryRole: {
@@ -346,7 +346,7 @@ export const TranslatedText = {
   },
   laneScoreInfo: {
     english: "Lane score<br>Role XP &amp; Gold difference at the end of laning phase",
-    spanish: 'Puntaje línea<br>Diferencia en XP &amp; Oro al concluir la fase de línea',
+    spanish: 'Puntuación línea<br>Diferencia en XP &amp; Oro al concluir la fase de línea',
     french: 'Score de lane<br>Difference en XP &amp; en golds prédite à la fin de la phase de lane',
   },
   recommendedBans: {
@@ -361,17 +361,17 @@ export const TranslatedText = {
   },
   partialScoreInfo: {
     english: "Score if only your team's players are known",
-    spanish: 'Puntaje si solamente se saben los jugadores de tu equipo',
+    spanish: 'Puntuación si solamente se saben los jugadores de tu equipo',
     french: 'Score si l\'information provient seulement des joueurs de votre équipe',
   },
   fullScoreInfo: {
     english: "Total score given by the AI to your team",
-    spanish: 'Puntaje total de la inteligencia artificial',
+    spanish: 'Puntuación total de la inteligencia artificial',
     french: 'Score total donné par l\'IA pour votre équipe',
   },
   enemyPartialScoreInfo: {
     english: "Opponent score if only their team's players are known (higher means harder to win for your team)",
-    spanish: 'Puntaje adversaria si solamente se saben sus jugadores',
+    spanish: 'Puntuación adversaria si solamente se saben sus jugadores (puntuación alta significa más difícil ganar para vosotros)',
     french: 'Score si l\'information provient uniquement des joueurs de l\'équipe adverse (score élevé suggere une partie difficile à gagner)',
   },
   baronsInfo: {
@@ -436,8 +436,8 @@ export const TranslatedText = {
   },
   noSummonerFound: {
     english: 'No summoner selected',
-    spanish: 'Ningún invocador seleccionado', //TODO
-    french: 'No summoner selected', //TODO
+    spanish: 'Ningún invocador seleccionado',
+    french: 'Aucun invocateur sélectionné', //TODO check translation
   },
   side: {
     english: "Side",
@@ -481,7 +481,7 @@ export const TranslatedText = {
   },
   cscScore: {
     english: "CSC Score",
-    spanish: 'Puntaje CSC',
+    spanish: 'Puntuación CSC',
     french: 'Score CSC',
   },
   allGames: {
@@ -501,8 +501,8 @@ export const TranslatedText = {
   },
   soloScore: {
     english: "Solo score",
-    spanish: 'Puntaje sólo',
-    french: 'Score individuel',
+    spanish: 'Puntuación',
+    french: 'Score', //Changed because individuel didn't fit
   },
   damage: {
     english: "Damage",
@@ -531,13 +531,13 @@ export const TranslatedText = {
   },
   averageSoloScores: {
     english: "Average Solo Scores",
-    spanish: 'Promedios de Puntajes Sólo',
-    french: 'Score individuel moyen',
+    spanish: 'Promedios de Puntuaciones',
+    french: 'Score moyen',
   },
   averageSoloScoreAll: {
     english: "Average solo score of all games",
-    spanish: 'Promedio del puntaje sólo de todas las partidas',
-    french: 'Score individuel moyen sur toutes les parties',
+    spanish: 'Promedio de la puntuación de todas las partidas',
+    french: 'Score moyen sur toutes les parties',
   },
   total: {
     english: "Total",
@@ -546,18 +546,18 @@ export const TranslatedText = {
   },
   averageSoloScore3Champs: {
     english: "Average solo score on 3 most played champions",
-    spanish: 'Promedio del puntaje sólo usando los 3 campeónes más jugados',
-    french: 'Score individuel moyen sur les 3 champions les plus joués',
+    spanish: 'Promedio de la puntuación usando los 3 campeónes más jugados',
+    french: 'Score moyen sur les 3 champions les plus joués',
   },
   averageSoloScoreMainRole: {
     english: "Average solo score on main role",
-    spanish: 'Promedio del puntaje sólo en la posición primaria',
-    french: 'Score individuel moyen dans le rôle principal',
+    spanish: 'Promedio de la puntuación en la posición primaria',
+    french: 'Score moyen dans le rôle principal',
   },
   averageSoloScoreSecondaryRole: {
     english: "Average solo score on secondary role",
-    spanish: 'Promedio del puntaje sólo en la posición secundaria',
-    french: 'Score individuel moyen dans le rôle secondaire',
+    spanish: 'Promedio de la puntuación en la posición secundaria',
+    french: 'Score moyen dans le rôle secondaire',
   },
   cscHistory: {
     english: "CSC History",
@@ -581,7 +581,7 @@ export const TranslatedText = {
   },
   whichScoreToShow: {
     english: "Which score to show",
-    spanish: 'Qué puntaje mostrar',
+    spanish: 'Qué puntuación mostrar',
     french: 'Quel score montrer',
   },
   championSelect: {
@@ -598,12 +598,12 @@ export const TranslatedText = {
   //FAQ
   whatDoesTheScoreRepresent: {
     english: "What does the score represent?",
-    spanish: '¿Qué simbolizan los puntajes?',
+    spanish: '¿Qué simbolizan las puntuaciones?',
     french: 'Que representent les scores?',
   },
   whatDoesTheScoreRepresentAnswer: {
     english: "\n          Each 1.0 is 10% win rate, so a 5.6 score will be predicted to win at 56% chance.\n          For individual scores they are a difference either from 5.0 (ex. solo scores), or from the current score (ex. alternative champion picks), depending on the context.\n        ",
-    spanish: 'Cada 1.0 son 10%, así que un 5.6 indica que la probabilidad para ganar es 56%. Puntajes individuales son diferencias comparando con 5.0 (ej. puntajes sólo), o comparando con el puntaje actual (ej. otros campeones)',
+    spanish: 'Cada 1.0 son 10%, así que un 5.6 indica que la probabilidad para ganar es 56%. Puntuaciones individuales son diferencias comparando con 5.0 (ej. puntuaciones sólo), o comparando con el puntuación actual (ej. otros campeones)',
     french: 'Chaque 1.0 de score represente 10% de chance de gagner la partie. Par exemple, pour un score CSC de 5.6, vous avez en moyenne 56% de chance de gagner la partie.\n          Les autres scores sont calculés comme la différence par rapport à un score de 5.0 (ex : le scores individuel).\n        ',
   },
 
@@ -614,14 +614,14 @@ export const TranslatedText = {
   },
   doesItWorkOnNormalsAnswer: {
     english: "\n          The AI was only trained on (millions of) <span class=\"faq-highlight\">ranked</span> solo and flex games.\n          Scores for game modes other than solo/flex queue will be less accurate, and should be used with a grain of salt.\n        ",
-    spanish: 'La inteligencia artificial aprendió mirando solamente (millones de) partidas <span class=\"faq-highlight\">clasificatorias</span> sólo/flex. Puntajes en otros modos son un poco menos exactos',
+    spanish: 'La inteligencia artificial aprendió mirando solamente (millones de) partidas <span class=\"faq-highlight\">clasificatorias</span> sólo/flex. Puntuaciones en otros modos son un poco menos exactas',
     french: 'L\'intelligence artificielle à été entrainée seulement sur des parties classées de <span class=\"faq-highlight\">ranked</span> soloQ et flex. Les scores calculés dans les autres modes de jeux seront donc moins précis.',
   },
 
   whyBadIndividual:{
     english: 'Why do I have a bad individual score when I have great winrate?',
-    spanish: '¿Por qué tengo puntaje sólo negativo si tengo tan buena racha de victorias?',
-    french: 'Pourquoi j\'ai un mauvais score individuel alors que j\'ai un très bon ratio de victoire ?',
+    spanish: '¿Por qué tengo puntuación negativa si tengo tan buena racha de victorias?',
+    french: 'Pourquoi j\'ai un mauvais score alors que j\'ai un très bon ratio de victoire ?',
   },
   whyBadIndividualAnswer: {
     english: "\n          The AI is aware of the winrate, but it also looks at many more things around your performance in game.\n          Maybe you have climbed to a new elo in which however you are playing is no longer good enough to continue climbing.\n          The opposite is also true where you some players may have bad winrates but high scores.\n        ",
@@ -646,9 +646,9 @@ export const TranslatedText = {
     french: 'Les scores CSC sont-ils fiables ?',
   },
   howReliableAreTheScoresAnswer: {
-    english: "\n          The AI doesn't just predict who will win, but gives a win chance.\n          Over many games, this chance is extremely accurate, so for example exactly 60% of games where the AI said 6.0 were then actually won.\n          Likewise, when the AI isn't sure, it will say values closer to 5.0.\n          The overall accuracy of the AI is ~60.5% (pre-game scores), however the accuracy for a single score is the score itself. The accuracy of 5.3 is 53%.\n          It is normal that for fewer games the statistics can differ a lot in both directions, just like flipping a coin won't give you exactly 50% of each outcome.\n        ",
-    spanish: 'La inteligencia artificial no sólo predice quien va a ganar, sino que da un porcentaje. Sobre muchas partidas, el porcentaje es extremadamente preciso, por ejemplo exáctamente 60% de las partidas en donde el puntaje fué 6.0 se ganaron. De igual manera, cuando la inteligencia artificial no está segura, el puntaje se acerca a 5.0. La precisión promedia total es de ~60.5% (puntajes antes del inicio de la partida), pero la precisión de cada puntaje es el puntaje mismo. Un puntaje de 5.3 tiene una precisión de 53%. Es normal que las estadísticas pueden variar mucho al mirar solamente unas pocas partidas, igual como cuando al lanzar una moneda unas veces no se reciben exáctamente 50% de cada resultado.',
-    french: '\n          L\'IA ne predit pas qui va gagner avec certitude, mais plutôt un pourcentage de chance de gagner.\n          Sur un grand nombre de parties, les resultats sont très précis. Par exemple, sur toutes les parties notés 6.0, exactement 60% d\'entres elles ont été gagnées.\n          De la même façon, lorsque l\'IA n\'est pas certaine, les scores se situeront plutôt autour de 5.0.\n          La précision moyenne de l\'IA, avant de connaitre l\'identité des joueurs de l\'équipe adverse, est actuellement de 60.5%.',
+    english: "\n          The AI doesn't just predict who will win, but gives a win chance.\n          Over many games, this chance is extremely accurate, so for example exactly 60% of games where the AI said 6.0 were then actually won.\n          Likewise, when the AI isn't sure, it will say values closer to 5.0.\n          The overall accuracy of the AI is ~60% (pre-game scores), however the accuracy for a single score is the score itself. The accuracy of 5.3 is 53%.\n          It is normal that for fewer games the statistics can differ a lot in both directions, just like flipping a coin won't give you exactly 50% of each outcome.\n        ",
+    spanish: 'La inteligencia artificial no sólo predice quien va a ganar, sino que da un porcentaje. Sobre muchas partidas, el porcentaje es extremadamente preciso, por ejemplo exáctamente 60% de las partidas en donde la puntuación fué 6.0 se ganaron. De igual manera, cuando la inteligencia artificial no está segura, la puntuación se acerca a 5.0. La precisión promedia total es de ~60% (puntuaciones antes del inicio de la partida), pero la precisión de cada puntuación es la puntuación misma. Una puntuación de 5.3 tiene una precisión de 53%. Es normal que las estadísticas pueden variar mucho al mirar solamente unas pocas partidas, igual como cuando al lanzar una moneda unas veces no se reciben exáctamente 50% de cada resultado.',
+    french: '\n          L\'IA ne predit pas qui va gagner avec certitude, mais plutôt un pourcentage de chance de gagner.\n          Sur un grand nombre de parties, les resultats sont très précis. Par exemple, sur toutes les parties notés 6.0, exactement 60% d\'entres elles ont été gagnées.\n          De la même façon, lorsque l\'IA n\'est pas certaine, les scores se situeront plutôt autour de 5.0.\n          La précision moyenne de l\'IA, avant de connaitre l\'identité des joueurs de l\'équipe adverse, est actuellement de 60%.',
   },
 
   whoAreDevs:{
@@ -669,7 +669,7 @@ export const TranslatedText = {
   },
   howDoesAIPatchAnswer: {
     english: "\n          The AI is constantly training on most, if not all, ranked games - soloQ &amp; flex, to keep up to date.\n          We have observed how when new champions are released, the AI can still give a roughly accurate score for champions it has never seen in the past, \n          and the overall accuracy doesn't really drop in a noticeable manner.\n          We keep updating the AI on a regular basis, to follow the small details of the patch changes.\n        ",
-    spanish: 'La inteligencia artificial esta constantemente aprendiendo de casi todas las partidas clasificatorias - sólo/flex, para mantenerse al día. Hemos observado que aún cuando salen nuevos campeones, la inteligencia artificial es capaz de dar un puntaje aproximado, y la precisión no baja de manera notable. Seguiremos actualizando el modelo de manera cotidiana, para seguir los pequeños cambios cuando ocurren',
+    spanish: 'La inteligencia artificial esta constantemente aprendiendo de casi todas las partidas clasificatorias - sólo/flex, para mantenerse al día. Hemos observado que aún cuando salen nuevos campeones, la inteligencia artificial es capaz de dar una puntuación aproximada, y la precisión no baja de manera notable. Seguiremos actualizando el modelo de manera cotidiana, para seguir los pequeños cambios cuando ocurren',
     french: '\n          L\'IA est entrainée sur toutes des parties classées soloQ &amp; flex qui se jouent tous les jours.\n          Même lorsque de nouveaux champions sortent, l\'IA arrive tout de même à donner un score, et sa precision ne baisse pas de manière significative. \n          Nous continuons de mettre à jour l\'IA de façon regulière, pour suivre au mieux les changements lors de sorties de patchs.\n          ',
   },
 
@@ -696,9 +696,9 @@ export const TranslatedText = {
   },
 
   joinDiscord: {
-    english: "Join our <a href=\"https://discord.gg/YGcWxhyXmn\">Discord</a> community where we discuss results and future features!",
-    spanish: 'Únete a nuestra comunidad en <a href=\"https://discord.gg/YGcWxhyXmn\">Discord</a> en donde discutimos resultados y qué funciones añadir.',
-    french: 'Rejoignez notre communauté <a href=\"https://discord.gg/YGcWxhyXmn\">Discord</a> où nous discutons des résultats et des futures fonctionnalités !',
+    english: 'Join our <a class="inline-a-link-button" href=\"https://discord.gg/YGcWxhyXmn\">Discord</a> community where we discuss results and future features!',
+    spanish: 'Únete a nuestra comunidad en <a class="inline-a-link-button" href=\"https://discord.gg/YGcWxhyXmn\">Discord</a> en donde discutimos resultados y qué funciones añadir.',
+    french: 'Rejoignez notre communauté <a class="inline-a-link-button" href=\"https://discord.gg/YGcWxhyXmn\">Discord</a> où nous discutons des résultats et des futures fonctionnalités !',
   },
 
   //Settings
@@ -707,15 +707,20 @@ export const TranslatedText = {
     spanish: 'OPCIONES',
     french: 'OPTIONS',
   },
+  advancedSettings: {
+    english: 'Advanced settings',
+    spanish: 'Opciones avanzadas',
+    french: 'Options avancées',
+  },
   appVersion: {
     english: "App version:",
     spanish: 'Versión:',
     french: 'Version:',
   },
   betaInfo: {
-    english: "\n          Check this if you want to help test the newest <br>\n          features before they are added for everyone",
-    spanish: '\n          Seleccione si desea ayudar a probar las nuevas <br>\n          funciones antes de que sean publicadas a todos',
-    french: '\n          Cochez ceci si vous voulez aider à tester les <br>\n          nouvelles versions avant les autres utilisateurs',
+    english: "\n              Check this if you want to help test the newest <br>\n              features before they are added for everyone",
+    spanish: '\n          Seleccione si desea ayudar a probar <br>las nuevas funciones antes de que <br>sean publicadas a todos',
+    french: '\n          Cochez ceci si vous voulez aider à <br>tester les nouvelles versions avant <br>les autres utilisateurs',
   },
   betaText: {
     english: "Enable experimental features",
@@ -748,9 +753,9 @@ export const TranslatedText = {
     french: 'Jamais',
   },
   toFrontOnCSInfo: {
-    english: "\n          This will make the CSC window automatically <br>\n          pop to the front when entering champion select",
-    spanish: 'Indica si desea que la ventana de CSC se ponga <br> al frente cuando se inicie un lobby nuevo',
-    french: '\n          Ceci fera automatiquement passer CSC en premier <br>\n          plan lorsque vous entrerez dans une selection de champions',
+    english: "\n              This will make the CSC window automatically <br>\n              pop to the front when entering champion select",
+    spanish: 'Indica si desea que la ventana de CSC <br>se ponga al frente cuando se inicie un<br> lobby nuevo',
+    french: 'Ceci fera automatiquement passer CSC <br>en premier plan lorsque vous entrerez <br>dans une selection de champions',
   },
   toFrontOnCS: {
     english: "Focus CSC on champion select",
@@ -758,9 +763,9 @@ export const TranslatedText = {
     french: 'Focaliser CSC sur la selection de champion',
   },
   singleThreadInfo: {
-    english: "\n          Check this if you are experiencing <br>\n          CPU problems during champion select",
+    english: "\n              Check this if you are experiencing <br>\n              CPU problems during champion select",
     spanish: 'Limita el uso del CPU a un core',
-    french: '\n          Cochez ceci si vous avez des <br>\n          problèmes de CPU pendant la selection de champion',
+    french: '\n          Cochez ceci si vous avez des problèmes de <br>CPU pendant la selection de champion',
   },
   singleThread: {
     english: "Single threaded mode",
@@ -777,6 +782,11 @@ export const TranslatedText = {
     spanish: 'Suscribir a CSC',
     french: 'Abonnez vous à la version pro',
   },
+  resetTutorial: {
+    english: 'Reset Tutorial',
+    spanish: 'Resetear Tutorial',
+    french: 'Réinitialiser Didacticiel', //TODO check translation
+  },
   overwolfSettings: {
     english: "Overwolf Settings",
     spanish: 'Opciones Overwolf',
@@ -790,9 +800,9 @@ export const TranslatedText = {
     french: 'CONTACT',
   },
   feedbackJoinDiscord: {
-    english: "\n        The best way to contact us is via the <a href=\"https://discord.gg/YGcWxhyXmn\">CSC discord</a>.\n        You can <a href=\"https://discord.gg/Fw9QFKstFk\">report issues</a>, <a href=\"https://discord.gg/fFFaVxCYCQ\">propose new features</a>, \n        discuss ideas or results with other users, check the ongoing status of development, and get in-depth info about the app\n      ",
-    spanish: 'La mejor manera de contactarnos es en <a href=\"https://discord.gg/YGcWxhyXmn\">discord</a>. Podrá <a href=\"https://discord.gg/Fw9QFKstFk\">reportar problemas</a>, <a href=\"https://discord.gg/fFFaVxCYCQ\">proponer nuevas funciones</a>, discutir ideas o resultados con otros usuarios, leer acerca del estado del desarrollo, y recibir mejor entendimiento de la aplicación.',
-    french: '\n        La façon la plus simple de nous contacter est via notre <a href=\"https://discord.gg/YGcWxhyXmn\">CSC discord</a>.\n        Vous pouvez <a href=\"https://discord.gg/Fw9QFKstFk\">signaler un problème</a>, <a href=\"https://discord.gg/fFFaVxCYCQ\">proposer une fonctionnalité</a>, \n        discuter d\'idées avec d\'autres utilisateurs, vous informer des phases de developpement, et obtenir des informations précises à propos de CSC.\n      ',
+    english: '\n        The best way to contact us is via the <a class="inline-a-link-button" href=\"https://discord.gg/YGcWxhyXmn\">CSC discord</a>.\n        You can <a class="inline-a-link-button" href=\"https://discord.gg/Fw9QFKstFk\">Report issues</a>, <a class="inline-a-link-button" href=\"https://discord.gg/fFFaVxCYCQ\">Propose new features</a>, \n        discuss ideas or results with other users, check the ongoing status of development, and get in-depth info about the app\n      ',
+    spanish: 'La mejor manera de contactarnos es en el <a class="inline-a-link-button" href=\"https://discord.gg/YGcWxhyXmn\">CSC discord</a>. Podrá <a class="inline-a-link-button" href=\"https://discord.gg/Fw9QFKstFk\">Reportar problemas</a>, <a class="inline-a-link-button" href=\"https://discord.gg/fFFaVxCYCQ\">Proponer nuevas funciones</a>, discutir ideas o resultados con otros usuarios, leer acerca del estado del desarrollo, y recibir mejor entendimiento de la aplicación.',
+    french: '\n        La façon la plus simple de nous contacter est via notre <a class="inline-a-link-button" href=\"https://discord.gg/YGcWxhyXmn\">CSC discord</a>.\n        Vous pouvez <a class="inline-a-link-button" href=\"https://discord.gg/Fw9QFKstFk\">Signaler un problème</a>, <a class="inline-a-link-button" href=\"https://discord.gg/fFFaVxCYCQ\">Proposer une fonctionnalité</a>, \n        discuter d\'idées avec d\'autres utilisateurs, vous informer des phases de developpement, et obtenir des informations précises à propos de CSC.\n      ',
   },
   directFeedback: {
     english: "Direct feedback",
@@ -814,6 +824,11 @@ export const TranslatedText = {
     spanish: 'Mensaje',
     french: 'Message',
   },
+  send: {
+    english: "Send",
+    spanish: 'Enviar',
+    french: 'Envoyer', //TODO check translation
+  },
   noteSlowReplies: {
     english: "Note: Replies will be slower on this channel",
     spanish: 'Nota: Las respuestas tardarán más usando este canal',
@@ -832,9 +847,9 @@ export const TranslatedText = {
     french: 'Historique des patchs',
   },
   onlyLatest10Patches: {
-    english: "Only the latest 10 patches are shown, the rest can be found in our <a href=\"https://discord.gg/YGcWxhyXmn\">Discord</a>. \n      There you can also read about the future planned work, or request features.",
-    spanish: 'Lástimamente esta información no está traducida.<br>Solamente los últimos 10 cambios se muestran, el resto se encuentra en <a href=\"https://discord.gg/YGcWxhyXmn\">Discord</a>. Allá puede además leer acerca de las funciones planeadas para el futuro, o solicitar funciones.',
-    french: 'Seulement les 10 derniers patchs sont visibles, le reste peut etre consulté sur notre <a href=\"https://discord.gg/YGcWxhyXmn\">Discord</a>. \n      Vous y trouverez aussi les prochains projets de developpement, et les ajouts de fonctionnalités.',
+    english: 'Only the latest 10 patches are shown, the rest can be found in our <a class="inline-a-link-button" href=\"https://discord.gg/YGcWxhyXmn\">Discord</a>. \n      There you can also read about the future planned work, or request features.',
+    spanish: 'Lástimamente esta información no está traducida.<br>Solamente los últimos 10 cambios se muestran, el resto se encuentra en <a class="inline-a-link-button" href=\"https://discord.gg/YGcWxhyXmn\">Discord</a>. Allá puede además leer acerca de las funciones planeadas para el futuro, o solicitar funciones.',
+    french: 'Seulement les 10 derniers patchs sont visibles, le reste peut etre consulté sur notre <a class="inline-a-link-button" href=\"https://discord.gg/YGcWxhyXmn\">Discord</a>. \n      Vous y trouverez aussi les prochains projets de developpement, et les ajouts de fonctionnalités.',
   },
   subscription: {
     english: "Subscription",
@@ -913,7 +928,26 @@ export class Translator {
       if (newHTML == null) {
         Logger.warn('Bug when translating: ' + currHTML);
       } else if (currHTML != newHTML) { //There is an event each time the html is changed so important not to signal this if there is no change to prevent infinite loop
+        let originalHeight = je.data('original-height');
+        let originalFont = je.data('original-font');
+        if (!originalHeight) {
+          originalHeight = je.height();
+          originalFont = parseFloat(je.css("font-size"));
+          je.data('original-height', originalHeight);
+          je.data('original-font', originalFont);
+        }
         je.html(newHTML);
+        je.css("font-size", originalFont + 'px');
+        
+        //Adjust
+        let newHeight = je.height(); //Height to get line breaks
+        let size = parseFloat(je.css("font-size"));
+        while (newHeight > originalHeight && size > 5) {
+          size--;
+          je.css("font-size", size + 'px');
+          newHeight = je.height();
+        }
+        
       }
     } else {
       if (currHTML != '&nbsp;' && !Object.values(patchInfo.RegionIdToGg).includes(currHTML.toLowerCase())) {
