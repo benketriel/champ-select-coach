@@ -39,6 +39,10 @@ export class CsInput {
       !Utils.setIncludes(new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)));
   }
   
+  public static anyChangeInSummoners(oldCsInput: CsInput, newCsInput: CsInput) {
+    return !Utils.setsAreEqual(new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)));
+  }
+  
   public static anyVisibleChange(oldCsInput: CsInput, newCsInput: CsInput) {
     return JSON.stringify(oldCsInput) != JSON.stringify(newCsInput);
   }
@@ -633,7 +637,7 @@ export class CsManager {
             //roles not in the data here
             csInput.assignedRoles =  this.applyMapping(manager.currCsInputView.assignedRoles, sToCs);
             // csInput.assignedRoles = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]; //alt
-            // csInput.assignedRoles = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //or maybe it's like this? TODO check
+            // csInput.assignedRoles = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //or maybe it's like this?
             
             csInput.roleSwaps =  this.applyMapping(manager.currCsInputView.roleSwaps, sToCs);
             csInput.championSwaps =  this.applyMapping(manager.currCsInputView.championSwaps, sToCs);
@@ -678,14 +682,17 @@ export class CsManager {
       return;
     }
     
-    const puuid = await CsDataFetcher.getPuuidByRegionAndName(nr.region, nr.name);
-    //TODO: Add more data to view such as usage statistics here
-    //TODO: Wrap this in error reporting
-
-    const side = CsInput.getOwnerIdx(data.csInputView) < 5 ? 0 : 1;
-    const partialPrediction = data.score.partial ? data.score.partial[side][0][side] : 0.5;
-    const fullPrediction = data.score.full ? data.score.full[0][side] : 0.5;
-    await Aws.uploadPrediction(nr.region, puuid, JSON.stringify(data), partialPrediction.toString(), fullPrediction.toString());
+    try {
+      const puuid = await CsDataFetcher.getPuuidByRegionAndName(nr.region, nr.name);
+      const side = CsInput.getOwnerIdx(data.csInputView) < 5 ? 0 : 1;
+      const partialPrediction = data.score.partial ? data.score.partial[side][0][side] : 0.5;
+      const fullPrediction = data.score.full ? data.score.full[0][side] : 0.5;
+      await Aws.uploadPrediction(nr.region, puuid, JSON.stringify(data), partialPrediction.toString(), fullPrediction.toString());
+  
+    } catch (ex) {
+      ErrorReporting.report('uploadCurrentCS', {ex, data});
+      Logger.warn(ex);
+    }
   }
 
 }

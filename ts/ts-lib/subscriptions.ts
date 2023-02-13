@@ -1,5 +1,6 @@
 import { Popup } from "./popup";
 import { TranslatedText } from "./textLanguage";
+import { Tutorial } from "./tutorial";
 
 
 
@@ -11,6 +12,7 @@ export class Subscriptions {
   private static lastChecked: number = 0;
   public static isSubscribed() {
     /* await */ this.updateSubscriptionStatus();
+    if (Subscriptions.subscriptionStatus) Tutorial.runProVersion();
     return Subscriptions.subscriptionStatus;
   }
 

@@ -89,7 +89,7 @@ export class ProgressBar {
   private sampleTaskCompletionTime(taskName: string, seconds: number, parallelism: number) {
     const stats = LocalStorage.getProgressBarStats();
 
-    //TODO this can be done better, it's not linear, can have another variable and find how seconds scale with parallelism, for example fit line mx+b instead of just mx like now
+    //This can be done better, it's not linear, can have another variable and find how seconds scale with parallelism, for example fit line mx+b instead of just mx like now
     if (!(taskName in stats)) {
       stats[taskName] = seconds / parallelism;
     } else {

@@ -219,13 +219,21 @@ export class Lcu {
           -1;
       }
 
-      if (newCsInput.region == '' || newCsInput.queueId == '' || newCsInput.ownerName == '' || CsInput.triggersNewCs(prevCsInput, newCsInput)) {
+      if (newCsInput.region == '' || newCsInput.queueId == '' || newCsInput.ownerName == '' || CsInput.triggersNewCs(prevCsInput, newCsInput) || CsInput.anyChangeInSummoners(prevCsInput, newCsInput)) {
         const all_info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
         if (!all_info || !all_info.res || !all_info.res.summoner_info || !all_info.res.summoner_info.platform_id || !all_info.res.summoner_info.display_name || 
           !all_info.res.lobby_info || !all_info.res.lobby_info.queueId || !Lcu.WHITELISTED_QUEUES.includes(all_info.res.lobby_info.queueId)) { 
           Logger.log("InvalidInfo");
           return null;
         }
+        Logger.log("New meta info: " + JSON.stringify({ 
+          'newCsInput.region': newCsInput.region, 
+          'all_info.res.summoner_info.platform_id': all_info.res.summoner_info.platform_id,
+          'newCsInput.queueId': newCsInput.queueId,
+          'all_info.res.lobby_info.queueId': all_info.res.lobby_info.queueId,
+          'newCsInput.ownerName': newCsInput.ownerName,
+          'all_info.res.summoner_info.display_name': all_info.res.summoner_info.display_name,
+        }));
 
         newCsInput.region = all_info.res.summoner_info.platform_id;
         newCsInput.queueId = all_info.res.lobby_info.queueId;

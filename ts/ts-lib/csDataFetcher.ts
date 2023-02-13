@@ -1,5 +1,4 @@
 import { Aws } from "./aws";
-import { CSCAI } from "./cscai";
 import { CsData, CsInput } from "./csManager";
 import { CsTab } from "./csTab";
 import { Lcu } from "./lcu";
@@ -206,27 +205,34 @@ export class CsDataFetcher {
   }
 
   private static async cacheAndFetch(region: string, keys: string[], jsonParse: boolean, cache: Cache, fetch: any) {
-    const missing = [];
+    const missing = new Set();
     const res = {};
     for (let k of keys) {
       if (k == null || k == '') continue;
       const x = await cache.getOrNull(region + k);
-      if (x == null) missing.push(k);
+      if (x == null) missing.add(k);
       else res[k] = x;
     }
-    if (missing.length > 0) {
-      const obj = (await fetch(region, missing));
-      if (obj && obj.result) {
-        const fetched = obj.result;
-        for (let k in fetched) {
-          let item = fetched[k];
-          if (jsonParse) {
-            item = JSON.parse(item);
-          }
-          res[k] = item;
-          await cache.insert(region + k, item);
+    let improved = true;
+    let maxIters = 20;
+    while (missing.size > 0 && improved && maxIters-- > 0) {
+      improved = false;
+      const obj = (await fetch(region, Array.from(missing)));
+
+      if (!obj || !obj.result) break;
+      
+      const fetched = obj.result;
+      for (let k in fetched) {
+        let item = fetched[k];
+        if (jsonParse) {
+          item = JSON.parse(item);
         }
+        res[k] = item;
+        missing.delete(k);
+        improved = true;
+        await cache.insert(region + k, item);
       }
+    
     }
     return res;
   }

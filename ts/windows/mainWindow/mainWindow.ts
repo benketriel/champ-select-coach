@@ -18,6 +18,7 @@ import { Updates } from "../../ts-lib/updates";
 import { ErrorReporting } from "../../ts-lib/errorReporting";
 import { Lcu } from "../../ts-lib/lcu";
 import { CsDataFetcher } from "../../ts-lib/csDataFetcher";
+import { Tutorial } from "../../ts-lib/tutorial";
 
 
 declare var _owAdConstructor: any;
@@ -70,15 +71,12 @@ export class MainWindow {
     /* await */ MainWindow.activateAds();
     /* await */ MainWindow.versionButtonClick();
 
-    //Popup.prompt('Subscription', 'BETA TESTING: Do you want to temporarily enable the subscribed-only mode?', () => Subscriptions.TODO = true, () => {}); //TODO remove completely
-
     const rc = LocalStorage.getRestartCount();
     const windowIsTheRightSize = Math.abs($('body').outerWidth() - 1300) < 100 || Math.abs($('body').outerHeight() - 720) < 100;
     if (rc < 2 && !windowIsTheRightSize) {
       LocalStorage.setRestartCount(rc + 1);
       await Timer.wait(1000);
       overwolf.extensions.relaunch();
-      //Error reporting TODO
       return;
     }
     LocalStorage.setRestartCount(0);
@@ -97,6 +95,9 @@ export class MainWindow {
       LocalStorage.setLatestSeenPatchNote(<string>notes[notes.length - 1][0]);
     }
 
+    Tutorial.init();
+    if (!LocalStorage.languageHasBeenSet()) await MainWindow.changeLanguage(this.patchInfo);
+    else Tutorial.runWelcome();
   }
 
 
@@ -400,6 +401,8 @@ export class MainWindow {
     $('.settings-button-language').on('click', async () => await MainWindow.changeLanguage(that.patchInfo));
 
     $('.settings-button-overwolf-settings').on('click', () => { window.location.href = 'overwolf://settings/hotkeys'; });
+    
+    $('.settings-button-reset-tutorial').on('click', () => { LocalStorage.resetTutorials(); Tutorial.runWelcome(); });
 
     $('.settings-button-subscribe').on('click', async () => await Subscriptions.subscribe());
     $('.owad-container-footer').on('click', async () => await Subscriptions.subscribe());
@@ -422,6 +425,11 @@ export class MainWindow {
 
     $('body').on('keyup', async e => {
       if (new Date().getTime() - MainWindow.lastKeyPress < 250) return;
+      if (Tutorial.isShowingTutorial()) {
+        e.preventDefault(); 
+        return;
+      }
+
       MainWindow.lastKeyPress = new Date().getTime();
       if (e.key === "Escape") {
         Popup.close();
@@ -440,7 +448,6 @@ export class MainWindow {
     $('.translated-text').on('DOMSubtreeModified', (e: any) => { Translator.updateTranslation(this.patchInfo, e.currentTarget); });
     Translator.updateAllTranslations(this.patchInfo);
 
-    if (!LocalStorage.languageHasBeenSet()) await MainWindow.changeLanguage(that.patchInfo);
   }
 
   //Make callbacks static since the 'this' is confusing to pass to a callback, use MainWindow.instance() instead

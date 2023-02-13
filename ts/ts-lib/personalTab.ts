@@ -12,6 +12,7 @@ import { ProgressBar } from "./progressBar";
 import { Subscriptions } from "./subscriptions";
 import { TranslatedText } from "./textLanguage";
 import { Timer } from "./timer";
+import { Tutorial } from "./tutorial";
 import { Utils } from "./utils";
 
 export class PersonalTab {
@@ -158,7 +159,9 @@ export class PersonalTab {
       $('.personal-summary-secondary').hide();
 
       $('.personal-history-left-arrow').hide();
+      $('.personal-history-left-arrow-text').html('');
       $('.personal-history-right-arrow').hide();
+      $('.personal-history-right-arrow-text').html('');
 
       $('.personal-history-table-container').hide();
       $($('.personal-history-stats-total').get(0)).html('0');
@@ -227,9 +230,11 @@ export class PersonalTab {
       }
       const loadData = this.summonerName != this.dataLoadedForName || this.region != this.dataLoadedForRegion || this.soloQueue != this.dataLoadedForSoloQueue ||
         new Date().getTime() - this.dataLoadedTimestamp > PersonalTab.DATA_TIMEOUT_MS;
+      const keepResidual = this.summonerName == this.dataLoadedForName && this.region == this.dataLoadedForRegion;
       ErrorReporting.reportIfException(async () => {
         if (loadData) {
-          this.clearView(true);
+          this.tier = null;
+          this.clearView(keepResidual);
           this.updateTitle();
 
           this.ongoingProgressBar = new ProgressBar(['loadPersonalData'], [1]);
@@ -307,6 +312,7 @@ export class PersonalTab {
     }
 
     const champRoleElems = $('.personal-champions-table-container').get();
+    let showTutorial = false;
     for (let i = 0; i < numChampRoleObjects; ++i) {
       const elmn = $(champRoleElems[i]);
       if (visibleGroupedStats.length <= i) {
@@ -355,7 +361,12 @@ export class PersonalTab {
       setBars('.personal-champions-vision', stat.AvgVisionScore, stat.AvgVisionScoreOpponent, stat.AvgVisionScoreTeam, false);
 
       elmn.show();
+      showTutorial = true;
     }
+    if (showTutorial) { //Need to wait until all are shown so it gets the right coords of the first card
+      Tutorial.runShowingPersonalCard();
+    }
+
 
     $('.personal-champions-options-sort-most-played').prop("checked", this.sortByMostPlayed);
     $('.personal-champions-options-sort-score').prop("checked", !this.sortByMostPlayed);
@@ -483,6 +494,7 @@ export class PersonalTab {
     $('.personal-history-options-score-pre-game').prop("checked", this.cscHistoryPreGame);
     $('.personal-history-options-score-in-game').prop("checked", !this.cscHistoryPreGame);
   
+    let showTutorial = false;
     const personalHistoryElems = $('.personal-history-table-container').get();
     for (let i = 0; i < numCscHistoryObjects; ++i) {
       const elmn = $(personalHistoryElems[i]);
@@ -509,6 +521,7 @@ export class PersonalTab {
       elmn.removeClass('personal-history-table-container-' + (!hist.userWon ? 'win' : 'lose'));
       elmn.addClass('personal-history-table-container-' + (hist.userWon ? 'win' : 'lose'));
       elmn.show();
+      showTutorial = true;
     }
     let hits = 0;
     for (let i = 0; i < cscHistory.length; ++i) {
@@ -545,6 +558,7 @@ export class PersonalTab {
     $($('.personal-history-stats-total-csc').get(0)).html(cscCount == 0 ? '??' : Math.round(100 * cscHit / cscCount).toString());
     $($('.personal-history-stats-total-user').get(0)).html(cscHistory.length == 0 ? '??' : Math.round(100 * hits / cscHistory.length).toString());
 
+    if (showTutorial) Tutorial.runHistoryInPersonalTab();
   }
 
   private updateCSCHistoryHistogram() {

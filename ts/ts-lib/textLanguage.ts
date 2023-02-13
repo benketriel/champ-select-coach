@@ -251,7 +251,7 @@ export const TranslatedText = {
   },
   WelcomeToCSC: {
     english: "\n          Welcome to Champion Select Coach (CSC)<br><br>\n          This app delivers advanced machine learning techniques applied to League of Legends data<br><br>\n          The provided results are trained, tested and validated on millions of ranked games to give you as trustworthy information as possible\n        ",
-    spanish: '\n          Bienvenidos a Champion Select Coach (CSC)<br><br>\n          Esta aplicación aplica técnicas avanzadas de inteligencia artificial a datos de League of Legends<br><br>\n          Los datos presentados fueron aprendidos y probados usando millones de partidas clasificatorias para que sean lo más confiables posible\n        ',
+    spanish: '\n          Bienvenido a Champion Select Coach (CSC)<br><br>\n          Esta aplicación aplica técnicas avanzadas de inteligencia artificial a datos de League of Legends<br><br>\n          Los datos presentados fueron aprendidos y probados usando millones de partidas clasificatorias para que sean lo más confiables posible\n        ',
     french: '\n          Bienvenue dans Champion Select Coach (CSC)<br><br>\n          Cet outil fait appel à des techniques d\'intelligence artificielle (IA) en se basant sur des données de parties de League of Legends<br><br>\n          Tous les resultats fournis sont le fruit de l\'entrainement, du test, et de la validation de l\'IA sur des millions de parties classés pour donner les resultats les plus crédibles possibles\n',
   },
   currentLobby: {
@@ -527,7 +527,7 @@ export const TranslatedText = {
   vsTeamBest: {
     english: "VS Team Best",
     spanish: 'Contra el mejor en el equipo',
-    french: 'Contre le meilleur joueur de l\'équipe adverse',
+    french: 'Contre le meilleur joueur de l\'équipe', //Took away adverse because it's in your team not enemy team
   },
   averageSoloScores: {
     english: "Average Solo Scores",
@@ -862,6 +862,228 @@ export const TranslatedText = {
     french: 'Supprimer les pubs - passez à la version pro',
   },
 
+  //Tutorials
+  tutWelcome0: {
+    english: 'Welcome to Champion Select Coach (CSC)!<br><br>This app delivers advanced machine learning techniques applied to League of Legends data.<br><br>The provided results are trained, tested and validated on millions of ranked games to give you as trustworthy information as possible.<br><br>Click on the arrow to continue this tutorial.',
+    spanish: 'Bienvenido a Champion Select Coach (CSC)<br><br>Esta aplicación aplica técnicas avanzadas de inteligencia artificial a datos de League of Legends<br><br>Los datos presentados fueron aprendidos y probados usando millones de partidas clasificatorias para que sean lo más confiables posible<br><br>Apriete la flecha para continuar este tutorial.',
+    //french: 'Bienvenue dans Champion Select Coach (CSC)<br><br>Cet outil fait appel à des techniques d\'intelligence artificielle (IA) en se basant sur des données de parties de League of Legends<br><br>Tous les resultats fournis sont le fruit de l\'entrainement, du test, et de la validation de l\'IA sur des millions de parties classés pour donner les resultats les plus crédibles possibles<br><br>Click on the arrow to continue this tutorial.', //TODO complete the last sentence
+  },
+  tutWelcome1: {
+    english: "When you join a new champion select lobby, the AI will give you a score here",
+    spanish: 'Al unirse a un lobby de nuevo, la inteligencia artificial dará una puntuación aquí',
+    //french: '', //TODO
+  },
+  tutWelcome2: {
+    english: "Previous lobbies can be selected from here",
+    spanish: 'Partidas pasadas se pueden selecionar desde aquí',
+    //french: '', //TODO
+  },
+  tutWelcome3: {
+    english: 'Here you can see if CSC is connected to LoL, and open the personal summary view.<br>Note: <b>If this light is <span style="color: red">red</span>, CSC won\'t detect a new champion select</b>. If LoL is running and it\'s still red, try <u>restarting LoL</u>.',
+    spanish: 'Aquí podrá ver si CSC está conectado a LoL, y abrir una página con datos personales.<br>Nota: <b>Si la luz está <span style="color: red">roja</span>, CSC no detectará un lobby nuevo</b>. Si LoL ya está corriendo apesar de estar roja, intente <u>reiniciar LoL</u>.',
+    //french: '', //TODO
+  },
+  tutWelcome4: {
+    english: "Here you can track the stats along with what the AI thinks of your performance on various champions and roles. The more games you play the more accurate it becomes.<br><br>Note: <b>Scores</b> in CSC are in percentage x0.1. For example a score of +0.3 means you will roughly add a 3% win chance on this champion and role.",
+    spanish: "Aquí podrá ver las estadísticas y la puntuación que la inteligencia artificial da al rendimiento en campeones y roles diferentes. Cuanto más juegue, más preciso se vuelve.<br><br>Nota: <b>Puntuación</b> en CSC se da en porcentaje x0.1. Por ejemplo, una puntuación de +0.3 indica que añadirá 3% a la probabilidad de ganar con este campeón y rol.",
+    //french: '', //TODO
+  },
+  tutWelcome5: {
+    english: "The latest finished games on this player which were registered by CSC are shown here",
+    spanish: "Las últimas partidas de este jugador que fueron registradas por CSC se muestran aquí",
+    //french: '', //TODO
+  },
+  tutWelcome6: {
+    english: "Here you will see the accuracy CSC has had on your and other CSC users' latest games",
+    spanish: 'Aquí podrás ver la precisión que CSC ha tenido en las partidas de este jugador, y las de otros usuarios de CSC',
+    //french: '', //TODO
+  },
+  tutWelcome7: {
+    english: "Here you can see a <u>histogram</u> of your and other CSC users' games. In lighter color is the amount, and in <b>stronger</b> color the win rate on those games.",
+    spanish: "Aquí podrás ver un <u>histograma</u> de tus partidas y las de otros usuarios de CSC. En un color más suave se ve la cantidad, y en <b>negrita</b> el porcentaje de ganadas.",
+    //french: '', //TODO
+  },
+  tutWelcome8: {
+    english: "More tutorials will be shown as you discover more features. To view tutorials again you can click on this button in settings.<br><br>Hope you enjoy CSC and good luck on your climb!",
+    spanish: 'Más tutoriales se mostrarán según descubras nuevas funciones. Para ver tutoriales de nuevo apriete este botón en optiones.<br><br>Espero que disfrutes de CSC y suerte en tus partidas!',
+    //french: '', //TODO
+  },
+  tutShowingPersonalCard0: {
+    english: "This card shows your performance on a specific champion and role, based on the latest games",
+    spanish: 'Esta tarjeta muestra estadísticas de este jugador en un campeón y rol, basadas en las últimas partidas',
+    //french: '', //TODO
+  },
+  tutShowingPersonalCard1: {
+    english: "This is the AI-given score on your performance (0.0 is average)",
+    spanish: 'Esta es la puntuación que la inteligencia artificial da a su rendimiento (0.0 es el promedio)',
+    //french: '', //TODO
+  },
+  tutShowingPersonalCard2: {
+    english: "Here you can see how your stats compare, on average, to the best in your team (green), and your opponent role (blue)",
+    spanish: 'Aquí puede ver cómo sus estadísticas se comparan, en promedio, con las del mejor de tu equipo (verde), y el rol adversario (azul)',
+    //french: '', //TODO
+  },
+  tutHistoryInPersonalTab0: {
+    english: "Here you can see your previous games, the result and the CSC score. Click on any of them to open the champion select lobby as it was shown during the game.",
+    spanish: 'Aquí puede ver sus últimas partidas, el resultado y la puntuación de CSC. Apriete cualquiera para abrir el lobby como se mostró al jugar la partida.',
+    //french: '', //TODO
+  },
+  tutHistoryInPersonalTab1: {
+    english: "Here you can track how accurate predictions have been for you. The more you use CSC the closer it normally gets to the general user average (blue)",
+    spanish: 'Aquí podrá ver cómo de precisas fueron tus predicciones. Cuanto más use CSC, más se acerca normalmente la precisión a la de todos los usuarios (azul)',
+    //french: '', //TODO
+  },
+  tutLcuCS0: {
+    english: "A champion select lobby detected! Here is the AI score for your team (5.0 is average)",
+    spanish: 'Un lobby detectado! Aquí verá la puntuación para su equipo (5.0 es el promedio)',
+    //french: '', //TODO
+  },
+  tutLcuCS1: {
+    english: "This area shows the total score and predicted distribution of stats such as first blood, kills and damage",
+    spanish: 'Este área muestra la puntuación total, y una predicción de la distribución de ciertas estadísticas como primera sangre, matanzas y daño',
+    //french: '', //TODO
+  },
+  tutLcuCS2: {
+    english: "This area shows in depth stats of every player",
+    spanish: 'Esta área muestra estadísticas de cada jugador a fondo',
+    //french: '', //TODO
+  },
+  tutLcuCS3: {
+    english: "More details will follow, but for now good luck in your game!",
+    spanish: 'Más detalles vendrán más adelante, pero por ahora suerte en la partida!',
+    //french: '', //TODO
+  },
+  tutMenuCS0: {
+    english: "Here are your previous lobbies (even those that never were played), click on any to open it",
+    spanish: 'Aquí están tus lobbys anteriores (incluso los que no se sugaron), aprieta cualquiera para abrirlo',
+    //french: '', //TODO
+  },
+  tutCSReady0: {
+    english: "You have now opened an old champion select lobby full with information. Let's go through the different parts in detail.",
+    spanish: 'Acaba de abrir un lobby viejo lleno de información. Veamos que quieren decir las diferentes partes en detalle.',
+    //french: '', //TODO
+  },
+  tutCSReady1: {
+    english: "Let's look at top lane",
+    spanish: 'Miremos la línea superior',
+    //french: '', //TODO
+  },
+  tutCSReady2: {
+    english: "The champion, player name and tier for each team are shown",
+    spanish: 'El campeón, jugador y división se muestra para cada equipo',
+    //french: '', //TODO
+  },
+  tutCSReady3: {
+    english: 'The solo score shows how this player contributes in general to winning games on the selected champion (unrelated to this lobby). <span style="color: green">Green</span> numbers contribute the most to your team\'s odds of victory, as opposed to <span style="color: red">Red</span> numbers.',
+    spanish: 'La "puntuación sólo" muestra qué tal este jugador contribuye a ganar partidas en este campeón en general (no relacionado a este lobby). Números <span style="color: green">verdes</span> contribuyen más a la probabilidad de que tu equipo gane, en contrario a números <span style="color: red">rojos</span>.',
+    //french: '', //TODO
+  },
+  tutCSReady4: {
+    english: "The team score shows how the match history of this player affects the total score. If this player had no games in its history, the AI would subtract from the total score this amount.",
+    spanish: 'La puntuación sinergía muestra cuánto la historia de partidas de este jugador afecta la puntuación. Si este jugador no tuviera partidas jugadas, la inteligencia artificial restaría esta cantidad de la puntuación total.',
+    //french: '', //TODO
+  },
+  tutCSReady5: {
+    english: "The same can be seen on the opponent, however note that positive values on the opponent indicate they make it harder for your team to win",
+    spanish: 'Lo mismo se puede ver del equipo contrario, pero aquí los números positivos indican que será más dificil para tu equipo ganar',
+    //french: '', //TODO
+  },
+  tutCSReady6: {
+    english: "Here are the recommended champions for this player in this lobby sorted by score. Hover to see how selecting this champion would change the score, and for stats from previous games.",
+    spanish: 'Aquí se muestran los campeones recomendados para este jugador en este lobby, ordenados por puntuación. Pase el cursor para ver cuánto afectaría la puntuación cambiar a este campeón, y estadísticas de partidas anteriores.',
+    //french: '', //TODO
+  },
+  tutCSReady7: {
+    english: "Here are the main roles this player plays, and how often he plays them",
+    spanish: 'Aquí se muestran los roles que este jugador juega, y con qué frequencia los juega',
+    //french: '', //TODO
+  },
+  tutCSReady8: {
+    english: 'Here are latest games, <span style="color: green">Green</span> for victory and <span style="color: red">Red</span> for defeat. A small separator indicates the player took a break between those games. Hover for more info!',
+    spanish: 'Aquí se ven las últimas partidas, en <span style="color: green">verde</span> ganadas y en <span style="color: red">rojo</span> perdidas. Un pequeño separador indica que el jugador tomó una pausa entre estas partidas. Pase el cursor para más información!',
+    //french: '', //TODO
+  },
+  tutCSReady9: {
+    english: "This shows the odds of your team's player on this role to have more experience at 3:00 (lane prio)",
+    spanish: 'Aquí ve la probabilidad que el jugador de tu equipo en este rol tendrá más experiencia al minuto 3:00 (prioridad de línea)',
+    //french: '', //TODO
+  },
+  tutCSReady10: {
+    english: "This shows the odds of your team's player on this role to have more experience and gold at 14:00",
+    spanish: 'Aquí se muestra la probalidad que el jugador de tu equipo en este rol tendrá más experiencia y oro al minuto 14:00',
+    //french: '', //TODO
+  },
+  tutCSReady11: {
+    english: "This shows the score for your team when enemy player names are unknown",
+    spanish: 'Aquí se muestra la puntuación de tu equipo si no se saben los nombres del equipo contrincante',
+    //french: '', //TODO
+  },
+  tutCSReady12: {
+    english: "This shows the score for the opponent team when hiding your team's player names. Note that high scores here indicate it would be harder for your team to win.",
+    spanish: 'Aquí se mestra la la puntuación del otro equipo si no se saben los nombres de tu equipo. Nota que puntuación alta aquí indica que será más difícil para tu equipo ganar.',
+    //french: '', //TODO
+  },
+  tutCSReady13: {
+    english: "This shows the score for your team with all the information available. The AI looks at the whole picture at once so this score is not a combination of other scores.",
+    spanish: 'Aquí se muestra la puntuación de tu equipo al incluir toda la información disponible. La inteligencia artificial ve toda la información de un solo, esta puntuación no es una combinación de otras puntuaciones.',
+    //french: '', //TODO
+  },
+  tutCSReady14: {
+    english: "This shows a predicted distribution of various statistics such as first blood or damage dealt. For example, if you have good total score but the enemy has wider first blood, it probably means their team is better early but yours is late. Hover for more details!",
+    spanish: 'Aquí se muestra una predicción de cómo ciertas estadísticas se distribuirán en esta partida, como por ejemplo primera sangre y daño. Si por ejemplo tu equipo tiene buena puntiación total pero el otro equipo tiene alta probabilidad de primera sangre, probablemente indica que su equipo es mejor en el principio pero el tuyo al final. Pase el cursor para más información!',
+    //french: '', //TODO
+  },
+  tutCSReady15: {
+    english: "Here you can see on what side of the map your team is playing, what queue the AI thinks it is, and the region",
+    spanish: 'Aquí podrá ver en qué lado del mapa tu equipo está jugando, que tipo de partida la inteligencia artificial piensa que es, y la región',
+    //french: '', //TODO
+  },
+  tutProVersion0: {
+    english: "Thank you for subscribing to Champion Select Coach!<br><br>You have unlocked the full, ad-free, version of CSC",
+    spanish: 'Gracias por suscribirte a Champion Select Coach!<br><br>Ahora tiene acceso a la versión completa, sin anuncios, de CSC',
+    //french: '', //TODO
+  },
+  tutProVersion1: {
+    english: "You can view the personal page for any player. Click on the edit button to change to another player",
+    spanish: 'Puede ver la página personal de cualquier jugador. Aprieta el botón de editar para cambiar a otros jugadores',
+    //french: '', //TODO
+  },
+  tutProVersion2: {
+    english: "You can create simulated lobbies, where player names, roles and champions can be edited freely. The + button copies the current champion select into an editable one.",
+    spanish: 'Puede crear lobbys simulados, en donde los nombres de los jugadores, roles y campeones se pueden editar. El botón + copia el lobby actual a otro editable.',
+    //french: '', //TODO
+  },
+  tutEditableCs0: {
+    english: "This is an editable lobby",
+    spanish: 'Este es un lobby editable',
+    //french: '', //TODO
+  },
+  tutEditableCs1: {
+    english: "You can edit champions",
+    spanish: 'Puede editar los campeones',
+    //french: '', //TODO
+  },
+  tutEditableCs2: {
+    english: "You can edit player names",
+    spanish: 'Puede editar los nombres de jugadores',
+    //french: '', //TODO
+  },
+  tutEditableCs3: {
+    english: "To perform a role or champion swap between players, hover the arrows",
+    spanish: 'Para intercambiar roles o campeones entre jugadores, pase el cursor sobre las flechas',
+    //french: '', //TODO
+  },
+  tutEditableCs4: {
+    english: "You can change sides, queue and region",
+    spanish: 'Puede cambiar lados, tipo de partida y región',
+    //french: '', //TODO
+  },
+  tutEditableCs5: {
+    english: "The AI takes the current time and match history into account. Make sure the spelling of player names and the region are correct.",
+    spanish: 'La inteligencia artificial toma la hora y las úlimas partidas de los jugadores de ahora. Asegúrate de que la región es correcta, y que ha escrito los nombres de los jugadores correctamente.',
+    //french: '', //TODO
+  },
+
   //Languages should be in their own language always
   english: {
     english: "English",
@@ -928,24 +1150,28 @@ export class Translator {
       if (newHTML == null) {
         Logger.warn('Bug when translating: ' + currHTML);
       } else if (currHTML != newHTML) { //There is an event each time the html is changed so important not to signal this if there is no change to prevent infinite loop
-        let originalHeight = je.data('original-height');
-        let originalFont = je.data('original-font');
-        if (!originalHeight) {
-          originalHeight = je.height();
-          originalFont = parseFloat(je.css("font-size"));
-          je.data('original-height', originalHeight);
-          je.data('original-font', originalFont);
-        }
-        je.html(newHTML);
-        je.css("font-size", originalFont + 'px');
-        
-        //Adjust
-        let newHeight = je.height(); //Height to get line breaks
-        let size = parseFloat(je.css("font-size"));
-        while (newHeight > originalHeight && size > 5) {
-          size--;
-          je.css("font-size", size + 'px');
-          newHeight = je.height();
+        if ($(je).hasClass('translated-text-no-shrink')) {
+          je.html(newHTML);
+        } else {
+          let originalHeight = je.data('original-height');
+          let originalFont = je.data('original-font');
+          if (!originalHeight) {
+            originalHeight = je.height();
+            originalFont = parseFloat(je.css("font-size"));
+            je.data('original-height', originalHeight);
+            je.data('original-font', originalFont);
+          }
+          je.html(newHTML);
+          je.css("font-size", originalFont + 'px');
+          
+          //Adjust
+          let newHeight = je.height(); //Height to get line breaks
+          let size = parseFloat(je.css("font-size"));
+          while (newHeight > originalHeight && size > 5) {
+            size--;
+            je.css("font-size", size + 'px');
+            newHeight = je.height();
+          }
         }
         
       }

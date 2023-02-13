@@ -10,6 +10,7 @@ import { ErrorReporting } from "./errorReporting";
 import { Popup } from "./popup";
 import { TranslatedText } from "./textLanguage";
 import { Subscriptions } from "./subscriptions";
+import { Tutorial } from "./tutorial";
 
 
 export class CsTab {
@@ -129,6 +130,8 @@ export class CsTab {
   //Navigation
   public swapToLcu() {
     this.update(this.lcuCsManager, '');
+
+    Tutorial.runLcuCS();
   }
 
   public swapToHistory(i: number) {
@@ -225,6 +228,7 @@ export class CsTab {
   }
 
   public updateCSHistoryView() {
+    let showTutorial = false;
     for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
       if (i >= this.historyCsManagers.length) {
         $($('.side-menu-old-cs')[i]).hide();
@@ -241,7 +245,9 @@ export class CsTab {
 
       const swappedChamps = CsManager.applyChampionSwaps(csInput);
       this.updateCSHistoryViewRow(i, swappedChamps[ownerIdx], (csView.rolePrediction || {})[ownerIdx] || 0, tier.tier, tier.division, tier.lp, score, csView.date);
+      showTutorial = true;
     }
+    if (showTutorial) Tutorial.runMenuCS();
   }
 
   private updateCSHistoryViewRow(index: number, championId: string, role: number, tier: string, division: string, lp: string, score: number, date: number) {
@@ -406,6 +412,13 @@ export class CsTab {
       //Do nothing, this is for registering into history
     }
     //Logger.debug(JSON.stringify(timeStats));
+    if (manager != this.lcuCsManager) {
+      Tutorial.runCSReady();
+    }
+    if (editable) {
+      Tutorial.runEditableCS();
+    }
+
   }
 
   private roleToIdx(roles: number[]) {
@@ -612,7 +625,7 @@ export class CsTab {
     $(elem).stop();
     $(elem).animate({ width: w }, 400); //this line is slow (100 ms in total)
     // $(elem).css('width', w); //This one is faster but uglier (10 ms)
-    //TODO use a canvas instead, then remove the hack in MainWindow.selectHistoryCS()
+    //Could use a canvas instead, then remove the hack in MainWindow.selectHistoryCS()
     $(elem).attr('title', w);
   }
 

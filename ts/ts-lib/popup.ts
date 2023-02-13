@@ -2,6 +2,7 @@ import { LocalStorage } from "./localStorage";
 import { Timer } from "./timer";
 import * as $ from "jquery"; //npm install --save-dev @types/jquery
 import { TranslatedText } from "./textLanguage";
+import { Tutorial } from "./tutorial";
 
 
 export class Popup {
@@ -12,6 +13,7 @@ export class Popup {
     Popup.onYes = null;
     Popup.onNo = null;
     Popup.onLanguage = null;
+    Tutorial.runWelcome(); //Because the first thing that happens is a language choice, in case they close the window
   }
 
   public static show() {
@@ -138,6 +140,7 @@ export class Popup {
     const toRun = Popup.onLanguage;
     Popup.close();
     toRun(language);
+    Tutorial.runWelcome(); //Because the first thing that happens is a language choice
   }
 
 

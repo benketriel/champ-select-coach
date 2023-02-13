@@ -45,6 +45,12 @@ export class LocalStorage {
   public static getRestartCount() { return parseInt(LocalStorage.get('restart-count') || '0'); }
   public static setRestartCount(x: number) { LocalStorage.set('restart-count', x.toString()); }
 
+  public static getShownTutorial(x: string) { return (LocalStorage.get('shown-tutorials') || '').includes(x); }
+  public static setShownTutorial(x: string) { 
+    if (this.getShownTutorial(x)) return;
+    LocalStorage.set('shown-tutorials', (LocalStorage.get('shown-tutorials') || '') + ',' + x); 
+  }
+  public static resetTutorials() { LocalStorage.set('shown-tutorials', ''); }
   
 
 }
