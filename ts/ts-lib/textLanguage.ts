@@ -120,7 +120,7 @@ export const TranslatedText = {
   regionNotFound: {
     english: 'Region not found<br>Available: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
     spanish: 'No se encontró ninguna region con esas iniciales<br>Disponibles: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
-    french: 'Impossible de trouver la région<br>Existantes: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR', //TODO Change existing to available? Considering they added more regions which we don't offer
+    french: 'Impossible de trouver la région<br>Disponibles: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR', //TODO Change existing to available? Considering they added more regions which we don't offer
   },
   inputOneSummonerName: {
     english: 'Please input at least one summoner name',
@@ -233,7 +233,7 @@ export const TranslatedText = {
   fatalErrorMsg: {
     english: 'An unexpected error occurred.',
     spanish: 'Ocurrió un error inesperado.',
-    french: 'Une erreur inattendue est apparue.', //TODO check translation
+    french: 'Une erreur inattendue est survenue.', //TODO check translation
   },
 
 
@@ -785,7 +785,7 @@ export const TranslatedText = {
   resetTutorial: {
     english: 'Reset Tutorial',
     spanish: 'Resetear Tutorial',
-    french: 'Réinitialiser Didacticiel', //TODO check translation
+    french: 'Réinitialiser le Didacticiel', //TODO check translation
   },
   overwolfSettings: {
     english: "Overwolf Settings",
