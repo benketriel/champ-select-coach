@@ -608,7 +608,8 @@ export class Tutorial {
     if ($('.personal-title-edit-button:visible').length == 0) return;
     if ($('.side-menu-add-manual-cs:visible').length == 0) return;
 
-    const editPersonalBox = $('.personal-title-edit-button').get(0).getBoundingClientRect();
+    const champsContainerBox = $('.personal-champions-container').get(0).getBoundingClientRect();
+    const personalTitleBox = $('.personal-title').get(0).getBoundingClientRect();
     const addManualCS = $('.side-menu-add-manual-cs').get(0).getBoundingClientRect();
     
     /*await*/ Tutorial.runTutorial('proVersion', [
@@ -626,12 +627,12 @@ export class Tutorial {
         }, onEnd: () => {}
       },
       { 
-        focusX1: editPersonalBox.left - 2,
-        focusX2: editPersonalBox.right + 30,
-        focusY1: editPersonalBox.top - 2,
-        focusY2: editPersonalBox.bottom + 30,
-        msgX: (editPersonalBox.right + editPersonalBox.left) * 0.5,
-        msgY: editPersonalBox.bottom + 0.0 * (editPersonalBox.top - editPersonalBox.bottom) + 30,
+        focusX1: champsContainerBox.left - 2,
+        focusX2: champsContainerBox.right,
+        focusY1: personalTitleBox.top - 2,
+        focusY2: personalTitleBox.bottom,
+        msgX: (champsContainerBox.right + champsContainerBox.left) * 0.5,
+        msgY: personalTitleBox.bottom + 0.0 * (personalTitleBox.top - personalTitleBox.bottom),
         msgMaxWidth: 300,
         text: TranslatedText.tutProVersion1.english,
         onStart: () => {}, onEnd: () => {}
