@@ -866,22 +866,22 @@ export const TranslatedText = {
   tutWelcome0: {
     english: 'Welcome to Champion Select Coach (CSC)!<br><br>This app delivers advanced machine learning techniques applied to League of Legends data.<br><br>The provided results are trained, tested and validated on millions of ranked games to give you as trustworthy information as possible.<br><br>Click on the arrow to continue this tutorial.',
     spanish: 'Bienvenido a Champion Select Coach (CSC)<br><br>Esta aplicación aplica técnicas avanzadas de inteligencia artificial a datos de League of Legends<br><br>Los datos presentados fueron aprendidos y probados usando millones de partidas clasificatorias para que sean lo más confiables posible<br><br>Apriete la flecha para continuar este tutorial.',
-    //french: 'Bienvenue dans Champion Select Coach (CSC)<br><br>Cet outil fait appel à des techniques d\'intelligence artificielle (IA) en se basant sur des données de parties de League of Legends<br><br>Tous les resultats fournis sont le fruit de l\'entrainement, du test, et de la validation de l\'IA sur des millions de parties classés pour donner les resultats les plus crédibles possibles<br><br>Click on the arrow to continue this tutorial.', //TODO complete the last sentence
+    french: 'Bienvenue dans Champion Select Coach (CSC)<br><br>Cet outil fait appel à des techniques d\'intelligence artificielle (IA) en se basant sur des données de parties de League of Legends<br><br>Tous les resultats fournis sont le fruit de l\'entrainement, du test, et de la validation de l\'IA sur des millions de parties classés pour donner les resultats les plus crédibles possibles<br><br>Cliquez sur la fleche pour continuer le didacticiel.', //TODO complete the last sentence
   },
   tutWelcome1: {
     english: "When you join a new champion select lobby, the AI will give you a score here",
     spanish: 'Al unirse a un lobby, la inteligencia artificial dará una puntuación aquí',
-    //french: '', //TODO
+    french: "Lorsque vous rejoignez un nouveau salon de sélection de champion, l'IA vous donnera un score ici.",
   },
   tutWelcome2: {
     english: "Previous lobbies can be selected from here",
     spanish: 'Partidas pasadas se pueden selecionar desde aquí',
-    //french: '', //TODO
+    french: "Les salons précédents peuvent être sélectionnés à partir d'ici.",
   },
   tutWelcome3: {
     english: 'Here you can see if CSC is connected to LoL, and open the personal summary view.<br>Note: <b>If this light is <span style="color: red">red</span>, CSC won\'t detect a new champion select</b>. If LoL is running and it\'s still red, try <u>restarting LoL</u>.',
     spanish: 'Aquí podrá ver si CSC está conectado a LoL, y abrir una página con datos personales.<br>Nota: <b>Si la luz está <span style="color: red">roja</span>, CSC no detectará un lobby nuevo</b>. Si LoL ya está corriendo apesar de estar roja, intente <u>reiniciar LoL</u>.',
-    //french: '', //TODO
+    french: 'Ici, vous pouvez voir si CSC est connecté à LoL et ouvrir le résumé personnel.<br>Remarque: <b>Si cette lumière est <span style="color: red">rouge</span>, CSC ne détectera pas de nouvelle sélection de champion</b>. Si LoL est en cours d\'exécution et que la lumière est toujours rouge, essayez de <u>redémarrer LoL</u>.',
   },
   tutWelcome4: {
     english: "Here you can track the stats along with what the AI thinks of your performance on various champions and roles. The more games you play the more accurate it becomes.<br><br>Note: <b>Scores</b> in CSC are in percentage x0.1. For example a score of +0.3 means you will roughly add a 3% win chance on this champion and role.",
