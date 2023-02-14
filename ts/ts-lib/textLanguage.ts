@@ -870,7 +870,7 @@ export const TranslatedText = {
   },
   tutWelcome1: {
     english: "When you join a new champion select lobby, the AI will give you a score here",
-    spanish: 'Al unirse a un lobby de nuevo, la inteligencia artificial dará una puntuación aquí',
+    spanish: 'Al unirse a un lobby, la inteligencia artificial dará una puntuación aquí',
     //french: '', //TODO
   },
   tutWelcome2: {

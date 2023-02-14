@@ -97,7 +97,7 @@ export class MainWindow {
 
     Tutorial.init();
     if (!LocalStorage.languageHasBeenSet()) await MainWindow.changeLanguage(this.patchInfo);
-    else Tutorial.runWelcome();
+    Tutorial.runWelcome();
   }
 
 
@@ -453,7 +453,7 @@ export class MainWindow {
   //Make callbacks static since the 'this' is confusing to pass to a callback, use MainWindow.instance() instead
   public static showLcuCS() {
     const main = MainWindow.instance();
-    if (!main.csTab.hasBeenUpdated) return; //Prevent show garbage
+    if (!main.csTab.lcuHasBeenUpdated) return; //Prevent show garbage
     if (main.selectedView == 'lcu') return; //Already selected
 
     MainWindow.clearAll();

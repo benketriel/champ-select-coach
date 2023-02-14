@@ -1,5 +1,3 @@
-import { LocalStorage } from "./localStorage";
-import { Timer } from "./timer";
 import * as $ from "jquery"; //npm install --save-dev @types/jquery
 import { TranslatedText } from "./textLanguage";
 import { Tutorial } from "./tutorial";
@@ -7,12 +5,35 @@ import { Tutorial } from "./tutorial";
 
 export class Popup {
 
+  public static popupShowing() {
+    return $('.popup-bg:visible').length > 0;
+  }
+
+  private static onClose: any = null;
+  public static onPopupClose(func: any) {
+    const newFunc = func;
+    if (Popup.onClose != null) {
+      const oldFunc = Popup.onClose;
+      Popup.onClose = () => {
+        oldFunc();
+        newFunc();
+      }
+    } else {
+      Popup.onClose = newFunc;
+    }
+  }
+
   public static close() {
     $('.popup-bg').hide();
     $('.popup-content').hide();
     Popup.onYes = null;
     Popup.onNo = null;
     Popup.onLanguage = null;
+    if (Popup.onClose != null) {
+      const func = Popup.onClose;
+      Popup.onClose = null;
+      func();
+    }
     Tutorial.runWelcome(); //Because the first thing that happens is a language choice, in case they close the window
   }
 

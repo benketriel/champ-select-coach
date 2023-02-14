@@ -1,5 +1,4 @@
 import * as $ from "jquery"; //npm install --save-dev @types/jquery
-import { MainWindow } from "../windows/mainWindow/mainWindow";
 import { ErrorReporting } from "./errorReporting";
 import { LocalStorage } from "./localStorage";
 import { Logger } from "./logger";
@@ -41,13 +40,13 @@ export class Tutorial {
   }
 
   public static isShowingTutorial() {
-    return this.currentTutorialName != '';
+    return Tutorial.currentTutorialName != '';
   }
 
   public static runDummy() {
-    this.runWelcome(); //Make sure this has been shown first
+    Tutorial.runWelcome(); //Make sure this has been shown first
     
-    /*await*/ this.runTutorial('dummy', [
+    /*await*/ Tutorial.runTutorial('dummy', [
       { 
         focusX1: 0,
         focusX2: 0,
@@ -63,7 +62,7 @@ export class Tutorial {
   }
 
   public static runWelcome() {
-    /*await*/ this.runTutorial('welcome', [
+    /*await*/ Tutorial.runTutorial('welcome', [
       { 
         focusX1: Tutorial.WINDOW_WIDTH / 2, 
         focusX2: Tutorial.WINDOW_WIDTH / 2, 
@@ -182,7 +181,7 @@ export class Tutorial {
   }
 
   public static runShowingPersonalCard() {
-    this.runWelcome(); //Make sure this has been shown first
+    Tutorial.runWelcome(); //Make sure this has been shown first
 
     if ($('.personal-champions-table-container:visible').length == 0) return;
 
@@ -193,7 +192,7 @@ export class Tutorial {
     const elmn2 = $('.personal-champions-kp').get(0);
     const rect2 = elmn2.getBoundingClientRect();
 
-    /*await*/ this.runTutorial('showingPersonalCard', [
+    /*await*/ Tutorial.runTutorial('showingPersonalCard', [
       { 
         focusX1: rect0.left - 2,
         focusX2: rect0.right,
@@ -238,7 +237,7 @@ export class Tutorial {
   }
 
   public static runHistoryInPersonalTab() {
-    this.runWelcome(); //Make sure this has been shown first
+    Tutorial.runWelcome(); //Make sure this has been shown first
 
     if ($('.personal-history-list:visible').length == 0) return;
     if ($('.personal-history-stats-total-user:visible').length == 0) return;
@@ -248,7 +247,7 @@ export class Tutorial {
     const elmn1 = $('.personal-history-stats-total-user').get(0);
     const rect1 = elmn1.getBoundingClientRect();
     
-    /*await*/ this.runTutorial('historyInPersonalTab', [
+    /*await*/ Tutorial.runTutorial('historyInPersonalTab', [
       { 
         focusX1: rect0.left - 2,
         focusX2: rect0.right,
@@ -280,7 +279,7 @@ export class Tutorial {
   }
 
   public static runLcuCS() {
-    this.runWelcome(); //Make sure this has been shown first
+    Tutorial.runWelcome(); //Make sure this has been shown first
     
     if ($('.side-menu-current-cs:visible').length == 0) return;
     if ($('.cs-wr-total-cell:visible').length == 0) return;
@@ -293,7 +292,7 @@ export class Tutorial {
     const rect2 = elmn2.getBoundingClientRect();
     
 
-    /*await*/ this.runTutorial('lcuCS', [
+    /*await*/ Tutorial.runTutorial('lcuCS', [
       { 
         focusX1: rect0.left - 2,
         focusX2: rect0.right,
@@ -351,12 +350,12 @@ export class Tutorial {
   }
 
   public static runMenuCS() {
-    this.runWelcome(); //Make sure this has been shown first
+    Tutorial.runWelcome(); //Make sure this has been shown first
     
     const elmn0 = $('#side-menu-old-cs-list').get(0);
     const rect0 = elmn0.getBoundingClientRect();
 
-    /*await*/ this.runTutorial('menuCS', [
+    /*await*/ Tutorial.runTutorial('menuCS', [
       { 
         focusX1: rect0.left - 2,
         focusX2: rect0.right,
@@ -420,9 +419,9 @@ export class Tutorial {
     const footerRect = $('.cs-footer').get(0).getBoundingClientRect();
 
     
-    //this.runWelcome(); //Don't run because you need to stay on this selected CS
+    //Tutorial.runWelcome(); //Don't run because you need to stay on this selected CS
     
-    /*await*/ this.runTutorial('CSReady', [
+    /*await*/ Tutorial.runTutorial('CSReady', [
       { 
         focusX1: Tutorial.WINDOW_WIDTH / 2,
         focusX2: Tutorial.WINDOW_WIDTH / 2,
@@ -604,7 +603,7 @@ export class Tutorial {
   }
 
   public static runProVersion() {
-    this.runWelcome(); //Make sure this has been shown first
+    Tutorial.runWelcome(); //Make sure this has been shown first
 
     if ($('.personal-title-edit-button:visible').length == 0) return;
     if ($('.side-menu-add-manual-cs:visible').length == 0) return;
@@ -612,7 +611,7 @@ export class Tutorial {
     const editPersonalBox = $('.personal-title-edit-button').get(0).getBoundingClientRect();
     const addManualCS = $('.side-menu-add-manual-cs').get(0).getBoundingClientRect();
     
-    /*await*/ this.runTutorial('proVersion', [
+    /*await*/ Tutorial.runTutorial('proVersion', [
       { 
         focusX1: Tutorial.WINDOW_WIDTH / 2,
         focusX2: Tutorial.WINDOW_WIDTH / 2,
@@ -652,7 +651,7 @@ export class Tutorial {
   }
 
   public static runEditableCS() {
-    this.runWelcome(); //Make sure this has been shown first
+    Tutorial.runWelcome(); //Make sure this has been shown first
 
     if ($('.cs-table-champion-icon:visible').length == 0) return;
     if ($('.cs-table-summoner-name-cell:visible').length == 0) return;
@@ -662,7 +661,7 @@ export class Tutorial {
     const swapRect = $('.cs-table-champion-swap').get(0).getBoundingClientRect(); //This is only in live or editable
     const footerRect = $('.cs-footer').get(0).getBoundingClientRect();
 
-    /*await*/ this.runTutorial('editableCS', [
+    /*await*/ Tutorial.runTutorial('editableCS', [
       { 
         focusX1: Tutorial.WINDOW_WIDTH / 2,
         focusX2: Tutorial.WINDOW_WIDTH / 2,
@@ -742,10 +741,10 @@ export class Tutorial {
   private static pendingTutorials = [];
   private static async runTutorial(name: string, steps: TutorialStep[]) {
     if (LocalStorage.getShownTutorial(name)) return;
-    if (this.currentTutorialName == name || this.pendingTutorials.filter(x => x[0] == name).length > 0) return;
+    if (Tutorial.currentTutorialName == name || Tutorial.pendingTutorials.filter(x => x[0] == name).length > 0) return;
 
-    if (this.currentTutorialIndex != -1) {
-      this.pendingTutorials.push([name, steps]);
+    if (Tutorial.currentTutorialIndex != -1) {
+      Tutorial.pendingTutorials.push([name, steps]);
       return;
     }
     for (let s of steps) {
@@ -754,50 +753,60 @@ export class Tutorial {
         return;
       }
     }
-    this.currentTutorialName = name;
-    this.currentTutorialSteps = steps;
-    this.currentTutorialIndex = 0;
-    this.updateView();
+    Tutorial.currentTutorialName = name;
+    Tutorial.currentTutorialSteps = steps;
+    Tutorial.currentTutorialIndex = 0;
+    Tutorial.updateView();
   }
 
   private static goNext() {
-    this.currentTutorialSteps[this.currentTutorialIndex].onEnd();
-    this.currentTutorialIndex++;
-    this.updateView();
+    Tutorial.currentTutorialSteps[Tutorial.currentTutorialIndex].onEnd();
+    Tutorial.currentTutorialIndex++;
+    Tutorial.updateView();
   }
 
   private static goLast() {
-    this.currentTutorialSteps[this.currentTutorialIndex].onEnd();
-    this.currentTutorialIndex = this.currentTutorialSteps.length - 1;
-    this.updateView();
+    Tutorial.currentTutorialSteps[Tutorial.currentTutorialIndex].onEnd();
+    Tutorial.currentTutorialIndex = Tutorial.currentTutorialSteps.length - 1;
+    Tutorial.updateView();
   }
 
   private static goPrevious() {
-    this.currentTutorialSteps[this.currentTutorialIndex].onEnd();
-    this.currentTutorialIndex--;
-    this.updateView();
+    Tutorial.currentTutorialSteps[Tutorial.currentTutorialIndex].onEnd();
+    Tutorial.currentTutorialIndex--;
+    Tutorial.updateView();
   }
 
   private static goFirst() {
-    this.currentTutorialSteps[this.currentTutorialIndex].onEnd();
-    this.currentTutorialIndex = 0;
-    this.updateView();
+    Tutorial.currentTutorialSteps[Tutorial.currentTutorialIndex].onEnd();
+    Tutorial.currentTutorialIndex = 0;
+    Tutorial.updateView();
   }
 
   private static goEnd() {
-    this.currentTutorialSteps[this.currentTutorialIndex].onEnd();
-    LocalStorage.setShownTutorial(this.currentTutorialName);
-    this.currentTutorialIndex = -1;
-    this.currentTutorialName = '';
-    this.updateView();
+    Tutorial.currentTutorialSteps[Tutorial.currentTutorialIndex].onEnd();
+    LocalStorage.setShownTutorial(Tutorial.currentTutorialName);
+    Tutorial.currentTutorialIndex = -1;
+    Tutorial.currentTutorialName = '';
+    Tutorial.updateView();
   }
 
   private static updateView() {
-    if (this.currentTutorialIndex == -1 || this.currentTutorialIndex >= this.currentTutorialSteps.length) {
-      this.currentTutorialIndex = -1;
-      this.currentTutorialSteps = [];
+    if (Popup.popupShowing()) {
+      $('.tutorial-bg-0').hide();
+      $('.tutorial-bg-1').hide();
+      $('.tutorial-bg-2').hide();
+      $('.tutorial-bg-3').hide();
+      $('.tutorial-bg-4').hide();
+      $('.tutorial-text-box').hide();
+      Popup.onPopupClose(Tutorial.updateView);
+      return;
+    }
+    if (Tutorial.currentTutorialIndex == -1 || Tutorial.currentTutorialIndex >= Tutorial.currentTutorialSteps.length) {
+      Tutorial.currentTutorialIndex = -1;
+      Tutorial.currentTutorialSteps = [];
 
-      if (this.pendingTutorials.length == 0) {
+      if (Tutorial.pendingTutorials.length == 0) {
         $('.tutorial-bg-0').hide();
         $('.tutorial-bg-1').hide();
         $('.tutorial-bg-2').hide();
@@ -807,10 +816,10 @@ export class Tutorial {
 
         return;
       }
-      const next = this.pendingTutorials.splice(0, 1)[0];
-      this.currentTutorialName = next[0];
-      this.currentTutorialSteps = next[1];
-      this.currentTutorialIndex = 0;
+      const next = Tutorial.pendingTutorials.splice(0, 1)[0];
+      Tutorial.currentTutorialName = next[0];
+      Tutorial.currentTutorialSteps = next[1];
+      Tutorial.currentTutorialIndex = 0;
     }
 
     $('.tutorial-bg-0').show();
@@ -820,10 +829,10 @@ export class Tutorial {
     $('.tutorial-bg-4').show();
     $('.tutorial-text-box').show();
 
-    const step = this.currentTutorialSteps[this.currentTutorialIndex];
+    const step = Tutorial.currentTutorialSteps[Tutorial.currentTutorialIndex];
     step.onStart();
-    this.setBackgroundBox(step.focusX1, step.focusX2, step.focusY1, step.focusY2);
-    this.setInfoBox(step.text, this.currentTutorialIndex == 0, this.currentTutorialIndex == this.currentTutorialSteps.length - 1, step.msgX, step.msgY, step.msgMaxWidth);
+    Tutorial.setBackgroundBox(step.focusX1, step.focusX2, step.focusY1, step.focusY2);
+    Tutorial.setInfoBox(step.text, Tutorial.currentTutorialIndex == 0, Tutorial.currentTutorialIndex == Tutorial.currentTutorialSteps.length - 1, step.msgX, step.msgY, step.msgMaxWidth);
   }
 
   private static setBackgroundBox(x1: number, x2: number, y1: number, y2: number) {

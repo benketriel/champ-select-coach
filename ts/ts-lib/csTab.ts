@@ -19,7 +19,7 @@ export class CsTab {
 
   private currentCsManager: CsManager;
 
-  public hasBeenUpdated: boolean = false;
+  public lcuHasBeenUpdated: boolean = false;
   public static NUM_RECOMMENDATIONS: number = 6;
   public static NUM_HISTORY: number = 8;
   public patchInfo: any;
@@ -112,14 +112,14 @@ export class CsTab {
 
   public async onCsUpdate(managerAsking: any, change: string) {
     if (managerAsking === this.lcuCsManager) {
+      this.lcuHasBeenUpdated = true;
+
       await this.saveHistory();
       this.updateLcuCSMenuView();
     } else if (this.historyCsManagers.includes(managerAsking)) {
       await this.saveHistory();
       this.updateCSHistoryView();
     }
-
-    this.hasBeenUpdated = true;
 
     if (this.currentCsManager === managerAsking) {
       this.update(managerAsking, change);
