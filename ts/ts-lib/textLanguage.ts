@@ -936,97 +936,97 @@ export const TranslatedText = {
   tutLcuCS0: {
     english: "A champion select lobby detected! Here is the AI score for your team (5.0 is average)",
     spanish: 'Un lobby detectado! Aquí verá la puntuación para su equipo (5.0 es el promedio)',
-    //french: '', //TODO
+    french: "Un salon de sélection de champion a été détecté ! Voici le score attribué par l'IA à votre équipe (5,0 est la moyenne).",
   },
   tutLcuCS1: {
     english: "This area shows the total score and predicted distribution of stats such as first blood, kills and damage",
     spanish: 'Este área muestra la puntuación total, y una predicción de la distribución de ciertas estadísticas como primera sangre, matanzas y daño',
-    //french: '', //TODO
+    french: "Cette zone affiche le score total et la distribution prévue de statistiques telles que le premier sang, les éliminations et les dégâts infligés.",
   },
   tutLcuCS2: {
     english: "This area shows in depth stats of every player",
     spanish: 'Esta área muestra estadísticas de cada jugador a fondo',
-    //french: '', //TODO
+    french: "Cette zone affiche les statistiques détaillées de chaque joueur.",
   },
   tutLcuCS3: {
     english: "More details will follow, but for now good luck in your game!",
     spanish: 'Más detalles vendrán más adelante, pero por ahora suerte en la partida!',
-    //french: '', //TODO
+    french: "D'autres informations arrivent, mais pour l'instant, bonne chance dans votre partie !",
   },
   tutMenuCS0: {
     english: "Here are your previous lobbies (even those that never were played), click on any to open it",
     spanish: 'Aquí están tus lobbys anteriores (incluso los que no se sugaron), aprieta cualquiera para abrirlo',
-    //french: '', //TODO
+    french: "Voici vos salons précédents (même ceux qui n'ont jamais été joués), cliquez sur l'un d'eux pour l'ouvrir.",
   },
   tutCSReady0: {
     english: "You have now opened an old champion select lobby full with information. Let's go through the different parts in detail.",
     spanish: 'Acaba de abrir un lobby viejo lleno de información. Veamos que quieren decir las diferentes partes en detalle.',
-    //french: '', //TODO
+    french: "Vous venez d'ouvrir un ancien salon de sélection de champion rempli d'informations. Parcourons ensemble les différentes parties.",
   },
   tutCSReady1: {
     english: "Let's look at top lane",
     spanish: 'Miremos la línea superior',
-    //french: '', //TODO
+    french: "Prenons l'exemple de la voie du haut",
   },
   tutCSReady2: {
     english: "The champion, player name and tier for each team are shown",
     spanish: 'El campeón, jugador y división se muestra para cada equipo',
-    //french: '', //TODO
+    french: "Le champion, le nom du joueur et le rang de chaque équipe sont affichés.",
   },
   tutCSReady3: {
     english: 'The solo score shows how this player contributes in general to winning games on the selected champion (unrelated to this lobby). <span style="color: green">Green</span> numbers contribute the most to your team\'s odds of victory, as opposed to <span style="color: red">Red</span> numbers.',
     spanish: 'La "puntuación sólo" muestra qué tal este jugador contribuye a ganar partidas en este campeón en general (no relacionado a este lobby). Números <span style="color: green">verdes</span> contribuyen más a la probabilidad de que tu equipo gane, en contrario a números <span style="color: red">rojos</span>.',
-    //french: '', //TODO
+    french: 'Le score solo montre à quel point ce joueur contribue généralement à gagner les parties avec le champion sélectionné (indépendamment de ce salon). Les nombres de couleur <span style="color: green">verte</span> contribuent positivement aux chances de victoire de votre équipe, contrairement aux nombres <span style="color: red">rouges</span>.',
   },
   tutCSReady4: {
     english: "The team score shows how the match history of this player affects the total score. If this player had no games in its history, the AI would subtract from the total score this amount.",
     spanish: 'La puntuación sinergía muestra cuánto la historia de partidas de este jugador afecta la puntuación. Si este jugador no tuviera partidas jugadas, la inteligencia artificial restaría esta cantidad de la puntuación total.',
-    //french: '', //TODO
+    french: "Le score d'équipe montre comment l'historique de parties de ce joueur affecte le score total. Si ce joueur n'a pas de parties dans son historique, l'IA soustraira cette quantité du score total.", // not sure to get this one
   },
   tutCSReady5: {
     english: "The same can be seen on the opponent, however note that positive values on the opponent indicate they make it harder for your team to win",
     spanish: 'Lo mismo se puede ver del equipo contrario, pero aquí los números positivos indican que será más dificil para tu equipo ganar',
-    //french: '', //TODO
+    french: "La même chose peut être vu chez l'adversaire, cependant notez que les valeurs positives chez l'adversaire indiquent qu'ils rendent la victoire de votre équipe plus difficile.",
   },
   tutCSReady6: {
     english: "Here are the recommended champions for this player in this lobby sorted by score. Hover to see how selecting this champion would change the score, and for stats from previous games.",
     spanish: 'Aquí se muestran los campeones recomendados para este jugador en este lobby, ordenados por puntuación. Pase el cursor para ver cuánto afectaría la puntuación cambiar a este campeón, y estadísticas de partidas anteriores.',
-    //french: '', //TODO
+    french: "Voici les champions recommandés pour ce joueur dans ce salon, triés par score. Passez votre souris sur un champion pour voir comment sa sélection affecterait le score, ainsi que pour afficher les statistiques des parties précédentes.",
   },
   tutCSReady7: {
     english: "Here are the main roles this player plays, and how often he plays them",
     spanish: 'Aquí se muestran los roles que este jugador juega, y con qué frequencia los juega',
-    //french: '', //TODO
+    french: "Voici les rôles principaux que ce joueur joue et à quelle fréquence il les joue.",
   },
   tutCSReady8: {
     english: 'Here are latest games, <span style="color: green">Green</span> for victory and <span style="color: red">Red</span> for defeat. A small separator indicates the player took a break between those games. Hover for more info!',
     spanish: 'Aquí se ven las últimas partidas, en <span style="color: green">verde</span> ganadas y en <span style="color: red">rojo</span> perdidas. Un pequeño separador indica que el jugador tomó una pausa entre estas partidas. Pase el cursor para más información!',
-    //french: '', //TODO
+    french: 'Voici les dernières parties, en <span style="color: green">vert</span> pour les victoires et <span style="color: red">rouge</span> pour les défaites. Un séparateur indique que le joueur a fait une pause entre ces parties. Passez la souris dessus pour plus d\'informations !',
   },
   tutCSReady9: {
     english: "This shows the odds of your team's player on this role to have more experience at 3:00 (lane prio)",
     spanish: 'Aquí ve la probabilidad que el jugador de tu equipo en este rol tendrá más experiencia al minuto 3:00 (prioridad de línea)',
-    //french: '', //TODO
+    french: "Ceci montre les chances que le joueur de votre équipe sur ce rôle ait plus d'expérience à 3:00 (priorité de lane).",
   },
   tutCSReady10: {
     english: "This shows the odds of your team's player on this role to have more experience and gold at 14:00",
     spanish: 'Aquí se muestra la probalidad que el jugador de tu equipo en este rol tendrá más experiencia y oro al minuto 14:00',
-    //french: '', //TODO
+    french: "Ceci montre les chances que le joueur de votre équipe dans ce rôle ait plus d'expérience et d'or à 14:00.",
   },
   tutCSReady11: {
     english: "This shows the score for your team when enemy player names are unknown",
     spanish: 'Aquí se muestra la puntuación de tu equipo si no se saben los nombres del equipo contrincante',
-    //french: '', //TODO
+    french: "Ce score montre la performance de votre équipe lorsque CSC ne connait pas encore les noms des joueurs ennemis.",
   },
   tutCSReady12: {
     english: "This shows the score for the opponent team when hiding your team's player names. Note that high scores here indicate it would be harder for your team to win.",
     spanish: 'Aquí se mestra la la puntuación del otro equipo si no se saben los nombres de tu equipo. Nota que puntuación alta aquí indica que será más difícil para tu equipo ganar.',
-    //french: '', //TODO
+    french: 'Voici le score pour l\'équipe adverse lorsque les informations de vos coéquipiers sont cachés. Les scores élevés indiquent qu\'il serait plus difficile pour votre équipe de gagner.',
   },
   tutCSReady13: {
     english: "This shows the score for your team with all the information available. The AI looks at the whole picture at once so this score is not a combination of other scores.",
     spanish: 'Aquí se muestra la puntuación de tu equipo al incluir toda la información disponible. La inteligencia artificial ve toda la información de un solo, esta puntuación no es una combinación de otras puntuaciones.',
-    //french: '', //TODO
+    french: 'Voici le score de votre équipe avec toutes les informations disponibles. L\'IA considère l\'ensemble des informations en même temps, donc ce score n\'est pas une combinaison des autres scores.',
   },
   tutCSReady14: {
     english: "This shows a predicted distribution of various statistics such as first blood or damage dealt. For example, if you have good total score but the enemy has wider first blood, it probably means their team is better early but yours is late. Hover for more details!",
