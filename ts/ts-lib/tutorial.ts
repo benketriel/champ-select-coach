@@ -207,11 +207,11 @@ export class Tutorial {
         }, onEnd: () => {}
       },
       { 
-        focusX1: rect1.left - 2,
-        focusX2: rect1.right,
+        focusX1: rect0.left - 2,
+        focusX2: rect0.right,
         focusY1: rect1.top - 2,
         focusY2: rect1.bottom,
-        msgX: rect1.right + 160,
+        msgX: rect0.right + 160,
         msgY: rect1.bottom + 0.9 * (rect1.top - rect1.bottom),
         msgMaxWidth: 300,
         text: TranslatedText.tutShowingPersonalCard1.english,
