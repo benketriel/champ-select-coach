@@ -886,52 +886,52 @@ export const TranslatedText = {
   tutWelcome4: {
     english: "Here you can track the stats along with what the AI thinks of your performance on various champions and roles. The more games you play the more accurate it becomes.<br><br>Note: <b>Scores</b> in CSC are in percentage x0.1. For example a score of +0.3 means you will roughly add a 3% win chance on this champion and role.",
     spanish: "Aquí podrá ver las estadísticas y la puntuación que la inteligencia artificial da al rendimiento en campeones y roles diferentes. Cuanto más juegue, más preciso se vuelve.<br><br>Nota: <b>Puntuación</b> en CSC se da en porcentaje x0.1. Por ejemplo, una puntuación de +0.3 indica que añadirá 3% a la probabilidad de ganar con este campeón y rol.",
-    //french: '', //TODO
+    french: 'Ici, vous pouvez suivre les statistiques ainsi que ce que l\'IA pense de votre performance sur différents champions et rôles. Plus vous jouez de parties, plus cela devient précis.<br><br>Note : Les <b>scores</b> de CSC sont en pourcentage x0.1. Par exemple, un score de +0.3 signifie que vous ajouterez environ 3% de chances de gagner avec ce champion et ce rôle.',
   },
   tutWelcome5: {
     english: "The latest finished games on this player which were registered by CSC are shown here",
     spanish: "Las últimas partidas de este jugador que fueron registradas por CSC se muestran aquí",
-    //french: '', //TODO
+    french: "Les dernières parties terminées de ce joueur, qui ont été enregistrées par CSC, sont affichées ici.",
   },
   tutWelcome6: {
     english: "Here you will see the accuracy CSC has had on your and other CSC users' latest games",
     spanish: 'Aquí podrás ver la precisión que CSC ha tenido en las partidas de este jugador, y las de otros usuarios de CSC',
-    //french: '', //TODO
+    french: "Ici, vous verrez la précision que CSC a eue sur vos dernières parties et celles d'autres utilisateurs de CSC.", //TODO
   },
   tutWelcome7: {
     english: "Here you can see a <u>histogram</u> of your and other CSC users' games. In lighter color is the amount, and in <b>stronger</b> color the win rate on those games.",
     spanish: "Aquí podrás ver un <u>histograma</u> de tus partidas y las de otros usuarios de CSC. En un color más suave se ve la cantidad, y en <b>negrita</b> el porcentaje de ganadas.",
-    //french: '', //TODO
+    french: "Ici, vous pouvez voir un <u>histogramme</u> de vos parties et celles d'autres utilisateurs de CSC. La couleur claire indique le nombre de parties, et la couleur <b>foncée</b> indique le taux de victoire dans ces parties.",
   },
   tutWelcome8: {
     english: "More tutorials will be shown as you discover more features. To view tutorials again you can click on this button in settings.<br><br>Hope you enjoy CSC and good luck on your climb!",
     spanish: 'Más tutoriales se mostrarán según descubras nuevas funciones. Para ver tutoriales de nuevo apriete este botón en optiones.<br><br>Espero que disfrutes de CSC y suerte en tus partidas!',
-    //french: '', //TODO
+    french: "D'autres informations du didacticiel seront affichées à mesure que vous découvrirez plus de fonctionnalités. Pour revoir le didacticiel, vous pouvez cliquer sur ce bouton dans les paramètres.<br><br>Nous espérons que vous apprécierez CSC et bonne chance dans votre progression !",
   },
   tutShowingPersonalCard0: {
     english: "This card shows your performance on a specific champion and role, based on the latest games",
     spanish: 'Esta tarjeta muestra estadísticas de este jugador en un campeón y rol, basadas en las últimas partidas',
-    //french: '', //TODO
+    french: "Cette vignette montre votre performance sur un champion et un rôle spécifiques, basée sur les dernières parties.",
   },
   tutShowingPersonalCard1: {
     english: "This is the AI-given score on your performance (0.0 is average)",
     spanish: 'Esta es la puntuación que la inteligencia artificial da a su rendimiento (0.0 es el promedio)',
-    //french: '', //TODO
+    french: "Ceci est le score attribué par l'IA à votre performance (0,0 est la moyenne).",
   },
   tutShowingPersonalCard2: {
     english: "Here you can see how your stats compare, on average, to the best in your team (green), and your opponent role (blue)",
     spanish: 'Aquí puede ver cómo sus estadísticas se comparan, en promedio, con las del mejor de tu equipo (verde), y el rol adversario (azul)',
-    //french: '', //TODO
+    french: "Ici, vous pouvez voir comment vos statistiques se comparent, en moyenne, à celles du meilleur joueur de votre équipe (vert) et votre adversaire au même rôle que vous (bleu).", // not sure about this one
   },
   tutHistoryInPersonalTab0: {
     english: "Here you can see your previous games, the result and the CSC score. Click on any of them to open the champion select lobby as it was shown during the game.",
     spanish: 'Aquí puede ver sus últimas partidas, el resultado y la puntuación de CSC. Apriete cualquiera para abrir el lobby como se mostró al jugar la partida.',
-    //french: '', //TODO
+    french: "Ici, vous pouvez voir vos parties précédentes, le résultat et le score de CSC. Cliquez sur l'un d'entre eux pour ouvrir le salon de sélection des champions correspondant.",
   },
   tutHistoryInPersonalTab1: {
     english: "Here you can track how accurate predictions have been for you. The more you use CSC the closer it normally gets to the general user average (blue)",
     spanish: 'Aquí podrá ver cómo de precisas fueron tus predicciones. Cuanto más use CSC, más se acerca normalmente la precisión a la de todos los usuarios (azul)',
-    //french: '', //TODO
+    french: "Ici, vous pouvez suivre la précision des prédictions pour vous. Plus vous utilisez CSC, plus il se rapprochera de la moyenne générale des utilisateurs (en bleu).",
   },
   tutLcuCS0: {
     english: "A champion select lobby detected! Here is the AI score for your team (5.0 is average)",
