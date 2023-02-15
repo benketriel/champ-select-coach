@@ -120,7 +120,7 @@ export const TranslatedText = {
   regionNotFound: {
     english: 'Region not found<br>Available: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
     spanish: 'No se encontró ninguna region con esas iniciales<br>Disponibles: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
-    french: 'Impossible de trouver la région<br>Disponibles: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR', //TODO Change existing to available? Considering they added more regions which we don't offer
+    french: 'Impossible de trouver la région<br>Disponibles: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
   },
   inputOneSummonerName: {
     english: 'Please input at least one summoner name',
@@ -233,7 +233,7 @@ export const TranslatedText = {
   fatalErrorMsg: {
     english: 'An unexpected error occurred.',
     spanish: 'Ocurrió un error inesperado.',
-    french: 'Une erreur inattendue est survenue.', //TODO check translation
+    french: 'Une erreur inattendue est survenue.',
   },
 
 
@@ -437,7 +437,7 @@ export const TranslatedText = {
   noSummonerFound: {
     english: 'No summoner selected',
     spanish: 'Ningún invocador seleccionado',
-    french: 'Aucun invocateur sélectionné', //TODO check translation
+    french: 'Aucun invocateur sélectionné',
   },
   side: {
     english: "Side",
@@ -785,7 +785,7 @@ export const TranslatedText = {
   resetTutorial: {
     english: 'Reset Tutorial',
     spanish: 'Resetear Tutorial',
-    french: 'Réinitialiser le Didacticiel', //TODO check translation
+    french: 'Réinitialiser le Didacticiel',
   },
   overwolfSettings: {
     english: "Overwolf Settings",
@@ -827,7 +827,7 @@ export const TranslatedText = {
   send: {
     english: "Send",
     spanish: 'Enviar',
-    french: 'Envoyer', //TODO check translation
+    french: 'Envoyer',
   },
   noteSlowReplies: {
     english: "Note: Replies will be slower on this channel",
@@ -866,7 +866,7 @@ export const TranslatedText = {
   tutWelcome0: {
     english: 'Welcome to Champion Select Coach (CSC)!<br><br>This app delivers advanced machine learning techniques applied to League of Legends data.<br><br>The provided results are trained, tested and validated on millions of ranked games to give you as trustworthy information as possible.<br><br>Click on the arrow to continue this tutorial.',
     spanish: 'Bienvenido a Champion Select Coach (CSC)<br><br>Esta aplicación aplica técnicas avanzadas de inteligencia artificial a datos de League of Legends<br><br>Los datos presentados fueron aprendidos y probados usando millones de partidas clasificatorias para que sean lo más confiables posible<br><br>Apriete la flecha para continuar este tutorial.',
-    french: 'Bienvenue dans Champion Select Coach (CSC)<br><br>Cet outil fait appel à des techniques d\'intelligence artificielle (IA) en se basant sur des données de parties de League of Legends<br><br>Tous les resultats fournis sont le fruit de l\'entrainement, du test, et de la validation de l\'IA sur des millions de parties classés pour donner les resultats les plus crédibles possibles<br><br>Cliquez sur la fleche pour continuer le didacticiel.', //TODO complete the last sentence
+    french: 'Bienvenue dans Champion Select Coach (CSC)<br><br>Cet outil fait appel à des techniques d\'intelligence artificielle (IA) en se basant sur des données de parties de League of Legends<br><br>Tous les resultats fournis sont le fruit de l\'entrainement, du test, et de la validation de l\'IA sur des millions de parties classés pour donner les resultats les plus crédibles possibles<br><br>Cliquez sur la fleche pour continuer le didacticiel.',
   },
   tutWelcome1: {
     english: "When you join a new champion select lobby, the AI will give you a score here",
@@ -896,7 +896,7 @@ export const TranslatedText = {
   tutWelcome6: {
     english: "Here you will see the accuracy CSC has had on your and other CSC users' latest games",
     spanish: 'Aquí podrás ver la precisión que CSC ha tenido en las partidas de este jugador, y las de otros usuarios de CSC',
-    french: "Ici, vous verrez la précision que CSC a eue sur vos dernières parties et celles d'autres utilisateurs de CSC.", //TODO
+    french: "Ici, vous verrez la précision que CSC a eue sur vos dernières parties et celles d'autres utilisateurs de CSC.",
   },
   tutWelcome7: {
     english: "Here you can see a <u>histogram</u> of your and other CSC users' games. In lighter color is the amount, and in <b>stronger</b> color the win rate on those games.",

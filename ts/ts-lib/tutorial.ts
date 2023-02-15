@@ -168,7 +168,7 @@ export class Tutorial {
         focusY2: 395, 
         msgX: 371, 
         msgY: 393, 
-        msgMaxWidth: 250,
+        msgMaxWidth: 350,
         text: TranslatedText.tutWelcome8.english,
         onStart: () => {
           $('.settingsButton').trigger('click');
