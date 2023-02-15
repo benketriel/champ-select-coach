@@ -1031,57 +1031,57 @@ export const TranslatedText = {
   tutCSReady14: {
     english: "This shows a predicted distribution of various statistics such as first blood or damage dealt. For example, if you have good total score but the enemy has wider first blood, it probably means their team is better early but yours is late. Hover for more details!",
     spanish: 'Aquí se muestra una predicción de cómo ciertas estadísticas se distribuirán en esta partida, como por ejemplo primera sangre y daño. Si por ejemplo tu equipo tiene buena puntiación total pero el otro equipo tiene alta probabilidad de primera sangre, probablemente indica que su equipo es mejor en el principio pero el tuyo al final. Pase el cursor para más información!',
-    //french: '', //TODO
+    french: "Ceci montre la distribution prévue de certaines statistiques comme le premier sang ou les dégâts infligés. Par exemple, si vous avez un bon score total mais que l'adversaire a plus de chances de faire le premier sang, cela signifie surement que leur équipe est plus forte en début de partie et que la vôtre l'est plutôt en fin de partie. Passez votre souris dessus pour plus de détails !",
   },
   tutCSReady15: {
     english: "Here you can see on what side of the map your team is playing, what queue the AI thinks it is, and the region",
     spanish: 'Aquí podrá ver en qué lado del mapa tu equipo está jugando, que tipo de partida la inteligencia artificial piensa que es, y la región',
-    //french: '', //TODO
+    french: "Ici, vous pouvez voir de quel côté de la carte votre équipe joue, le type de partie, ainsi que la région.", //"what queue the AI thinks it is". Wasnt sure, so the IA guesses the queue ? 
   },
   tutProVersion0: {
     english: "Thank you for subscribing to Champion Select Coach!<br><br>You have unlocked the full, ad-free, version of CSC",
     spanish: 'Gracias por suscribirte a Champion Select Coach!<br><br>Ahora tiene acceso a la versión completa, sin anuncios, de CSC',
-    //french: '', //TODO
+    french: "Merci d'avoir souscrit à Champion Select Coach !<br><br>Vous avez débloqué la version complète et sans publicité de CSC.",
   },
   tutProVersion1: {
     english: "You can view the personal page for any player. Click on the edit button to change to another player",
     spanish: 'Puede ver la página personal de cualquier jugador. Aprieta el botón de editar para cambiar a otros jugadores',
-    //french: '', //TODO
+    french: "Vous pouvez afficher la page personnelle de n'importe quel joueur. Cliquez sur le bouton Modifier pour changer de joueur.",
   },
   tutProVersion2: {
     english: "You can create simulated lobbies, where player names, roles and champions can be edited freely. The + button copies the current champion select into an editable one.",
     spanish: 'Puede crear lobbys simulados, en donde los nombres de los jugadores, roles y campeones se pueden editar. El botón + copia el lobby actual a otro editable.',
-    //french: '', //TODO
+    french: "Vous pouvez créer des salons simulés, où les noms des joueurs, les rôles et les champions peuvent être édités librement. Le bouton + copie la selection de champions actuelle dans un salon éditable.", // not sure about this one, never tried the feature
   },
   tutEditableCs0: {
     english: "This is an editable lobby",
     spanish: 'Este es un lobby editable',
-    //french: '', //TODO
+    french: 'Ceci est un salon éditable',
   },
   tutEditableCs1: {
     english: "You can edit champions",
     spanish: 'Puede editar los campeones',
-    //french: '', //TODO
+    french: 'Vous pouvez changer les champions',
   },
   tutEditableCs2: {
     english: "You can edit player names",
     spanish: 'Puede editar los nombres de jugadores',
-    //french: '', //TODO
+    french: 'Vous pouvez changer l\'identité des joueurs',
   },
   tutEditableCs3: {
     english: "To perform a role or champion swap between players, hover the arrows",
     spanish: 'Para intercambiar roles o campeones entre jugadores, pase el cursor sobre las flechas',
-    //french: '', //TODO
+    french: "Pour effectuer un échange de rôle ou de champion entre joueurs, passez la souris sur les flèches.",
   },
   tutEditableCs4: {
     english: "You can change sides, queue and region",
     spanish: 'Puede cambiar lados, tipo de partida y región',
-    //french: '', //TODO
+    french: 'Vous pouvez changer de coté, de type de partie, et de région.',
   },
   tutEditableCs5: {
     english: "The AI takes the current time and match history into account. Make sure the spelling of player names and the region are correct.",
     spanish: 'La inteligencia artificial toma la hora y las úlimas partidas de los jugadores de ahora. Asegúrate de que la región es correcta, y que ha escrito los nombres de los jugadores correctamente.',
-    //french: '', //TODO
+    french: "L'IA prend en compte l'heure actuelle et l'historique des parties. Assurez-vous que l'orthographe des noms de joueurs et de la région soient corrects.",
   },
 
   //Languages should be in their own language always
