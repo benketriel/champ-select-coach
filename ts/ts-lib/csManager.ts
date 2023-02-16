@@ -691,7 +691,14 @@ export class CsManager {
   }
 
   private static async uploadCurrentCS(data: any) {
-    const nr = await Lcu.getCurrentNameAndRegion();
+    let nr = await Lcu.getCurrentNameAndRegion();
+    if (nr == null) {
+      for (let tries = 0; tries < 5; tries++) {
+        await Timer.wait(10000);
+        nr = await Lcu.getCurrentNameAndRegion();
+        if (nr != null) break;
+      }
+    }
     if (nr == null) {
       ErrorReporting.report('uploadCurrentCS', {ex: 'Lcu.getCurrentNameAndRegion', data});
       return;

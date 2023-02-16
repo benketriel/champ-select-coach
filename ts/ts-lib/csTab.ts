@@ -398,6 +398,13 @@ export class CsTab {
       if (score && score.full) this.updateTeamScores(side, csInput, rolePrediction, score.full[0], missingScore);
     }
     timeStats['missing'] = new Date().getTime() - time; time = new Date().getTime();
+    if (change == 'bans') {
+      this.updateBans(patchInfo, bans);
+      $('.cs-ban-recommendations').show();
+    } else {
+      $('.cs-ban-recommendations').hide();
+    }
+    timeStats['bans'] = new Date().getTime() - time; time = new Date().getTime();
     if (!change || change == '' || change.startsWith('picks')) {
       if (score && score.full && rolePrediction && csInput) {
         const roleToIdx =  this.roleToIdx(rolePrediction);
@@ -893,6 +900,40 @@ export class CsTab {
           }
         }
       }
+    }
+
+  }
+
+  private updateBans(patchInfo: any, bans: any) {
+    const names = $('.cs-table-recommended-bans-champion-name');
+    const scores = $('.cs-table-recommended-bans-score');
+    const images = $('.cs-table-recommended-bans-champion-border img');
+
+    const top5 = [];
+    for (let i = 0; i < 5; ++i) {
+      const roleEmptyScore = parseFloat(bans[i][0]['Item2']);
+      for (let j = 0; j < 5; ++j) {
+        const cId = bans[i][1 + j]['Item1'];
+        const score = parseFloat(bans[i][1 + j]['Item2']) - roleEmptyScore;
+        const championName = patchInfo.ChampionIdToName[cId] || "";
+  
+        $(names[5 + i * 5 + j]).html(championName);
+        //$(scores[5 + i * 5 + j]).html(Utils.probabilityToScore(score));
+        $(scores[5 + i * 5 + j]).html(Utils.probabilityToScore(parseFloat(bans[i][1 + j]['Item2'])) + " - " + Utils.probabilityToScore(roleEmptyScore));
+        CsTab.setChampionImg(patchInfo, $(images[5 + i * 5 + j]), cId);
+        top5.push({'Item1': bans[i][1 + j]['Item1'], 'Item2': score});
+      }
+    }
+
+    top5.sort((a, b) => a['Item2'] - b['Item2']);
+    for (let i = 0; i < 5; ++i) {
+      const cId = top5[i]['Item1'];
+      const score = parseFloat(top5[i]['Item2']);
+      const championName = patchInfo.ChampionIdToName[cId] || "";
+
+      $(names[i]).html(championName);
+      $(scores[i]).html(Utils.probabilityToScore(score));
+      CsTab.setChampionImg(patchInfo, $(images[i]), cId);
     }
 
   }

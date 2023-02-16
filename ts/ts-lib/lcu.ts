@@ -365,7 +365,10 @@ export class Lcu {
         var creds = await CSCAI.getRiotConnectionCreds();
         this.RiotToken = creds[0];
         this.RiotPort = creds[1];
-        if (this.RiotPort == '' || this.RiotToken == '') return [];
+        if (this.RiotPort == '' || this.RiotToken == '') {
+          Logger.log('Failed to connect to RiotClientServices');
+          return [];
+        }
       }
       let res = await Lcu.riotRequest(lcuUrls.ChatParticipants);
 
@@ -373,7 +376,10 @@ export class Lcu {
         var creds = await CSCAI.getRiotConnectionCreds();
         this.RiotToken = creds[0];
         this.RiotPort = creds[1];
-        if (this.RiotPort == '' || this.RiotToken == '') return [];
+        if (this.RiotPort == '' || this.RiotToken == '') {
+          Logger.log('Failed to connect to RiotClientServices');
+          return [];
+        }
         res = await Lcu.riotRequest(lcuUrls.ChatParticipants);
       }
 
@@ -381,7 +387,10 @@ export class Lcu {
         const names = res.participants.map(p => p.name).filter(x => x != null && x.length > 0);
         names.sort(); //If the order changes here we don't want it to make a fuzz about it
         Logger.debug(names);
+        Logger.log('Successfully found ' + names.length + ' summoner names in current lobby');
         return names;
+      } else {
+        ErrorReporting.report('getSummonerNamesFromChat', { res });
       }
       return [];
     } catch (ex) {

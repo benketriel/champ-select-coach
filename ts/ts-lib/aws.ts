@@ -181,7 +181,7 @@ export class Aws {
 
   public static async reportError(json: string, region: string, reporterSummonerId: string) {
     const msg = JSON.stringify({Action:"RubyReportError", Arguments:{ json, region, reporterSummonerId }});
-    const res = await Aws.retrying({json, region, reporterSummonerId, name: 'reportError'}, 1, () => Aws.get(msg), r => {
+    const res = await Aws.retrying(null, 2, () => Aws.get(msg), r => {
       if (!r || r != 'OK') return false;
       Logger.log({
         name: 'reportError',
@@ -194,7 +194,7 @@ export class Aws {
     return res;
   }
 
-  public static async retrying(uploadIfError: any, tries: number, generate, validate, waitMs: number = 1000) {
+  public static async retrying(uploadIfError: any, tries: number, generate, validate, waitMs: number = 3000) {
     while (tries-- > 0) {
       const res = await generate();
       if (await validate(res)){
@@ -203,7 +203,9 @@ export class Aws {
       }
       await Timer.wait(waitMs);
     }
-    ErrorReporting.report('Aws.retrying', uploadIfError);
+    if (uploadIfError) { //Prevent infinite loop when failed to upload
+      ErrorReporting.report('Aws.retrying', uploadIfError);
+    }
     return null;
   }
 
