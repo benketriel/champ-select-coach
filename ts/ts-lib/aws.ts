@@ -117,7 +117,7 @@ export class Aws {
     const msg = JSON.stringify({Action:"RubyUploadPrediction", Arguments:{region, puuid, version, data, partialPrediction, fullPrediction}});
     const res = await Aws.retrying({region, puuid, data, partialPrediction, fullPrediction, name: 'uploadPrediction'}, 5, () => Aws.get(msg), r => {
       if (r == "OK") Logger.log("Uploaded prediction");
-      else ErrorReporting.report("uploadPrediction", JSON.stringify(res));
+      else ErrorReporting.report("uploadPrediction", {r});
       return r == "OK";
     });
 
@@ -223,7 +223,7 @@ export class Aws {
         },
         error: function(res) { 
           Aws.failedGetInARow++;
-          if (Aws.failedGetInARow > 5) {
+          if (Aws.failedGetInARow > 10) {
             Aws.failedGetInARow = -100; //Cooldown
             ErrorReporting.report('AWS request', JSON.stringify({res, data}));
           }

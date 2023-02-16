@@ -28,7 +28,7 @@ export class PersonalTab {
   private dataLoadedForRegion: string = null;
   private dataLoadedForSoloQueue: boolean = false;
   private stats: any = null;
-  private tier: any = null;
+  private tier: any = {};
 
   private cscHistory: any = null;
   

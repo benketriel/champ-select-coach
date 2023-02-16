@@ -297,7 +297,10 @@ export class Lcu {
 
     try {
       const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
-      if (!info || !info.res || !info.res.credentials) return 'LcuConnectionFailed';
+      if (!info || !info.res || !info.res.credentials) {
+        Logger.warn('getSummonersTierByPuuid:LcuConnectionFailed');
+        return null;
+      } 
 
       return await Promise.all(puuids.map(async puuid => await Lcu.getSummonerTierByPuuid(info.res.credentials, puuid)));
     } catch (ex) {
@@ -322,7 +325,10 @@ export class Lcu {
 
     try {
       const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
-      if (!info || !info.res || !info.res.credentials) return 'LcuConnectionFailed';
+      if (!info || !info.res || !info.res.credentials) {
+        Logger.warn('getSummonerPuuidsByName:LcuConnectionFailed');
+        return null;
+      }
 
       return await Promise.all(names.map(async name => await Lcu.getSummonerPuuidByName(info.res.credentials, name)));
     } catch (ex) {
