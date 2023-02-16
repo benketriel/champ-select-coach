@@ -424,6 +424,7 @@ export class MainWindow {
     $('.rateApp').on('click', () => { overwolf.utils.openStore({ page:overwolf.utils.enums.eStorePage.ReviewsPage, uid:"ljkaeojllenacnoipfcdpdllhcfndmohikaiphgi"}); });
 
     $('body').on('keyup', async e => {
+      $(':focus').trigger('blur');
       if (new Date().getTime() - MainWindow.lastKeyPress < 250) return;
       if (Tutorial.isShowingTutorial()) {
         e.preventDefault(); 
@@ -468,6 +469,7 @@ export class MainWindow {
     const main = MainWindow.instance();
     if (await main.csTab.currentManagerHasRegion()) {
       await main.csTab.addEditableCsToHistory(null);
+      main.selectedView = ""; //In case 0 was already selected
       MainWindow.showHistoryCS(0);
     } else {
       const patchInfo = main.patchInfo;
@@ -479,6 +481,7 @@ export class MainWindow {
           return;
         }
         await main.csTab.addEditableCsToHistory(picked[0]);
+        main.selectedView = ""; //In case 0 was already selected
         MainWindow.showHistoryCS(0);
       });  
     }

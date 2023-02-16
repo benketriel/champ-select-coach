@@ -63,6 +63,11 @@ export class CSCAI {
     return CSCAI.rethrowBadJSON(await new Promise<any>(resolve => ai.GetPatchInfo(resolve)));
   }
 
+  public static async getRiotConnectionCreds() {
+    const ai = await this.instance();
+    return await new Promise<any>(resolve => ai.GetRiotConnectionCreds(resolve));
+  }
+  
   public static async analyzePersonalData(summonerName: string, region: string, soloQueue: boolean, data: CsData) {
     const ai = await this.instance();
     const dataJSON = JSON.stringify(data);

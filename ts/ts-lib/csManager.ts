@@ -17,7 +17,9 @@ export class CsInput {
   public region = "";
   public queueId = "";
   public ownerName = null;
-  public summonerNames = ['', '', '', '', '', '', '', '', '', '']; //Order here is arbitrary (and will be invisible on the UI since they are later sorted by roles)
+  public summonerNames: string[] = ['', '', '', '', '', '', '', '', '', '']; //Order here is arbitrary (and will be invisible on the UI since they are later sorted by roles)
+  public hiddenSummoners: boolean[] = [false, false, false, false, false, false, false, false, false, false];
+  public chatSummonerNames: string[] = [];
 
   //Trigger onCsUpdate
   public championIds = ['', '', '', '', '', '', '', '', '', ''];
@@ -31,7 +33,8 @@ export class CsInput {
 
   public static triggersLoadCsData(oldCsInput: CsInput, newCsInput: CsInput) {
     return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || 
-      !Utils.setsAreEqual(new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)));
+      !Utils.setsAreEqual(new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(newCsInput.summonerNames.filter(name => name && name.length > 0))) ||
+      !Utils.setsAreEqual(new Set(oldCsInput.chatSummonerNames), new Set(newCsInput.chatSummonerNames));
   }
 
   public static triggersNewCs(oldCsInput: CsInput, newCsInput: CsInput) {
@@ -40,7 +43,8 @@ export class CsInput {
   }
   
   public static anyChangeInSummoners(oldCsInput: CsInput, newCsInput: CsInput) {
-    return !Utils.setsAreEqual(new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)));
+    return !Utils.setsAreEqual(new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0))) ||
+    !Utils.setsAreEqual(new Set(oldCsInput.chatSummonerNames), new Set(newCsInput.chatSummonerNames));
   }
   
   public static anyVisibleChange(oldCsInput: CsInput, newCsInput: CsInput) {
@@ -116,6 +120,7 @@ export class CsManager {
   private static cscaiBeingUsed: boolean = false;
   private csTab: CsTab;
   private connectedToLcu: boolean = false;
+  private csInProgress: boolean = false;
   private swappableCs: boolean = false;
   private editableCs: boolean = false;
   private date: number = null;
@@ -126,6 +131,7 @@ export class CsManager {
   private currCsInputView = new CsInput();
   private currCsRolePredictionView = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4];
   private currCsRolePrediction = null;
+  private currGuessedNames = null;
   private currCsApiTiers = null;
   private currCsBans = null;
   private currCsScore = null;
@@ -184,7 +190,7 @@ export class CsManager {
   private init(csView: any) {
     if (!csView) return;
 
-    const { csInputView, rolePredictionView, csInput, rolePrediction, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = csView;
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = csView;
 
     this.currCsInputView = csInput;
     this.currCsRolePredictionView = rolePrediction;
@@ -209,8 +215,12 @@ export class CsManager {
   }
 
   private async handleLcuEvent(info: any) {
-    const newCsInput = await Lcu.getCsInput(this.currCsInputView, info);
-    if (newCsInput == null) return;
+    const newCsInput = await Lcu.getCsInput(this.currCsInputView, info, this.csInProgress);
+    if (newCsInput == null) {
+      this.csInProgress = false;
+      return;
+    }
+    this.csInProgress = true;
 
     await ((await this.update(newCsInput)) || {})[0];
     await this.handleGameStarting(info);
@@ -316,6 +326,7 @@ export class CsManager {
         //Start processing
         this.currCsInput = newCsInput;
         this.currCsRolePrediction = newRolePred;
+        this.currGuessedNames = null;
         this.currCsApiTiers = null;
         this.currCsBans = null;
         this.currCsScore = null;
@@ -343,8 +354,10 @@ export class CsManager {
           const dataIsInPlace = CsManager.cscaiOwner == this && !loadData;
           const prepData = await CSCAI.prepareData(this.currCsInput, dataIsInPlace ? null : this.currCsData, newRolePred, newSwappedChamps);
           CsManager.cscaiOwner = this;
-          const { historySortedByRoles, apiTiers } = prepData;
+          const { historySortedByRoles, apiTiers, guessedNames } = prepData;
+          Logger.debug(JSON.stringify({guessedNames, newRolePred}));
 
+          this.currGuessedNames = guessedNames; //This is just for debug, it doesn't affect what is shown, use hiddenSummoners if needed instead
           this.currCsApiTiers = apiTiers;
           this.currCsHistory = this.reverseRoleSortIntoDict(historySortedByRoles);
           this.currCsHistoryStats = this.extractHistoryStats(this.currCsHistory);
@@ -399,7 +412,8 @@ export class CsManager {
           const recommendationTasks = [];
           for (let i = 0; i < 10; ++i) {
             const j = i;
-            recommendationTasks.push(CSCAI.getRecommendations(j, this.getPlayedChampions(historySortedByRoles[j], j % 5)));
+            const t = CSCAI.getRecommendations(j, this.getPlayedChampions(historySortedByRoles[j], j % 5));
+            recommendationTasks.push(t);
             if (singleThread) await recommendationTasks[recommendationTasks.length - 1];
           }
           this.currCsRecommendations = {};
@@ -551,6 +565,7 @@ export class CsManager {
       rolePredictionView: this.currCsRolePredictionView,
       csInput: this.currCsInput,
       rolePrediction: this.currCsRolePrediction,
+      guessedNames: this.currGuessedNames,
       apiTiers: this.currCsApiTiers,
       lcuTiers: (this.currCsData || {}).lcuTiers,
       summonerInfo: (this.currCsData || {}).summonerInfo,

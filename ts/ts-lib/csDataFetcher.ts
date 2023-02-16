@@ -129,10 +129,12 @@ export class CsDataFetcher {
   public static async getCsData(patchInfo:any, csInput: CsInput) {
     const currCsData = new CsData();
     
+    const allSummonerNames = Array.from(new Set(csInput.summonerNames.concat(csInput.chatSummonerNames)));
+
     //Group calls to make less calls to AWS?
-    currCsData.summonerInfo = await this.cacheAndFetch(csInput.region, csInput.summonerNames, true, this.summonerCache, Aws.getSummoners);  //API call (slow)
-    const puuids = csInput.summonerNames.map(x => (currCsData.summonerInfo[x] || {}).puuid || "");
-    const summonerIds = csInput.summonerNames.map(x => (currCsData.summonerInfo[x] || {}).id || "");
+    currCsData.summonerInfo = await this.cacheAndFetch(csInput.region, allSummonerNames, true, this.summonerCache, Aws.getSummoners);  //API call (slow)
+    const puuids = allSummonerNames.map(x => (currCsData.summonerInfo[x] || {}).puuid || "");
+    const summonerIds = allSummonerNames.map(x => (currCsData.summonerInfo[x] || {}).id || "");
 
     const isFlex = CsTab.isFlex(patchInfo, csInput.queueId);
     const masteriesTask = this.cacheAndFetch(csInput.region, summonerIds, false, this.masteryCache, Aws.getMasteries); //DB
@@ -151,7 +153,7 @@ export class CsDataFetcher {
     currCsData.masteries = {};
     currCsData.tiers = {};
     
-    for (let name of csInput.summonerNames) {
+    for (let name of allSummonerNames) {
       if (name in currCsData.summonerInfo) {
         const info = currCsData.summonerInfo[name];
         currCsData.histories[name] = historiesByPuuid[info.puuid];
