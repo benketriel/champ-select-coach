@@ -26,9 +26,10 @@ export class ErrorReporting {
         data[key].stackStr = data[key].stack.toString();
       }
     }
-    const json = JSON.stringify({ type, data });
+    let json = JSON.stringify({ type, data });
     /* await */ Logger.warn('⚠⚠⚠ Unexpected Error ⚠⚠⚠');
     /* await */ Logger.warn(json);
+    if (json.length > 1000000) json = json.substring(0, 1000000); //In case something goes real wrong
 
     if (!(type in this.countByType)) {
       this.countByType[type] = 0;

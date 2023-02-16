@@ -233,7 +233,7 @@ export class PersonalTab {
       const keepResidual = this.summonerName == this.dataLoadedForName && this.region == this.dataLoadedForRegion;
       ErrorReporting.reportIfException(async () => {
         if (loadData) {
-          this.tier = null;
+          this.tier = {};
           this.clearView(keepResidual);
           this.updateTitle();
 

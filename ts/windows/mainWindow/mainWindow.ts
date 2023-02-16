@@ -424,7 +424,6 @@ export class MainWindow {
     $('.rateApp').on('click', () => { overwolf.utils.openStore({ page:overwolf.utils.enums.eStorePage.ReviewsPage, uid:"ljkaeojllenacnoipfcdpdllhcfndmohikaiphgi"}); });
 
     $('body').on('keyup', async e => {
-      $(':focus').trigger('blur');
       if (new Date().getTime() - MainWindow.lastKeyPress < 250) return;
       if (Tutorial.isShowingTutorial()) {
         e.preventDefault(); 
@@ -438,6 +437,7 @@ export class MainWindow {
         $('.slide-overlay').animate({ left: '100%' });
       } 
       if (e.key === "Enter") {
+        $(':focus').trigger('blur');
         Popup.yes();
         e.preventDefault(); 
       } 

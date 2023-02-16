@@ -1001,7 +1001,7 @@ export const TranslatedText = {
   tutCSReady8: {
     english: 'Here are latest games, <span style="color: green">Green</span> for victory and <span style="color: red">Red</span> for defeat. A small separator indicates the player took a break between those games. Hover for more info!',
     spanish: 'Aquí se ven las últimas partidas, en <span style="color: green">verde</span> ganadas y en <span style="color: red">rojo</span> perdidas. Un pequeño separador indica que el jugador tomó una pausa entre estas partidas. Pase el cursor para más información!',
-    french: 'Voici les dernières parties, en <span style="color: green">vert</span> pour les victoires et <span style="color: red">rouge</span> pour les défaites. Un séparateur indique que le joueur a fait une pause entre ces parties. Passez la souris dessus pour plus d\'informations !',
+    french: 'Voici les dernières parties, en <span style="color: green">vert</span> pour les victoires et <span style="color: red">rouge</span> pour les défaites. Un séparateur indique que le joueur a fait une pause entre ces parties. Passez la souris dessus pour plus d\'informations!',
   },
   tutCSReady9: {
     english: "This shows the odds of your team's player on this role to have more experience at 3:00 (lane prio)",
