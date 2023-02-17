@@ -1,3 +1,4 @@
+import { version } from "./consts";
 import { Aws } from "./aws";
 import { Logger } from "./logger";
 import { Popup } from "./popup";
@@ -26,7 +27,7 @@ export class ErrorReporting {
         data[key].stackStr = data[key].stack.toString();
       }
     }
-    let json = JSON.stringify({ type, data });
+    let json = JSON.stringify({ type, data, version });
     /* await */ Logger.warn('⚠⚠⚠ Unexpected Error ⚠⚠⚠');
     /* await */ Logger.warn(json);
     if (json.length > 1000000) json = json.substring(0, 1000000); //In case something goes real wrong

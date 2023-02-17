@@ -353,11 +353,13 @@ export class Lcu {
   }
 
   public static async getSummonersTierByName(summonerNames: Array<string>) {
+    const result = {};
+    if (!summonerNames) return { result };
+    
     const lcuPuuids = <string[]>await Lcu.getSummonerPuuidsByName(summonerNames);
     const lcuTiers = await Lcu.getSummonersTierByPuuid(lcuPuuids);
-    const result = {};
     for (let i = 0; i < summonerNames.length; ++i) {
-      if (summonerNames[i] && lcuTiers[i]) {
+      if (summonerNames[i] && lcuTiers && lcuTiers[i]) {
         result[summonerNames[i]] = lcuTiers[i];
       }
     }

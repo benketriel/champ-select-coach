@@ -10,6 +10,7 @@ import { ErrorReporting } from "./errorReporting";
 import { Logger } from "./logger";
 import { CsTab } from "./csTab";
 import { LocalStorage } from "./localStorage";
+import { MainWindow } from "../windows/mainWindow/mainWindow";
 
 
 export class CsInput {
@@ -43,8 +44,7 @@ export class CsInput {
   }
   
   public static anyChangeInSummoners(oldCsInput: CsInput, newCsInput: CsInput) {
-    return !Utils.setsAreEqual(new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0))) ||
-    !Utils.setsAreEqual(new Set(oldCsInput.chatSummonerNames), new Set(newCsInput.chatSummonerNames));
+    return !Utils.setsAreEqual(new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)));
   }
   
   public static anyVisibleChange(oldCsInput: CsInput, newCsInput: CsInput) {
@@ -647,7 +647,11 @@ export class CsManager {
 
         //Note: no await between you start to use manager and when you call update on it
         {
-          const sToCs = this.findSpectatorToCsMapping(manager.currCsInputView.summonerNames, csInput.summonerNames);
+          const patchInfo = MainWindow.instance().patchInfo;
+          const isRanked = patchInfo.RankedQueueTypeIds.includes(parseInt(csInput.queueId));
+          const sToCs = isRanked ? 
+            this.findSpectatorToCsMapping(manager.currCsInputView.championIds, csInput.championIds):
+            this.findSpectatorToCsMapping(manager.currCsInputView.summonerNames, csInput.summonerNames);
           if (sToCs) {
             //roles not in the data here
             csInput.assignedRoles =  this.applyMapping(manager.currCsInputView.assignedRoles, sToCs);
