@@ -23,6 +23,7 @@ export class Lcu {
   private static LCU_TIMEOUT_MILLIS = 12000;
   private static LastAskedForChat = 0;
   private static LCU_CHAT_TIMEOUT_MILLIS = 10000;
+  private static RiotCredsInProgress = false;
   private static RiotPort = '';
   private static RiotToken = '';
   private static RiotVersion = '';
@@ -368,11 +369,22 @@ export class Lcu {
   }
 
   public static async getSummonerNamesFromChat() {
-    return []; //TODO remove when this feature is enabled
+    //return []; //TODO remove when this feature is enabled
     try {
+      let maxWait = 10;
+      while ((this.RiotPort == '' || this.RiotToken == '') && this.RiotCredsInProgress && maxWait-- > 0) {
+        await Timer.wait(1000); //Prevent spam on that function
+      }
 
       if (this.RiotPort == '' || this.RiotToken == '') {
-        var creds = await CSCAI.getRiotConnectionCreds();
+        let creds = null;
+        try {
+          this.RiotCredsInProgress = true;
+          creds = await CSCAI.getRiotConnectionCreds();
+        } finally {
+          this.RiotCredsInProgress = false;
+        }
+        
         this.RiotToken = creds[0];
         this.RiotPort = creds[1];
         this.DbgTrace = creds[2];
@@ -385,7 +397,13 @@ export class Lcu {
       let res = await Lcu.riotRequest(lcuUrls.ChatParticipants);
 
       if (!res || !res.participants) {
-        var creds = await CSCAI.getRiotConnectionCreds();
+        let creds = null;
+        try {
+          this.RiotCredsInProgress = true;
+          creds = await CSCAI.getRiotConnectionCreds();
+        } finally {
+          this.RiotCredsInProgress = false;
+        }
         this.RiotToken = creds[0];
         this.RiotPort = creds[1];
         this.DbgTrace = creds[2];
