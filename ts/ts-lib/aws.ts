@@ -8,7 +8,7 @@ import { Logger } from "./logger";
 export class Aws {
   
   // private static URL = 'https://i0usojya1l.execute-api.us-east-2.amazonaws.com/cscGate';
-  //private static URL = 'https://i0usojya1l.execute-api.us-east-2.amazonaws.com/cscGateTest';
+  // private static URL = 'https://i0usojya1l.execute-api.us-east-2.amazonaws.com/cscGateTest';
   private static URL = 'https://i0usojya1l.execute-api.us-east-2.amazonaws.com/cscGateRuby';
 
 

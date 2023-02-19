@@ -38,7 +38,7 @@ export class ErrorReporting {
     this.countByType[type]++;
     if (this.countByType[type] > this.MAX_OF_SAME_TYPE) return;
 
-    let region = 'KR';
+    let region = '<Unknown region>';
     let name = '<Unknown reporter name>';
     let summonerId = '<Unknown reporter id>';
     if (this.LazyLcu && this.LazyCsDataFetcher) {

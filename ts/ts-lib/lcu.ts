@@ -26,6 +26,7 @@ export class Lcu {
   private static RiotPort = '';
   private static RiotToken = '';
   private static RiotVersion = '';
+  private static DbgTrace = '';
 
   public static async lcuRequest(cred: any, query: string): Promise<any> {
     const url = `https://127.0.0.1:${cred.port}/${query}`;
@@ -373,8 +374,10 @@ export class Lcu {
         var creds = await CSCAI.getRiotConnectionCreds();
         this.RiotToken = creds[0];
         this.RiotPort = creds[1];
+        this.DbgTrace = creds[2];
         if (this.RiotPort == '' || this.RiotToken == '') {
           Logger.log('Failed to connect to RiotClientServices');
+          ErrorReporting.report('getSummonerNamesFromChat', { dbgTrace: this.DbgTrace });
           return [];
         }
       }
@@ -384,8 +387,10 @@ export class Lcu {
         var creds = await CSCAI.getRiotConnectionCreds();
         this.RiotToken = creds[0];
         this.RiotPort = creds[1];
+        this.DbgTrace = creds[2];
         if (this.RiotPort == '' || this.RiotToken == '') {
           Logger.log('Failed to connect to RiotClientServices');
+          ErrorReporting.report('getSummonerNamesFromChat', { dbgTrace: this.DbgTrace });
           return [];
         }
         res = await Lcu.riotRequest(lcuUrls.ChatParticipants);
@@ -398,7 +403,7 @@ export class Lcu {
         Logger.log('Successfully found ' + names.length + ' summoner names in current lobby');
         return names;
       } else {
-        ErrorReporting.report('getSummonerNamesFromChat', { res });
+        ErrorReporting.report('getSummonerNamesFromChat', { res, dbgTrace: this.DbgTrace });
       }
       return [];
     } catch (ex) {
