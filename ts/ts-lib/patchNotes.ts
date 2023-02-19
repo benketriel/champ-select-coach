@@ -161,10 +161,16 @@ export class PatchNotes {
         'Improved error handling'
       ]],
 
-      // ['v0.3.5', '2022/09/30', '3rd AI Rework - Subscriptions', [
-      //   'Subscriptions are available so you can support the app, remove ads and unlock a few more features (future features may also be subscription-only).',
+      ['v0.3.5', '2023/02/13', 'French and bugfixes', [
+        'French is now available as a language in settings - Big thanks for <b>Midnight</b> for his help with translation!',
+        'Somre more bugs fixed',
+        'Improved error handling'
+      ]],
+
+      //['v0.3.6', '2022/09/30', '3rd AI Rework - Subs and editable lobbies!', [
+      //   'Subscriptions are available so you can support the app, remove ads and unlock a few more features (some more features in the future may also be subscription-only).',
       //   'Subscription only: Ads removed.',
-      //   'Subscription only: Any champion select can be cloned into edit mode, where the champions, player names, region and side can be freely edited, simulating ficticious lobbies. This can be used for example in clash to decide beforehand what to play or ban, check what CSC would say for your friend\'s game, or to go back into an old game and check how various changes would affect the scores. Keep in mind that simulating very old games where the elo of the players has changed a lot since, can give unstable results.',
+      //   'Subscription only: Any champion select can be cloned into edit mode, where the champions, player names, region and side can be freely edited, simulating ficticious lobbies. This can be used for example in clash to decide beforehand what to play or ban, check what CSC would say for your friend\'s game, or to go back into an old game and check how various changes would affect the scores.',
       //   'Subscription only: A minimap with the champions is shown instead of the ads.',
       // ]],
         //'Multiple 3rd party tools can be configured to open when clicking the champions.',

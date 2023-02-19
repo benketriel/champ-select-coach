@@ -368,6 +368,7 @@ export class Lcu {
   }
 
   public static async getSummonerNamesFromChat() {
+    return []; //TODO remove when this feature is enabled
     try {
 
       if (this.RiotPort == '' || this.RiotToken == '') {
