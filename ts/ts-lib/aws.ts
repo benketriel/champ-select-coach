@@ -167,7 +167,7 @@ export class Aws {
 
   public static async getSetting(name: string) {
     const msg = JSON.stringify({Action:"RubyGetDynamicSettings", Arguments:{ name }});
-    const res = await Aws.retrying({name, name_:'getSetting'}, 3, () => Aws.get(msg), r => {
+    const res = await Aws.retrying({name, name_:'getSetting'}, 5, () => Aws.get(msg), r => {
       if (!r) return false;
       Logger.log({
         name: 'getSetting',
@@ -175,7 +175,7 @@ export class Aws {
         settingName: name,
       });
       return true;
-    });
+    }, 30000);
     return res;
   }
 
