@@ -49,8 +49,7 @@
       "matches": [
         "https://*.google-analytics.com",
         "http://*.google-analytics.com",
-        "https://www.googleapis.com",
-        "https://*.execute-api.us-east-2.amazonaws.com"
+        "https://www.googleapis.com"
       ]
     },
     "force_browser": "user",

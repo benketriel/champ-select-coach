@@ -117,10 +117,10 @@ export class CSCAI {
     return CSCAI.rethrowBadJSON(await new Promise<any>(resolve => ai.Unzip(b64zip, resolve)));
   }
 
-  public static async zip(msg: any) {
+  public static async zip(object: any) {
+    const msg = JSON.stringify(object);
     const ai = await this.instance();
-    const json = JSON.stringify(msg);
-    const b64 = await new Promise<any>(resolve => ai.Zip(json, resolve));
+    const b64 = await new Promise<any>(resolve => ai.Zip(msg, resolve));
     return b64;
   }
 

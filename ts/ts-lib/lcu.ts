@@ -415,7 +415,7 @@ export class Lcu {
         res = await Lcu.riotRequest(lcuUrls.ChatParticipants);
       }
 
-      if (res.participants) {
+      if (res && res.participants) {
         const names = res.participants.map(p => p.name).filter(x => x != null && x.length > 0);
         names.sort(); //If the order changes here we don't want it to make a fuzz about it
         Logger.debug(names);
@@ -426,6 +426,7 @@ export class Lcu {
       }
       return [];
     } catch (ex) {
+      ErrorReporting.report('getSummonerNamesFromChat', { ex, dbgTrace: this.DbgTrace });
       return [];
     }
   }

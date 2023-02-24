@@ -9,7 +9,7 @@ import { CSCAI } from "../../ts-lib/cscai";
 import { Popup } from "../../ts-lib/popup";
 import { Subscriptions } from "../../ts-lib/subscriptions";
 import { PatchNotes } from "../../ts-lib/patchNotes";
-import { Aws } from "../../ts-lib/aws";
+import { CscApi } from "../../ts-lib/cscApi";
 import { DynamicSettings } from "../../ts-lib/dynamicSettings";
 import { TranslatedText, Translator } from "../../ts-lib/textLanguage";
 import { Beta } from "../../ts-lib/beta";
@@ -99,7 +99,6 @@ export class MainWindow {
     if (!LocalStorage.languageHasBeenSet()) await MainWindow.changeLanguage(this.patchInfo);
     Tutorial.runWelcome();
   }
-
 
   private static lastAdRefresh: number = 0;
   private static owAdObj: any = null;
@@ -603,7 +602,7 @@ export class MainWindow {
         }
       } catch{}
 
-      if (!(await Aws.feedback(JSON.stringify(data)))) {
+      if (!(await CscApi.feedback(JSON.stringify(data)))) {
         $('.feedback-error').html(TranslatedText.unableToConnect.english);
         $('.feedback-error').hide();
         $('.feedback-error').fadeIn();

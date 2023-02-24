@@ -1,4 +1,4 @@
-import { Aws } from "./aws";
+import { CscApi } from "./cscApi";
 import { CsData, CsInput } from "./csManager";
 import { CsTab } from "./csTab";
 import { Lcu } from "./lcu";
@@ -53,19 +53,19 @@ export class CsDataFetcher {
 
   private static historyCache = new Cache(100, 5);
   private static masteryCache = new Cache(100, 24 * 60);
-  private static awsSoloQTierCache = new Cache(100, 24 * 60);
-  private static awsFlexTierCache = new Cache(100, 24 * 60);
+  private static cscApiSoloQTierCache = new Cache(100, 24 * 60);
+  private static cscApiFlexTierCache = new Cache(100, 24 * 60);
   private static lcuTierCache = new Cache(100, 5);
 
   public static async getPuuidByRegionAndName(region: string, name: string) {
-    const summonerInfos = await this.cacheAndFetch(region, [name], true, this.summonerCache, Aws.getSummoners);  //API call (slow)
+    const summonerInfos = await this.cacheAndFetch(region, [name], true, this.summonerCache, CscApi.getSummoners);  //API call (slow)
     const puuid = (summonerInfos[name] || {}).puuid || null;
 
     return puuid;
   }
 
   public static async getSummonerIdByRegionAndName(region: string, name: string) {
-    const summonerInfos = await this.cacheAndFetch(region, [name], true, this.summonerCache, Aws.getSummoners);  //API call (slow)
+    const summonerInfos = await this.cacheAndFetch(region, [name], true, this.summonerCache, CscApi.getSummoners);  //API call (slow)
     const summonerId = (summonerInfos[name] || {}).id || null;
 
     return summonerId;
@@ -74,19 +74,19 @@ export class CsDataFetcher {
   public static async getPersonalData(region: string, name: string, soloQueue: boolean) {
     const csData = new CsData();
 
-    //Group calls to make less calls to AWS?
-    csData.summonerInfo = await this.cacheAndFetch(region, [name], true, this.summonerCache, Aws.getSummoners);  //API call (slow)
+    //Group calls to make less calls to CscApi?
+    csData.summonerInfo = await this.cacheAndFetch(region, [name], true, this.summonerCache, CscApi.getSummoners);  //API call (slow)
     const puuids = [(csData.summonerInfo[name] || {}).puuid || ""];
     const summonerIds = [(csData.summonerInfo[name] || {}).id || ""];
 
-    const masteriesTask = this.cacheAndFetch(region, summonerIds, false, this.masteryCache, Aws.getMasteries); //DB
-    const tiersTask = this.cacheAndFetch(region, summonerIds, false, soloQueue ? this.awsSoloQTierCache : this.awsFlexTierCache, 
-      (region: string, sIds: string[]) => Aws.getTiers(region, soloQueue, sIds)); //DB
+    const masteriesTask = this.cacheAndFetch(region, summonerIds, false, this.masteryCache, CscApi.getMasteries); //DB
+    const tiersTask = this.cacheAndFetch(region, summonerIds, false, soloQueue ? this.cscApiSoloQTierCache : this.cscApiFlexTierCache, 
+      (region: string, sIds: string[]) => CscApi.getTiers(region, soloQueue, sIds)); //DB
     
-    const historiesByPuuid = await this.cacheAndFetch(region, puuids, true, this.historyCache, Aws.getHistories); //API call (slow)
+    const historiesByPuuid = await this.cacheAndFetch(region, puuids, true, this.historyCache, CscApi.getHistories); //API call (slow)
     const matchIds = <string[]>[...new Set(Utils.flattenArray(Object.keys(historiesByPuuid).map(x => historiesByPuuid[x])))];
 
-    csData.matches =  await this.cacheAndFetch(region, matchIds, false, this.matchCache, Aws.getMatches); //API+DB (slow)
+    csData.matches =  await this.cacheAndFetch(region, matchIds, false, this.matchCache, CscApi.getMatches); //API+DB (slow)
     const masteriesBySummonerId =  await masteriesTask;
     const tiersBySummonerId =  await tiersTask;
 
@@ -117,8 +117,8 @@ export class CsDataFetcher {
   }
 
   public static async getCscHistoryData(region: string, puuid: string) {
-    const t0 = puuid == null ? (() => {}) : Aws.getCscHistory(region, puuid);
-    const t1 = Aws.getCscHistogram();
+    const t0 = puuid == null ? (() => {}) : CscApi.getCscHistory(region, puuid);
+    const t1 = CscApi.getCscHistogram();
 
     const personalHistory = (await t0 || {}).result || [];
     const globalHistogram = (await t1 || {}).result || [];
@@ -131,20 +131,20 @@ export class CsDataFetcher {
     
     const allSummonerNames = Array.from(new Set(csInput.summonerNames.concat(csInput.chatSummonerNames)));
 
-    //Group calls to make less calls to AWS?
-    currCsData.summonerInfo = await this.cacheAndFetch(csInput.region, allSummonerNames, true, this.summonerCache, Aws.getSummoners);  //API call (slow)
+    //Group calls to make less calls to CscApi?
+    currCsData.summonerInfo = await this.cacheAndFetch(csInput.region, allSummonerNames, true, this.summonerCache, CscApi.getSummoners);  //API call (slow)
     const puuids = allSummonerNames.map(x => (currCsData.summonerInfo[x] || {}).puuid || "");
     const summonerIds = allSummonerNames.map(x => (currCsData.summonerInfo[x] || {}).id || "");
 
     const isFlex = CsTab.isFlex(patchInfo, csInput.queueId);
-    const masteriesTask = this.cacheAndFetch(csInput.region, summonerIds, false, this.masteryCache, Aws.getMasteries); //DB
-    const tiersTask = this.cacheAndFetch(csInput.region, summonerIds, false, isFlex ? this.awsFlexTierCache : this.awsSoloQTierCache, 
-      (region: string, sIds: string[]) => Aws.getTiers(region, !isFlex, sIds)); //DB
+    const masteriesTask = this.cacheAndFetch(csInput.region, summonerIds, false, this.masteryCache, CscApi.getMasteries); //DB
+    const tiersTask = this.cacheAndFetch(csInput.region, summonerIds, false, isFlex ? this.cscApiFlexTierCache : this.cscApiSoloQTierCache, 
+      (region: string, sIds: string[]) => CscApi.getTiers(region, !isFlex, sIds)); //DB
     
-    const historiesByPuuid = await this.cacheAndFetch(csInput.region, puuids, true, this.historyCache, Aws.getHistories); //API call (slow)
+    const historiesByPuuid = await this.cacheAndFetch(csInput.region, puuids, true, this.historyCache, CscApi.getHistories); //API call (slow)
     const matchIds = <string[]>[...new Set(Utils.flattenArray(Object.keys(historiesByPuuid).map(x => historiesByPuuid[x])))];
 
-    currCsData.matches =  await this.cacheAndFetch(csInput.region, matchIds, false, this.matchCache, Aws.getMatches); //API+DB (slow)
+    currCsData.matches =  await this.cacheAndFetch(csInput.region, matchIds, false, this.matchCache, CscApi.getMatches); //API+DB (slow)
     const masteriesBySummonerId =  await masteriesTask;
     const tiersBySummonerId =  await tiersTask;
 

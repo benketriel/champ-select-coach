@@ -5,7 +5,7 @@ import { Lcu } from "./lcu";
 import { Utils } from "./utils";
 import { CSCAI } from "./cscai";
 import { Timer } from "./timer";
-import { Aws } from "./aws";
+import { CscApi } from "./cscApi";
 import { ErrorReporting } from "./errorReporting";
 import { Logger } from "./logger";
 import { CsTab } from "./csTab";
@@ -614,7 +614,7 @@ export class CsManager {
     let csInput = null;
     while (Date.now() < this.pollingUntil) {
       try {
-        spect = await Aws.getRunningGame(nr.region, sId);
+        spect = await CscApi.getRunningGame(nr.region, sId);
 
         if (spect == null || !spect.result || !spect.result.participants || spect.result.participants.length != 10) {
           await Timer.wait(pollingIntervalMs);
@@ -713,7 +713,7 @@ export class CsManager {
       const side = CsInput.getOwnerIdx(data.csInputView) < 5 ? 0 : 1;
       const partialPrediction = data.score.partial ? data.score.partial[side][0][side] : 0.5;
       const fullPrediction = data.score.full ? data.score.full[0][side] : 0.5;
-      await Aws.uploadPrediction(nr.region, puuid, JSON.stringify(data), partialPrediction.toString(), fullPrediction.toString());
+      await CscApi.uploadPrediction(nr.region, puuid, JSON.stringify(data), partialPrediction.toString(), fullPrediction.toString());
   
     } catch (ex) {
       ErrorReporting.report('uploadCurrentCS', {ex, data});

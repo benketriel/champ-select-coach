@@ -18,12 +18,17 @@ export class LocalStorage {
   public static async getCsHistory() { 
     const zipped = LocalStorage.get('cs-history');
     if (!zipped) return [];
-    const h = JSON.parse(await CSCAI.unzip(zipped));
+    let h = await CSCAI.unzip(zipped);
+    if (h && !Array.isArray(h)) {
+      try {
+        h = JSON.parse(h);
+      } catch { }
+    };
     if (!h || !Array.isArray(h)) return [];
     return h;
   }
   public static async setCsHistory(history: any[]) { 
-    LocalStorage.set('cs-history', await CSCAI.zip(JSON.stringify(history)));
+    LocalStorage.set('cs-history', await CSCAI.zip(history));
   }
 
   public static getAutoOpenMode() { return parseInt(LocalStorage.get('auto-open-mode') || '0'); }

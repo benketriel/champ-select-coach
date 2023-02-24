@@ -1,4 +1,4 @@
-import { Aws } from "./aws";
+import { CscApi } from "./cscApi";
 import { LocalStorage } from "./localStorage";
 import { Timer } from "./timer";
 
@@ -16,7 +16,7 @@ export class DynamicSettings {
   public async pollForStatusUpdates() { 
     while (true) {
       const oldStatus = this.currStatus;
-      this.currStatus = await Aws.getSetting('status');
+      this.currStatus = await CscApi.getSetting('status');
       if (oldStatus == null || oldStatus != this.currStatus) {
         this.onStatusUpdate(this.currStatus);
       }

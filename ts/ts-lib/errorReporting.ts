@@ -1,5 +1,5 @@
 import { version } from "./consts";
-import { Aws } from "./aws";
+import { CscApi } from "./cscApi";
 import { Logger } from "./logger";
 import { Popup } from "./popup";
 import { TranslatedText } from "./textLanguage";
@@ -53,7 +53,7 @@ export class ErrorReporting {
       } catch{}
     }
 
-    await Aws.reportError(json, region, summonerId);
+    await CscApi.reportError(json, region, summonerId);
 
     return;
   }
