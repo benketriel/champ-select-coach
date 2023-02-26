@@ -167,6 +167,10 @@ export class PatchNotes {
         'Improved error handling'
       ]],
 
+      ['v0.3.6', '2023/02/24', 'Migration of CSC servers', [
+        'The database and CSC server was migrated'
+      ]],
+
       //['v0.3.6', '2022/09/30', '3rd AI Rework - Subs and editable lobbies!', [
       //   'Subscriptions are available so you can support the app, remove ads and unlock a few more features (some more features in the future may also be subscription-only).',
       //   'Subscription only: Ads removed.',

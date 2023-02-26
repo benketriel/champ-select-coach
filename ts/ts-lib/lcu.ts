@@ -416,7 +416,8 @@ export class Lcu {
       }
 
       if (res && res.participants) {
-        const names = res.participants.map(p => p.name).filter(x => x != null && x.length > 0);
+        let names = res.participants.map(p => p.name).filter(x => x != null && x.length > 0);
+        names = [...new Set(names)];
         names.sort(); //If the order changes here we don't want it to make a fuzz about it
         Logger.debug(names);
         Logger.log('Successfully found ' + names.length + ' summoner names in current lobby');
