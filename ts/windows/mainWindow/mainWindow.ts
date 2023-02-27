@@ -186,7 +186,7 @@ export class MainWindow {
       $('.owad-container-footer').hide();
     } else {
       $('.side-menu-add-manual-cs').hide();
-      $('.owad-container-footer').show(); //TODO put this line back once subscriptions active
+      //$('.owad-container-footer').show(); //TODO put this line back once subscriptions active
     }
 
     if (new Date().getTime() - MainWindow.lastAdRefresh > 1000 * 60 * 10) {

@@ -163,7 +163,7 @@ export class PatchNotes {
 
       ['v0.3.5', '2023/02/13', 'French and bugfixes', [
         'French is now available as a language in settings - Big thanks for <b>Midnight</b> for his help with translation!',
-        'Somre more bugs fixed',
+        'Bugs fixes',
         'Improved error handling'
       ]],
 
@@ -171,7 +171,12 @@ export class PatchNotes {
         'The database and CSC server was migrated'
       ]],
 
-      //['v0.3.6', '2022/09/30', '3rd AI Rework - Subs and editable lobbies!', [
+      ['v0.3.7', '2023/02/27', 'Champion Select optimistic AI bug fixed', [
+        'The positive bias experienced during champion select was fixed',
+        'The AI now receives more sources of information during champion select to make a more accurate prediction'
+      ]],
+
+      //['v0.3.?', '2022/09/30', 'Subs and editable lobbies', [
       //   'Subscriptions are available so you can support the app, remove ads and unlock a few more features (some more features in the future may also be subscription-only).',
       //   'Subscription only: Ads removed.',
       //   'Subscription only: Any champion select can be cloned into edit mode, where the champions, player names, region and side can be freely edited, simulating ficticious lobbies. This can be used for example in clash to decide beforehand what to play or ban, check what CSC would say for your friend\'s game, or to go back into an old game and check how various changes would affect the scores.',
