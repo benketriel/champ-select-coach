@@ -162,8 +162,8 @@ export class PatchNotes {
       ]],
 
       ['v0.3.5', '2023/02/13', 'French and bugfixes', [
-        'French is now available as a language in settings - Big thanks for <b>Midnight</b> for his help with translation!',
-        'Bugs fixes',
+        'French is now available as a language in settings - Big thanks to <b>Midnight</b> for his help with translation!',
+        'Bug fixes',
         'Improved error handling'
       ]],
 
@@ -173,7 +173,7 @@ export class PatchNotes {
 
       ['v0.3.7', '2023/02/27', 'Champion Select optimistic AI bug fixed', [
         'The positive bias experienced during champion select was fixed',
-        'The AI now receives more sources of information during champion select to make a more accurate prediction'
+        'The AI now receives more information to make a more accurate prediction'
       ]],
 
       //['v0.3.?', '2022/09/30', 'Subs and editable lobbies', [

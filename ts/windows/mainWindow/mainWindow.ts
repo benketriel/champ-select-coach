@@ -186,7 +186,7 @@ export class MainWindow {
       $('.owad-container-footer').hide();
     } else {
       $('.side-menu-add-manual-cs').hide();
-      //$('.owad-container-footer').show(); //TODO put this line back once subscriptions active
+      $('.owad-container-footer').show(); //TODO put this line back once subscriptions active
     }
 
     if (new Date().getTime() - MainWindow.lastAdRefresh > 1000 * 60 * 10) {
@@ -426,6 +426,9 @@ export class MainWindow {
       if (new Date().getTime() - MainWindow.lastKeyPress < 250) return;
       if (Tutorial.isShowingTutorial()) {
         e.preventDefault(); 
+        if (e.key === "Escape") {
+          Tutorial.advance();
+        }
         return;
       }
 

@@ -1,7 +1,6 @@
-import { Popup } from "./popup";
 import { TranslatedText } from "./textLanguage";
 import { Tutorial } from "./tutorial";
-
+import * as $ from "jquery"; //npm install --save-dev @types/jquery
 
 
 export class Subscriptions {
@@ -12,7 +11,6 @@ export class Subscriptions {
   private static lastChecked: number = 0;
   public static isSubscribed() {
     /* await */ this.updateSubscriptionStatus();
-    if (Subscriptions.subscriptionStatus) Tutorial.runProVersion();
     return Subscriptions.subscriptionStatus;
   }
 
@@ -30,6 +28,13 @@ export class Subscriptions {
   
       Subscriptions.subscriptionStatus = result;
       Subscriptions.lastChecked = new Date().getTime(); //Just in case, prevent spam
+
+      if (Subscriptions.subscriptionStatus) {
+        Tutorial.runProVersion();
+        $('.settings-button-subscribe .settings-sub-title').html(TranslatedText.manageSubscription.english);
+      } else {
+        $('.settings-button-subscribe .settings-sub-title').html(TranslatedText.getProVersion.english);
+      }
     }
   }
 

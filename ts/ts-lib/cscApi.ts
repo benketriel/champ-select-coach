@@ -4,6 +4,8 @@ import * as $ from "jquery";
 import { ErrorReporting } from "./errorReporting";
 import { Timer } from "./timer";
 import { Logger } from "./logger";
+import { Popup } from "./popup";
+import { TranslatedText } from "./textLanguage";
 
 
 export class CscApi {
@@ -210,6 +212,7 @@ export class CscApi {
   }
 
   private static failedGetInARow = 0;
+  private static shownDisconnected = false;
   public static async get(cscMessage: any) {
     const data = await CSCAI.zip(cscMessage);
     let r = await new Promise<any>(resolve => {
@@ -220,14 +223,21 @@ export class CscApi {
         data: data,
         processData: false,
         success: function(res) { 
+          CscApi.shownDisconnected = false;
           CscApi.failedGetInARow = 0;
           resolve(res); 
         },
         error: function(res) { 
-          CscApi.failedGetInARow++;
-          if (CscApi.failedGetInARow > 10) {
-            CscApi.failedGetInARow = -100; //Cooldown
-            ErrorReporting.report('CscApi request', JSON.stringify({res, data}));
+          if (res.status == 0 && !CscApi.shownDisconnected) {
+            CscApi.shownDisconnected = true;
+            Popup.message(TranslatedText.error.english, TranslatedText.disconnected.english);
+          }
+          if (res.status != 0) {
+            CscApi.failedGetInARow++;
+            if (CscApi.failedGetInARow > 10) {
+              CscApi.failedGetInARow = -100; //Cooldown
+              ErrorReporting.report('CscApi request', JSON.stringify({res, data}));
+            }
           }
           resolve(null);
         }

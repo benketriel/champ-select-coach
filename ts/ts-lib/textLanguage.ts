@@ -782,6 +782,11 @@ export const TranslatedText = {
     spanish: 'Suscribir a CSC',
     french: 'Abonnez vous à la version pro',
   },
+  manageSubscription: {
+    english: "Manage subscription",
+    spanish: 'Administrar suscripción',
+    french: 'Gérer l\'abonnement', //TODO check translation
+  },
   resetTutorial: {
     english: 'Reset Tutorial',
     spanish: 'Resetear Tutorial',

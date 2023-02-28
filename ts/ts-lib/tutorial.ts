@@ -68,8 +68,8 @@ export class Tutorial {
         focusX2: Tutorial.WINDOW_WIDTH / 2, 
         focusY1: Tutorial.WINDOW_HEIGHT / 2, 
         focusY2: Tutorial.WINDOW_HEIGHT / 2, 
-        msgX: Tutorial.WINDOW_WIDTH / 2, 
-        msgY: 150, 
+        msgX: Tutorial.WINDOW_WIDTH / 2,
+        msgY: 150,
         msgMaxWidth: 500,
         text: TranslatedText.tutWelcome0.english,
         onStart: () => {
@@ -82,8 +82,8 @@ export class Tutorial {
         focusX2: 210, 
         focusY1: 35, 
         focusY2: 125, 
-        msgX: 105, 
-        msgY: 125, 
+        msgX: 105,
+        msgY: 125,
         msgMaxWidth: 150,
         text: TranslatedText.tutWelcome1.english,
         onStart: () => {}, 
@@ -792,6 +792,14 @@ export class Tutorial {
     Tutorial.updateView();
   }
 
+  public static advance() {
+    if (0 <= Tutorial.currentTutorialIndex && Tutorial.currentTutorialIndex < Tutorial.currentTutorialSteps.length - 1) {
+      this.goNext();
+    } else if (Tutorial.currentTutorialIndex == Tutorial.currentTutorialSteps.length - 1) {
+      this.goEnd();
+    }
+  }
+
   private static updateView() {
     if (Popup.popupShowing()) {
       $('.tutorial-bg-0').hide();
@@ -850,7 +858,7 @@ export class Tutorial {
   }
 
   private static setInfoBox(text: string, first: boolean, last: boolean, x: number, y: number, maxW: number) {
-    x = Math.max(0, Math.min(Tutorial.WINDOW_WIDTH - 100, x));
+    x = Math.max(0, Math.min(Tutorial.WINDOW_WIDTH - 200, x));
     y = Math.max(0, Math.min(Tutorial.WINDOW_HEIGHT - 100, y));
 
     if (last) {
@@ -875,6 +883,11 @@ export class Tutorial {
       $('.tutorial-text-msg').css('max-width', maxW + 'px');
       $('.tutorial-text-msg').html(text);
       const w = $('.tutorial-text-box').outerWidth();
+      const h = $('.tutorial-text-box').outerHeight();
+
+      x = Math.max(0, Math.min(Tutorial.WINDOW_WIDTH - w/2, x));
+      y = Math.max(0, Math.min(Tutorial.WINDOW_HEIGHT - h, y));
+  
       $('.tutorial-text-box').animate({'top': y, 'left': x - w/2}, 1, () => {
         $('.tutorial-text-msg').hide();
         $('.tutorial-text-msg').slideDown(200);
@@ -887,10 +900,14 @@ export class Tutorial {
 
       $('.tutorial-text-msg').css('max-width', maxW + 'px');
       $('.tutorial-text-msg').html(text);
-      $('.tutorial-text-box').css('top', y);
-      $('.tutorial-text-box').css('left', x - maxW / 2);
+      $('.tutorial-text-box').css('top', 0);
+      $('.tutorial-text-box').css('left', 0);
       const w = $('.tutorial-text-box').outerWidth();
-
+      const h = $('.tutorial-text-box').outerHeight();
+  
+      x = Math.max(0, Math.min(Tutorial.WINDOW_WIDTH - w/2, x));
+      y = Math.max(0, Math.min(Tutorial.WINDOW_HEIGHT - h, y));
+  
       $('.tutorial-text-msg').html(prevText);
       $('.tutorial-text-msg').css('max-width', prevMaxW);
       $('.tutorial-text-box').css('top', prevTop);
