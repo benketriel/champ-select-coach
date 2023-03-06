@@ -63,6 +63,16 @@ export class CSCAI {
     return CSCAI.rethrowBadJSON(await new Promise<any>(resolve => ai.GetPatchInfo(resolve)));
   }
 
+  public static async championNameToId(name: string) {
+    const ai = await this.instance();
+    return CSCAI.rethrowStrings(await new Promise<any>(resolve => ai.ChampionNameToId(name, resolve)));
+  }
+
+  public static async summonerSpellNameToId(name: string) {
+    const ai = await this.instance();
+    return CSCAI.rethrowStrings(await new Promise<any>(resolve => ai.SummonerSpellNameToId(name, resolve)));
+  }
+
   public static async getRiotConnectionCreds() {
     const ai = await this.instance();
     return await new Promise<any>(resolve => ai.GetRiotConnectionCreds(resolve));

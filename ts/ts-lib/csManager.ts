@@ -1,4 +1,4 @@
-import { interestingFeatures } from "./consts";
+import { interestingFeatures, lcuClassId, lolClassId } from "./consts";
 import { CsDataFetcher } from "./csDataFetcher";
 import { ProgressBar } from "./progressBar"
 import { Lcu } from "./lcu";
@@ -157,10 +157,15 @@ export class CsManager {
 
     if (this.connectedToLcu) {
       //Set required features when LCU starts
-      const setRequiredFeatures = async () => { await Lcu.setRequiredFeatures([interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]); };
-      overwolf.games.launchers.onLaunched.removeListener(setRequiredFeatures);
-      overwolf.games.launchers.onLaunched.addListener(setRequiredFeatures);
-      overwolf.games.launchers.getRunningLaunchersInfo(info => { if (Lcu.isLcuRunningFromInfo(info)) { setRequiredFeatures(); }});
+      const setRequiredLCUFeatures = async () => { await Lcu.setRequiredFeatures(true, [interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]); };
+      overwolf.games.launchers.onLaunched.removeListener(setRequiredLCUFeatures);
+      overwolf.games.launchers.onLaunched.addListener(setRequiredLCUFeatures);
+      overwolf.games.launchers.getRunningLaunchersInfo(info => { if (Lcu.isLcuRunningFromInfo(info)) { setRequiredLCUFeatures(); }});
+
+      const setRequiredLolFeatures = async () => { await Lcu.setRequiredFeatures(false, [interestingFeatures.teams]); };
+      overwolf.games.onGameLaunched.removeListener(setRequiredLolFeatures);
+      overwolf.games.onGameLaunched.addListener(setRequiredLolFeatures);
+      overwolf.games.getRunningGameInfo(info => { if (Lcu.isLolRunningFromInfo(info)) { setRequiredLolFeatures(); }});
 
       //Listen for champion select
       const that = this; //Need this trick else this will be window inside the callbacks
@@ -614,37 +619,31 @@ export class CsManager {
     let csInput = null;
     while (Date.now() < this.pollingUntil) {
       try {
-        spect = await CscApi.getRunningGame(nr.region, sId);
+        let csInput = await CsManager.getPartialCsInputThroughAPI(nr.region, sId);
+        if (csInput != null && !Lcu.WHITELISTED_QUEUES.includes(csInput.queueId)) {
+          Logger.log("Active game not whitelisted queue = " + JSON.stringify(spect));
+          return null;
+        }
 
-        if (spect == null || !spect.result || !spect.result.participants || spect.result.participants.length != 10) {
+        if (csInput == null && manager.currCsInputView.queueId) {
+          csInput = await CsManager.getPartialCsInputThroughOWEvents();
+
+          if (csInput != null) {
+            csInput.queueId = manager.currCsInputView.queueId; //OW can't get it for some reason so use this
+          }
+        }
+    
+        if (csInput == null) {
           await Timer.wait(pollingIntervalMs);
           pollingIntervalMs += 1000;
           Logger.log("Active game not found = " + JSON.stringify(spect));
           continue;
         }
 
-        Logger.debug(spect);
-
-        //Not currently used:
-        //spect.gameId;
-        //spect.gameStartTime;
-
-        csInput = new CsInput();
-        csInput.queueId = spect.result.gameQueueConfigId.toString();
-
-        if (!Lcu.WHITELISTED_QUEUES.includes(csInput.queueId)) {
-          Logger.log("Active game not whitelisted queue = " + JSON.stringify(spect));
-          return;
-        }
-
         csInput.region = nr.region;
         csInput.ownerName = nr.name;
-        csInput.summonerNames = spect.result.participants.map(x => x.summonerName);
-
-        csInput.championIds = spect.result.participants.map(x => x.championId.toString());
         csInput.picking = [false, false, false, false, false, false, false, false, false, false];
-        csInput.summonerSpells = spect.result.participants.map(x => [x.spell1Id || -1, x.spell2Id || -1]);
-
+    
         //Note: no await between you start to use manager and when you call update on it
         {
           const patchInfo = MainWindow.instance().patchInfo;
@@ -671,6 +670,63 @@ export class CsManager {
         continue;
       }
     }
+  }
+
+  private static async getPartialCsInputThroughAPI(region, summonerId) {
+    const spect = await CscApi.getRunningGame(region, summonerId);
+
+    if (spect == null || !spect.result || !spect.result.participants || spect.result.participants.length != 10) return null;
+
+    const csInput = new CsInput();
+    csInput.queueId = spect.result.gameQueueConfigId.toString();
+
+    csInput.summonerNames = spect.result.participants.map(x => x.summonerName);
+    csInput.championIds = spect.result.participants.map(x => x.championId.toString());
+    csInput.summonerSpells = spect.result.participants.map(x => [x.spell1Id || -1, x.spell2Id || -1]);
+  
+    return csInput;
+  }
+
+  private static async getPartialCsInputThroughOWEvents() {
+    const liveGameInfo = await Lcu.getLiveGameInfo();
+    const csInput = new CsInput();
+    if (liveGameInfo && liveGameInfo.res && liveGameInfo.res.game_info && liveGameInfo.res.game_info.queueId) {
+      csInput.queueId = liveGameInfo.res.game_info.queueId;
+    }
+
+    if (liveGameInfo && liveGameInfo.res && liveGameInfo.res.live_client_data && liveGameInfo.res.live_client_data.all_players) {
+      const players = JSON.parse(liveGameInfo.res.live_client_data.all_players);
+
+      if (players && players.length == 10) {
+        const sortedPlayers = players.sort((a, b) => b.team.localeCompare(a.team)); // Basically comparing ORDER vs CHAOS, where ORDER should be first
+        csInput.summonerNames = sortedPlayers.map(x => x.summonerName);
+        csInput.championIds = await Promise.all(sortedPlayers.map(async x => (await CSCAI.championNameToId(x.championName)).toString()));
+        csInput.summonerSpells = await Promise.all(sortedPlayers.map(async x => [
+          await CSCAI.summonerSpellNameToId(x.summonerSpells.summonerSpellOne.displayName) || -1, 
+          await CSCAI.summonerSpellNameToId(x.summonerSpells.summonerSpellTwo.displayName) || -1
+        ]));
+
+        return csInput;
+      }
+    }
+    //This method is less preferred because it doesn't have summoner spells
+    if (liveGameInfo && liveGameInfo.res && liveGameInfo.res.game_info && liveGameInfo.res.game_info.teams) {
+      const teams = JSON.parse(decodeURI(liveGameInfo.res.game_info.teams));
+
+      if (teams && teams.length == 10) {
+        for (let i = 0; i < 10; ++i) {
+          csInput.summonerNames[i] = teams[i].summoner;
+          if (csInput.summonerNames[i].indexOf("'") != -1) { //'[NAME HERE]' **local**
+            csInput.summonerNames[i] = csInput.summonerNames[i].split("'")[1];
+          }
+          csInput.championIds[i] = (await CSCAI.championNameToId(teams[i].champion)).toString();
+        }
+
+        return csInput;
+      }
+    }
+
+    return null;
   }
 
   private static findSpectatorToCsMapping(csNames: string[], spectNames: string[]) {

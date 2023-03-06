@@ -330,7 +330,7 @@ export class MainWindow {
         event.stopPropagation(); 
       });
     }
-    $('.side-menu-add-manual-cs').on('click', async () => { $('.slide-overlay-close').trigger('click'); await MainWindow.addNewEditableHistoryCS(); });
+    $('.side-menu-add-manual-cs-plus').on('click', async () => { $('.slide-overlay-close').trigger('click'); await MainWindow.addNewEditableHistoryCS(); });
     $('.s-lcu-status').on('click', async () => { $('.slide-overlay-close').trigger('click'); await MainWindow.showPersonalTab(); });
     $('.homeButton').on('click', async () => { $('.slide-overlay-close').trigger('click'); await MainWindow.showPersonalTab(); });
 

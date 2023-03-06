@@ -1,4 +1,4 @@
-import { windowNames, interestingFeatures } from "../../ts-lib/consts";
+import { windowNames, interestingFeatures, lcuClassId } from "../../ts-lib/consts";
 import { OWWindow } from '../../ts-lib/ow-window';
 import { CSCAI } from "../../ts-lib/cscai";
 import { Lcu } from '../../ts-lib/lcu';
@@ -24,7 +24,7 @@ class BackgroundController {
     const that = this;
     //Set required features when LCU starts
     const onLcuLaunch = async () => { 
-      await Lcu.setRequiredFeatures([interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]);
+      await Lcu.setRequiredFeatures(true, [interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]);
       if (LocalStorage.getAutoOpenMode() == 0) await that.run();
     };
     overwolf.games.launchers.onLaunched.removeListener(onLcuLaunch);

@@ -1,6 +1,6 @@
 import * as $ from "jquery"; //npm install --save-dev @types/jquery
 import { MainWindow } from "../windows/mainWindow/mainWindow";
-import { interestingFeatures } from "./consts";
+import { interestingFeatures, lcuClassId } from "./consts";
 import { CSCAI } from "./cscai";
 import { CsDataFetcher } from "./csDataFetcher";
 import { CsData, CsInput, CsManager } from "./csManager";
@@ -52,13 +52,13 @@ export class PersonalTab {
     //Track LCU
     {
       const that = this; //Need this trick else this will be window inside the callbacks
-      const setRequiredFeatures = async () => { 
-        await Lcu.setRequiredFeatures([interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]);
+      const setRequiredLCUFeatures = async () => { 
+        await Lcu.setRequiredFeatures(true, [interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]);
         await this.delayedSync();
       };
-      overwolf.games.launchers.onLaunched.removeListener(setRequiredFeatures);
-      overwolf.games.launchers.onLaunched.addListener(setRequiredFeatures);
-      overwolf.games.launchers.getRunningLaunchersInfo(info => { if (Lcu.isLcuRunningFromInfo(info)) { setRequiredFeatures(); }});
+      overwolf.games.launchers.onLaunched.removeListener(setRequiredLCUFeatures);
+      overwolf.games.launchers.onLaunched.addListener(setRequiredLCUFeatures);
+      overwolf.games.launchers.getRunningLaunchersInfo(info => { if (Lcu.isLcuRunningFromInfo(info)) { setRequiredLCUFeatures(); }});
 
       const handleLcuEvent = async (event: any) => await that.syncWithLCU();
       overwolf.games.launchers.onTerminated.removeListener(handleLcuEvent);
@@ -345,10 +345,10 @@ export class PersonalTab {
 
       const setBars = (selector, x, o, t, isPercentage) => {
         elmn.find(selector + ' .personal-champions-value').html(isPercentage ? (Math.round(x * 1000) / 10).toString() + '%' : (Math.round(x * 10) / 10).toString());
-        const xo = Math.round(100 * x / Math.max(x, o));
-        const xt = Math.round(100 * x / Math.max(x, t));
+        const xo = Math.max(1, Math.round(100 * x / Math.max(x, o)));
+        const xt = Math.max(1, Math.round(100 * x / Math.max(x, t)));
         elmn.find(selector + ' .personal-champions-bar-upper').css('width', xo + '%');
-        elmn.find(selector + ' .personal-champions-bar-buffer').css('width', 'calc(' + (100 - xo) + '% - 2px)');
+        elmn.find(selector + ' .personal-champions-bar-buffer').css('width', 'calc(' + (100 - xo) + '% - 0px)');
         elmn.find(selector + ' .personal-champions-bar-lower').css('width', xt + '%');
       };
 

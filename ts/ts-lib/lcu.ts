@@ -1,4 +1,4 @@
-import { lcuClassId, lcuUrls } from "./consts";
+import { lcuClassId, lolClassId, lcuUrls } from "./consts";
 import { CSCAI } from "./cscai";
 import { CsInput } from "./csManager";
 import { ErrorReporting } from "./errorReporting";
@@ -46,25 +46,29 @@ export class Lcu {
     return res;
   }
 
-  public static async setRequiredFeatures(features): Promise<boolean> {
+  public static async setRequiredFeatures(lcu: boolean, features: string[]): Promise<boolean> {
     let tries:number = 0, result;
 
     while (tries < this._featureRetries) {
-      result = await new Promise(resolve => overwolf.games.launchers.events.setRequiredFeatures(lcuClassId, features, resolve));
+      if (lcu) {
+        result = await new Promise(resolve => overwolf.games.launchers.events.setRequiredFeatures(lcuClassId, features, resolve));
+      } else {
+        result = await new Promise(resolve => overwolf.games.events.setRequiredFeatures(features, resolve));
+      }
 
       if (result.status === 'success') {
-        Logger.log('setRequiredFeatures(): success: '+ JSON.stringify(result, null, 2));
+        Logger.log('setRequiredLCUFeatures(): success: '+ JSON.stringify(result, null, 2));
         return (result.supportedFeatures.length > 0);
       }
 
       await Timer.wait(3000);
       tries++;
       if (tries % 10 == 0) {
-        ErrorReporting.report('setRequiredFeatures', 'setRequiredFeatures(): still not finished after ' + tries + ' tries: ' + JSON.stringify(result, null, 2));
+        ErrorReporting.report('setRequiredLCUFeatures', 'setRequiredLCUFeatures(): still not finished after ' + tries + ' tries: ' + JSON.stringify(result, null, 2));
       }
     }
 
-    ErrorReporting.report('setRequiredFeatures', 'setRequiredFeatures(): failure after '+ tries +' tries: '+ JSON.stringify(result, null, 2));
+    ErrorReporting.report('setRequiredLCUFeatures', 'setRequiredLCUFeatures(): failure after '+ tries +' tries: '+ JSON.stringify(result, null, 2));
     return false;
   }
 
@@ -104,8 +108,6 @@ export class Lcu {
       
         info = JSON.parse(all_info.res.champ_select.raw);
       }
-
-      Logger.debug(info);
 
       if (!info || !info["myTeam"]) { Logger.log("InvalidInfo"); return null; }
       if (info["myTeam"].length == 0) { Logger.log("NotInChampionSelect"); return null; }
@@ -277,6 +279,12 @@ export class Lcu {
     }
   }
 
+  public static async getLiveGameInfo() {
+    const all_info: overwolf.games.events.GetInfoResult = await new Promise<overwolf.games.events.GetInfoResult>(resolve => overwolf.games.events.getInfo(resolve));
+    //Logger.debug(all_info);
+    return all_info;
+  }
+
   // public static async isLcuRunning(): Promise<boolean> {
   //   const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>(resolve => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
   //   return !(!info || !info.res || !info.res.credentials);
@@ -292,6 +300,13 @@ export class Lcu {
       }
     }
     return false;
+  }
+
+  public static isLolRunningFromInfo(lolInfo) {
+    if (!lolInfo || !lolInfo.classId) {
+      return false;
+    }
+    return lolInfo.classId == 5426;
   }
 
   public static async getSummonersTierByPuuid(puuids: Array<string>) {
@@ -369,7 +384,7 @@ export class Lcu {
   }
 
   public static async getSummonerNamesFromChat() {
-    //return []; //TODO remove when this feature is enabled
+    //return []; //To disable
     try {
       let maxWait = 10;
       while ((this.RiotPort == '' || this.RiotToken == '') && this.RiotCredsInProgress && maxWait-- > 0) {

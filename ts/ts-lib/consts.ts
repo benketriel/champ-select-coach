@@ -1,14 +1,19 @@
-const version = 'v0.3.7.1';
+const version = 'v0.3.7.2';
 const lcuClassId = 10902;
+const lolClassId = 5426;
 
 const interestingFeatures = {
+  //LCU
   game_flow: 'game_flow',
   summoner_info: 'summoner_info',
   champ_select: 'champ_select',
   lcu_info: 'lcu_info',
   lobby_info: 'lobby_info',
   end_game: 'end_game',
-  game_info: 'game_info'
+  game_info: 'game_info',
+
+  //LoL
+  teams: 'teams',
 };
 
 const windowNames = {
@@ -32,12 +37,13 @@ const lcuUrls = {
   RankedStatsQuery: 'lol-ranked/v1/ranked-stats/', //{puuid} //get tiers
   //MatchInfoQuery: 'lol-match-history/v1/games/', //{gameId} //Get game details
   
-  ChatParticipants: 'chat/v5/participants/champ-select', //Weird way to get names of people in CS
+  ChatParticipants: 'chat/v5/participants/champ-select', //Get names of people in CS
 };
 
 export {
   version,
   lcuClassId,
+  lolClassId,
   interestingFeatures,
   windowNames,
   lcuUrls
