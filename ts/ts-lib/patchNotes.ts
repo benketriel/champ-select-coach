@@ -176,12 +176,15 @@ export class PatchNotes {
         'The AI now receives more information to make a more accurate prediction'
       ]],
 
-      //['v0.3.?', '2022/09/30', 'Subs and editable lobbies', [
-      //   'Subscriptions are available so you can support the app, remove ads and unlock a few more features (some more features in the future may also be subscription-only).',
-      //   'Subscription only: Ads removed.',
-      //   'Subscription only: Any champion select can be cloned into edit mode, where the champions, player names, region and side can be freely edited, simulating ficticious lobbies. This can be used for example in clash to decide beforehand what to play or ban, check what CSC would say for your friend\'s game, or to go back into an old game and check how various changes would affect the scores.',
-      //   'Subscription only: A minimap with the champions is shown instead of the ads.',
-      // ]],
+      ['v0.3.8', '2023/03/06', 'Subs and editable lobbies', [
+        'Subscriptions are available so you can support the app, remove ads and unlock a few more features (some more features in the future may also be subscription-only).',
+        'Subscription only: Ads removed.',
+        'Subscription only: Any champion select can be cloned into edit mode, where the champions, player names, region and side can be freely edited, simulating lobbies. This can be used for example in clash to decide beforehand what to play or ban, check what CSC would say for your friend\'s game, or to go back into an old game and check how various changes would affect the scores.',
+        'Added workaround for when the running game Riot API is down to get currently running game',
+        'Minor UX fixes and optimizations',
+      ]],
+
+        // 'Subscription only: A minimap with the champions is shown instead of the ads.',
         //'Multiple 3rd party tools can be configured to open when clicking the champions.',
       ];
   }
