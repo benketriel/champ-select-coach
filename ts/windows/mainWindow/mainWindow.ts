@@ -186,7 +186,7 @@ export class MainWindow {
       $('.owad-container-footer').hide();
     } else {
       $('.side-menu-add-manual-cs').hide();
-      $('.owad-container-footer').show(); //TODO put this line back once subscriptions active
+      $('.owad-container-footer').show();
     }
 
     if (new Date().getTime() - MainWindow.lastAdRefresh > 1000 * 60 * 10) {
@@ -666,7 +666,7 @@ export class MainWindow {
       await Timer.wait(500); //Give the user time to see that it did click the button
       let currState = await Updates.getUpdateState();
       if (MainWindow.currUpdateState == null && currState != Updates.updateStates.UpToDate) {
-        Popup.message(TranslatedText.update.english, TranslatedText.updateIsAvailable.english);
+        //Popup.message(TranslatedText.update.english, TranslatedText.updateIsAvailable.english); //This popup gets annoying
       }
       MainWindow.currUpdateState = currState;
     } else if (MainWindow.currUpdateState == Updates.updateStates.UpdateAvailable) {

@@ -183,7 +183,10 @@ export class PatchNotes {
         'Added workaround for when the running game Riot API is down to get currently running game',
         'Minor UX fixes and optimizations',
       ]],
+
       ['v0.3.9', '2023/03/22', 'Milio', ['Milio Sprites']],
+      
+      ['v0.3.10', '2023/04/07', 'Southeast Asian Regions', ['Added support for regions: Philippines, Singapore, Thailand, Taiwan and Vietnam']],
 
         // 'Subscription only: A minimap with the champions is shown instead of the ads.',
         //'Multiple 3rd party tools can be configured to open when clicking the champions.',

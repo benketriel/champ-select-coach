@@ -118,9 +118,9 @@ export const TranslatedText = {
     french: 'Entrer les initiales de la région',
   },
   regionNotFound: {
-    english: 'Region not found<br>Available: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
-    spanish: 'No se encontró ninguna region con esas iniciales<br>Disponibles: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
-    french: 'Impossible de trouver la région<br>Disponibles: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, RU, TR',
+    english: 'Region not found<br>Available: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, PH, RU, SG, TH, TR, TW, VN',
+    spanish: 'No se encontró ninguna region con esas iniciales<br>Disponibles: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, PH, RU, SG, TH, TR, TW, VN',
+    french: 'Impossible de trouver la région<br>Disponibles: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, PH, RU, SG, TH, TR, TW, VN',
   },
   inputOneSummonerName: {
     english: 'Please input at least one summoner name',
