@@ -68,6 +68,7 @@ export class MainWindow {
     this.csTab = new CsTab(this.patchInfo);
     this.personalTab = new PersonalTab(this.patchInfo);
     this.dynamicSettings = new DynamicSettings(async (x: any) => await MainWindow.setStatus(x));
+    MainWindow.lastAdRefresh = new Date().getTime();
     /* await */ MainWindow.activateAds();
     /* await */ MainWindow.versionButtonClick();
 
@@ -135,6 +136,9 @@ export class MainWindow {
   }
 
   private static async refreshAds() {
+    if (new Date().getTime() - MainWindow.lastAdRefresh < 1000 * 60 * 10) return;
+    MainWindow.lastAdRefresh = new Date().getTime();
+
     MainWindow.deactivateAds(); //Not calling this makes it a black screen forever sometimes
     await Timer.wait(500);
     await MainWindow.activateAds();
@@ -163,7 +167,6 @@ export class MainWindow {
       else if(state.window_previous_state === "minimized" && state.window_state === "normal"){
         MainWindow.minimized = false;
         if (!Subscriptions.isSubscribed()) {
-          MainWindow.lastAdRefresh = new Date().getTime();
           await this.refreshAds();
         }
       }
@@ -189,12 +192,11 @@ export class MainWindow {
       $('.owad-container-footer').show();
     }
 
-    if (new Date().getTime() - MainWindow.lastAdRefresh > 1000 * 60 * 10) {
+    if (new Date().getTime() - MainWindow.lastAdRefresh > 1000 * 60 * 20) {
       await Timer.wait(1000);
-      if (new Date().getTime() - MainWindow.lastAdRefresh > 1000 * 60 * 10) {
+      if (new Date().getTime() - MainWindow.lastAdRefresh > 1000 * 60 * 20) {
         //Refresh AD if user comes back from being idle, but after 1 second of this happening
         if (MainWindow.owAdObjReady && !Subscriptions.isSubscribed()) {
-          MainWindow.lastAdRefresh = new Date().getTime();
           await this.refreshAds();
         }
       }
