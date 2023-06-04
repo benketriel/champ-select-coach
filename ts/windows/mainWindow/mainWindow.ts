@@ -68,7 +68,6 @@ export class MainWindow {
     this.csTab = new CsTab(this.patchInfo);
     this.personalTab = new PersonalTab(this.patchInfo);
     this.dynamicSettings = new DynamicSettings(async (x: any) => await MainWindow.setStatus(x));
-    MainWindow.lastAdRefresh = new Date().getTime();
     /* await */ MainWindow.activateAds();
     /* await */ MainWindow.versionButtonClick();
 
@@ -101,10 +100,10 @@ export class MainWindow {
     Tutorial.runWelcome();
   }
 
-  private static lastAdRefresh: number = 0;
   private static owAdObj: any = null;
   private static owAdObjReady: boolean = false;
   private static async activateAds() {
+    if (MainWindow.owAdObj != null) return; //Already active
     while(!_owAdConstructor) await Timer.wait(1000);
 
     //For testing use:
@@ -135,15 +134,6 @@ export class MainWindow {
     //MainWindow.owAdObjReady = false;
   }
 
-  private static async refreshAds() {
-    if (new Date().getTime() - MainWindow.lastAdRefresh < 1000 * 60 * 10) return;
-    MainWindow.lastAdRefresh = new Date().getTime();
-
-    MainWindow.deactivateAds(); //Not calling this makes it a black screen forever sometimes
-    await Timer.wait(500);
-    await MainWindow.activateAds();
-  }
-
   private static minimized = false;
   public static async handleMinimizeStateChanged(state: any) {
     if (state && state.window_name == windowNames.mainWindow) {
@@ -167,7 +157,7 @@ export class MainWindow {
       else if(state.window_previous_state === "minimized" && state.window_state === "normal"){
         MainWindow.minimized = false;
         if (!Subscriptions.isSubscribed()) {
-          await this.refreshAds();
+          await MainWindow.activateAds();
         }
       }
     }
@@ -191,17 +181,6 @@ export class MainWindow {
       $('.side-menu-add-manual-cs').hide();
       $('.owad-container-footer').show();
     }
-
-    if (new Date().getTime() - MainWindow.lastAdRefresh > 1000 * 60 * 20) {
-      await Timer.wait(1000);
-      if (new Date().getTime() - MainWindow.lastAdRefresh > 1000 * 60 * 20) {
-        //Refresh AD if user comes back from being idle, but after 1 second of this happening
-        if (MainWindow.owAdObjReady && !Subscriptions.isSubscribed()) {
-          await this.refreshAds();
-        }
-      }
-    }
-
   }
 
   public repositionOverflowingPopup(elmn: any) {

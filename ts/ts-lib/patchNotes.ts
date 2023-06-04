@@ -189,6 +189,7 @@ export class PatchNotes {
       ['v0.3.10', '2023/04/07', 'Southeast Asian Regions', ['Added support for regions: Philippines, Singapore, Thailand, Taiwan and Vietnam']],
 
       ['v0.3.11', '2023/05/21', 'Bugfix', ['Fixed minor bug regarding ads']],
+      ['v0.3.12', '2023/05/21', 'Bugfix', ['Fixed minor bug regarding ads (another one)']],
 
         // 'Subscription only: A minimap with the champions is shown instead of the ads.',
         //'Multiple 3rd party tools can be configured to open when clicking the champions.',
