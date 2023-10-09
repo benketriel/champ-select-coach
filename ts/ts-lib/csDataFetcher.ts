@@ -193,7 +193,7 @@ export class CsDataFetcher {
         division = lcuTier.queueMap.RANKED_FLEX_SR.division;
         lp = lcuTier.queueMap.RANKED_FLEX_SR.leaguePoints;
       }
-      if (["iron", "bronze", "silver", "gold", "platinum", "diamond", "master", "grandmaster", "challenger"].includes(tier)) {
+      if (["iron", "bronze", "silver", "gold", "platinum", "emerald", "diamond", "master", "grandmaster", "challenger"].includes(tier)) {
         if (["master", "grandmaster", "challenger"].includes(tier)) {
           division = '';
         }

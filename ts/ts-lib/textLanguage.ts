@@ -479,6 +479,11 @@ export const TranslatedText = {
     spanish: 'Histograma de Predicciones',
     french: 'Histogramme de prédictions',
   },
+  hitogramTooltip: {
+    english: "Shows the average winrates distributed by the score. <br>The AI tries to maintain a linear relationship of <br>win rate to the score. In a lighter color is the <br>amount. Showing only the last 6 months.",
+    spanish: 'Muestra las tasas de victoria promedio distribuidas por la puntuación. <br>La IA intenta mantener una relación lineal de la tasa de victorias <br>con la puntuación. En un color más claro se muestra la cantidad. <br>Mostrando solo los últimos 6 meses.',
+    french: 'Montre les taux de victoire moyens répartis par le score. <br>L\'IA essaie de maintenir une relation linéaire entre le taux <br>de victoire et le score. La quantité est indiquée dans une <br>couleur plus claire. Affiche uniquement les 6 derniers mois.',
+  },
   cscScore: {
     english: "CSC Score",
     spanish: 'Puntuación CSC',
@@ -594,6 +599,12 @@ export const TranslatedText = {
     spanish: 'En la partida',
     french: 'En jeu',
   },
+  colorExplanation: {
+    english: "In white, the AI accuracy on all <br>games, in blue CSC users, <br>and in pink your own games",
+    spanish: 'En blanco, la precisión de la IA en todas <br>las partidas, en azul los usuarios de CSC, <br>y en rosa tus propias partidas',
+    french: 'En blanc, la précision de l\'IA dans tous <br>les jeux, en bleu les utilisateurs de CSC, <br>et en rose vos propres jeux',
+  },
+  
 
   //FAQ
   whatDoesTheScoreRepresent: {

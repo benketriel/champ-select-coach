@@ -63,12 +63,13 @@ export class Lcu {
 
       await Timer.wait(3000);
       tries++;
-      if (tries % 10 == 0) {
-        ErrorReporting.report('setRequiredLCUFeatures', 'setRequiredLCUFeatures(): still not finished after ' + tries + ' tries: ' + JSON.stringify(result, null, 2));
-      }
+      // if (tries % 10 == 0) {
+      //   This happens a lot because if the game is not running, it will not be able to set the features, should not flood the error logs with this
+      //   ErrorReporting.report('setRequiredLCUFeatures', 'setRequiredLCUFeatures(): still not finished after ' + tries + ' tries: ' + JSON.stringify(result, null, 2));
+      // }
     }
 
-    ErrorReporting.report('setRequiredLCUFeatures', 'setRequiredLCUFeatures(): failure after '+ tries +' tries: '+ JSON.stringify(result, null, 2));
+    // ErrorReporting.report('setRequiredLCUFeatures', 'setRequiredLCUFeatures(): failure after '+ tries +' tries: '+ JSON.stringify(result, null, 2));
     return false;
   }
 
