@@ -194,6 +194,8 @@ export class PatchNotes {
       ['v0.3.13', '2023/07/23', 'Naafiri and Emerald', ['Added Naafiri and Emerald tier sprites']],
 
       ['v0.3.14', '2023/10/09', 'Briar and AI update', ['Added Briar sprites', 'AI update']],
+      
+      ['v0.3.15', '2023/10/09', 'AI update', ['Fixed an issue where AI would give very extreme scores']],
 
         // 'Subscription only: A minimap with the champions is shown instead of the ads.',
         //'Multiple 3rd party tools can be configured to open when clicking the champions.',
