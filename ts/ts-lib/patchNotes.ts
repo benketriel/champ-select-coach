@@ -197,6 +197,8 @@ export class PatchNotes {
       
       ['v0.3.15', '2023/10/09', 'AI update', ['Fixed an issue where AI would give very extreme scores']],
 
+      ['v0.3.16', '2023/10/09', 'AI update', ['Increased accuracy by another 0.5%']],
+
         // 'Subscription only: A minimap with the champions is shown instead of the ads.',
         //'Multiple 3rd party tools can be configured to open when clicking the champions.',
       ];
