@@ -1,10 +1,8 @@
-import * as $ from "jquery"; //npm install --save-dev @types/jquery
-import { TranslatedText } from "./textLanguage";
-import { Tutorial } from "./tutorial";
-
+import * as $ from 'jquery'; //npm install --save-dev @types/jquery
+import { TranslatedText } from './textLanguage';
+import { Tutorial } from './tutorial';
 
 export class Popup {
-
   public static popupShowing() {
     return $('.popup-bg:visible').length > 0;
   }
@@ -17,7 +15,7 @@ export class Popup {
       Popup.onClose = () => {
         oldFunc();
         newFunc();
-      }
+      };
     } else {
       Popup.onClose = newFunc;
     }
@@ -45,7 +43,7 @@ export class Popup {
   public static message(title: string, content: string) {
     $('.popup-title-text').html(title);
     $('.popup-content-text').html(content);
-    
+
     $('.popup-content-text').show();
     $('.popup-input-text').hide();
     $('.popup-buttons').hide();
@@ -58,8 +56,8 @@ export class Popup {
     const pc = $('.popup-content');
     const w = pc.width();
     const h = pc.height();
-    pc.css('left', 'calc(50% - ' + Math.floor(w/2) + 'px)');
-    pc.css('top', 'calc(50% - ' + Math.floor(h/2) + 'px)');
+    pc.css('left', 'calc(50% - ' + Math.floor(w / 2) + 'px)');
+    pc.css('top', 'calc(50% - ' + Math.floor(h / 2) + 'px)');
   }
 
   private static onYes: any = null;
@@ -123,7 +121,7 @@ export class Popup {
   public static textChange() {
     const elmn = <any>$('.popup-input-text-input').get(0);
     const typed = elmn.value;
-    
+
     if (typed.length <= Popup.prevTyped.length) {
       Popup.prevTyped = typed;
       Popup.currText = typed;
@@ -131,7 +129,7 @@ export class Popup {
     }
 
     const posI = elmn.selectionStart;
-    const options = Popup.autocompleteOptions.filter(x => x.toLowerCase().startsWith(typed.toLowerCase()));
+    const options = Popup.autocompleteOptions.filter((x) => x.toLowerCase().startsWith(typed.toLowerCase()));
     if (options.length > 0) {
       elmn.value = options[0];
       elmn.setSelectionRange(posI, elmn.value.length);
@@ -157,12 +155,14 @@ export class Popup {
   }
 
   public static flagClick(e: any) {
-    const language = $(e.currentTarget).attr('class').split(/\s+/).filter(c => c.startsWith('popup-flag-'))[0].split('-')[2];
+    const language = $(e.currentTarget)
+      .attr('class')
+      .split(/\s+/)
+      .filter((c) => c.startsWith('popup-flag-'))[0]
+      .split('-')[2];
     const toRun = Popup.onLanguage;
     Popup.close();
     toRun(language);
     Tutorial.runWelcome(); //Because the first thing that happens is a language choice
   }
-
-
 }

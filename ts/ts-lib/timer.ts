@@ -5,15 +5,15 @@ export interface TimerDelegate {
 //------------------------------------------------------------------------------
 export class Timer {
   //----------------------------------------------------------------------------
-  private _timerId: number|null = null;
-  private _id: string|undefined;
+  private _timerId: number | null = null;
+  private _id: string | undefined;
   private _delegate: TimerDelegate;
 
   //----------------------------------------------------------------------------
   public static async wait(intervalInMS: number): Promise<void> {
-    return new Promise<void>(resolve => {
+    return new Promise<void>((resolve) => {
       setTimeout(resolve, intervalInMS);
-    })
+    });
   }
 
   //----------------------------------------------------------------------------
@@ -44,5 +44,5 @@ export class Timer {
   private handleTimerEvent = () => {
     this._timerId = null;
     this._delegate.onTimer(this._id);
-  }
+  };
 }

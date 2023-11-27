@@ -1,19 +1,18 @@
-import { CscApi } from "./cscApi";
-import { LocalStorage } from "./localStorage";
-import { Timer } from "./timer";
-
+import { CscApi } from './cscApi';
+import { LocalStorage } from './localStorage';
+import { Timer } from './timer';
 
 export class DynamicSettings {
   private POLLING_INTERVAL_MS: number = 1000 * 60 * 60;
   private onStatusUpdate: any = null;
   private currStatus: string = null;
-  
+
   constructor(onStatusUpdate: any) {
     this.onStatusUpdate = onStatusUpdate;
     /* await */ this.pollForStatusUpdates();
   }
 
-  public async pollForStatusUpdates() { 
+  public async pollForStatusUpdates() {
     while (true) {
       const oldStatus = this.currStatus;
       this.currStatus = await CscApi.getSetting('status');
@@ -27,6 +26,4 @@ export class DynamicSettings {
   public getCurrentStatus() {
     return this.currStatus;
   }
-
-
 }

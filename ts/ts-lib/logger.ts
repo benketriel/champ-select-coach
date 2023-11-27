@@ -1,7 +1,4 @@
-
-
 export class Logger {
-
   public static log(msg) {
     if (typeof msg === 'object') msg = JSON.stringify(msg);
     console.log(msg);
@@ -16,5 +13,4 @@ export class Logger {
     if (typeof msg === 'object') msg = JSON.stringify(msg);
     //console.log(msg); //TODO comment on prod
   }
-
 }

@@ -1,19 +1,19 @@
-import * as $ from "jquery"; //npm install --save-dev @types/jquery
-import { MainWindow } from "../windows/mainWindow/mainWindow";
-import { interestingFeatures, lcuClassId } from "./consts";
-import { CSCAI } from "./cscai";
-import { CsDataFetcher } from "./csDataFetcher";
-import { CsData, CsInput, CsManager } from "./csManager";
-import { CsTab } from "./csTab";
-import { ErrorReporting } from "./errorReporting";
-import { Lcu } from "./lcu";
-import { Popup } from "./popup";
-import { ProgressBar } from "./progressBar";
-import { Subscriptions } from "./subscriptions";
-import { TranslatedText } from "./textLanguage";
-import { Timer } from "./timer";
-import { Tutorial } from "./tutorial";
-import { Utils } from "./utils";
+import * as $ from 'jquery'; //npm install --save-dev @types/jquery
+import { MainWindow } from '../windows/mainWindow/mainWindow';
+import { interestingFeatures, lcuClassId } from './consts';
+import { CSCAI } from './cscai';
+import { CsDataFetcher } from './csDataFetcher';
+import { CsData, CsInput, CsManager } from './csManager';
+import { CsTab } from './csTab';
+import { ErrorReporting } from './errorReporting';
+import { Lcu } from './lcu';
+import { Popup } from './popup';
+import { ProgressBar } from './progressBar';
+import { Subscriptions } from './subscriptions';
+import { TranslatedText } from './textLanguage';
+import { Timer } from './timer';
+import { Tutorial } from './tutorial';
+import { Utils } from './utils';
 
 export class PersonalTab {
   private static DATA_TIMEOUT_MS: number = 1000 * 60 * 5;
@@ -31,7 +31,7 @@ export class PersonalTab {
   private tier: any = {};
 
   private cscHistory: any = null;
-  
+
   public ongoingProgressBar = new ProgressBar([], []);
   private updateInProgress: boolean = false;
   private updateQueue: any[] = [];
@@ -52,13 +52,17 @@ export class PersonalTab {
     //Track LCU
     {
       const that = this; //Need this trick else this will be window inside the callbacks
-      const setRequiredLCUFeatures = async () => { 
+      const setRequiredLCUFeatures = async () => {
         await Lcu.setRequiredFeatures(true, [interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]);
         await this.delayedSync();
       };
       overwolf.games.launchers.onLaunched.removeListener(setRequiredLCUFeatures);
       overwolf.games.launchers.onLaunched.addListener(setRequiredLCUFeatures);
-      overwolf.games.launchers.getRunningLaunchersInfo(info => { if (Lcu.isLcuRunningFromInfo(info)) { setRequiredLCUFeatures(); }});
+      overwolf.games.launchers.getRunningLaunchersInfo((info) => {
+        if (Lcu.isLcuRunningFromInfo(info)) {
+          setRequiredLCUFeatures();
+        }
+      });
 
       const handleLcuEvent = async (event: any) => await that.syncWithLCU();
       overwolf.games.launchers.onTerminated.removeListener(handleLcuEvent);
@@ -73,31 +77,62 @@ export class PersonalTab {
 
     await Subscriptions.updateSubscriptionStatus(); //For the edit buttons
 
-    $('.personal-champions-left-arrow').on('click', () => { that.scrollChampRole(-1); });
-    $('.personal-champions-right-arrow').on('click', () => { that.scrollChampRole(1); });
-    $('.personal-champions-options-sort-most-played').on('change', () => { that.setSortByMostPlayed(true); });
-    $('.personal-champions-options-sort-score').on('change', () => { that.setSortByMostPlayed(false); });
-    $('.personal-champions-options-performance-solo-queue').on('change', () => { that.setSoloQueue(true); });
-    $('.personal-champions-options-performance-flex').on('change', () => { that.setSoloQueue(false); });
+    $('.personal-champions-left-arrow').on('click', () => {
+      that.scrollChampRole(-1);
+    });
+    $('.personal-champions-right-arrow').on('click', () => {
+      that.scrollChampRole(1);
+    });
+    $('.personal-champions-options-sort-most-played').on('change', () => {
+      that.setSortByMostPlayed(true);
+    });
+    $('.personal-champions-options-sort-score').on('change', () => {
+      that.setSortByMostPlayed(false);
+    });
+    $('.personal-champions-options-performance-solo-queue').on('change', () => {
+      that.setSoloQueue(true);
+    });
+    $('.personal-champions-options-performance-flex').on('change', () => {
+      that.setSoloQueue(false);
+    });
 
-    $('.personal-history-left-arrow').on('click', () => { that.scrollCscHistory(-1); });
-    $('.personal-history-right-arrow').on('click', () => { that.scrollCscHistory(1); });
-    $('.personal-history-options-score-pre-game').on('change', () => { that.setCscHistoryPreGame(true); });
-    $('.personal-history-options-score-in-game').on('change', () => { that.setCscHistoryPreGame(false); });
+    $('.personal-history-left-arrow').on('click', () => {
+      that.scrollCscHistory(-1);
+    });
+    $('.personal-history-right-arrow').on('click', () => {
+      that.scrollCscHistory(1);
+    });
+    $('.personal-history-options-score-pre-game').on('change', () => {
+      that.setCscHistoryPreGame(true);
+    });
+    $('.personal-history-options-score-in-game').on('change', () => {
+      that.setCscHistoryPreGame(false);
+    });
 
     const historyElems = $('.personal-history-table-container').get();
     for (const i in historyElems) {
-      $(historyElems[i]).on('click', () => { that.showCscHistoryCs(parseInt(i)); });
+      $(historyElems[i]).on('click', () => {
+        that.showCscHistoryCs(parseInt(i));
+      });
     }
 
-    Utils.setCallbacksForEditButton($('.personal-title-edit-button').get(0), async () => Subscriptions.isSubscribed(), async () => await that.editSummonerAndRegion());
+    Utils.setCallbacksForEditButton(
+      $('.personal-title-edit-button').get(0),
+      async () => Subscriptions.isSubscribed(),
+      async () => await that.editSummonerAndRegion()
+    );
 
     const syncElm = $('.personal-sync-button').get(0);
-    $(syncElm).on('click', async () => {if (!(await that.syncWithLCU())) Popup.message(TranslatedText.error.english, TranslatedText.cscNotConnectingToLCU.english)});
+    $(syncElm).on('click', async () => {
+      if (!(await that.syncWithLCU())) Popup.message(TranslatedText.error.english, TranslatedText.cscNotConnectingToLCU.english);
+    });
 
-    $('.personal-graph-canvas').on('mousemove', e => { that.mouseOverCanvas(e); });
-    $('.personal-graph-canvas').on('mouseleave', () => { that.mouseLeaveCanvas(); });
-
+    $('.personal-graph-canvas').on('mousemove', (e) => {
+      that.mouseOverCanvas(e);
+    });
+    $('.personal-graph-canvas').on('mouseleave', () => {
+      that.mouseLeaveCanvas();
+    });
   }
 
   private async delayedSync() {
@@ -114,7 +149,7 @@ export class PersonalTab {
       $('.s-lcu-status-text').removeClass('s-lcu-status-text-disconnected');
       $('.s-lcu-status-text').removeClass('translated-text');
       $('.s-lcu-status-text').off('DOMSubtreeModified'); //This is needed to remove the translation callback as well
-      $('.s-lcu-status-text').html(x.name)
+      $('.s-lcu-status-text').html(x.name);
 
       this.enqueueUpdate(async () => {
         const change = this.summonerName != x.name || this.region != x.region;
@@ -123,7 +158,7 @@ export class PersonalTab {
         this.customSummoner = false;
         if (change) {
           await this.updateView();
-          if (!await Lcu.inChampionSelect()){
+          if (!(await Lcu.inChampionSelect())) {
             await MainWindow.showPersonalTab();
           }
         }
@@ -173,15 +208,13 @@ export class PersonalTab {
       const clearCount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       this.canvasDraw(clear, clear, clear, clearCount, clearCount, clearCount);
     }
-    
 
-    $('.personal-champions-options-sort-most-played').prop("checked", this.sortByMostPlayed);
-    $('.personal-champions-options-sort-score').prop("checked", !this.sortByMostPlayed);
-    $('.personal-champions-options-performance-solo-queue').prop("checked", this.soloQueue);
-    $('.personal-champions-options-performance-flex').prop("checked", !this.soloQueue);
-    $('.personal-history-options-score-pre-game').prop("checked", this.cscHistoryPreGame);
-    $('.personal-history-options-score-in-game').prop("checked", !this.cscHistoryPreGame);
-
+    $('.personal-champions-options-sort-most-played').prop('checked', this.sortByMostPlayed);
+    $('.personal-champions-options-sort-score').prop('checked', !this.sortByMostPlayed);
+    $('.personal-champions-options-performance-solo-queue').prop('checked', this.soloQueue);
+    $('.personal-champions-options-performance-flex').prop('checked', !this.soloQueue);
+    $('.personal-history-options-score-pre-game').prop('checked', this.cscHistoryPreGame);
+    $('.personal-history-options-score-in-game').prop('checked', !this.cscHistoryPreGame);
   }
 
   private lockOptions() {
@@ -228,37 +261,39 @@ export class PersonalTab {
         this.clearView(false);
         return;
       }
-      const loadData = this.summonerName != this.dataLoadedForName || this.region != this.dataLoadedForRegion || this.soloQueue != this.dataLoadedForSoloQueue ||
-        new Date().getTime() - this.dataLoadedTimestamp > PersonalTab.DATA_TIMEOUT_MS;
+      const loadData = this.summonerName != this.dataLoadedForName || this.region != this.dataLoadedForRegion || this.soloQueue != this.dataLoadedForSoloQueue || new Date().getTime() - this.dataLoadedTimestamp > PersonalTab.DATA_TIMEOUT_MS;
       const keepResidual = this.summonerName == this.dataLoadedForName && this.region == this.dataLoadedForRegion;
-      ErrorReporting.reportIfException(async () => {
-        if (loadData) {
-          this.tier = {};
-          this.clearView(keepResidual);
-          this.updateTitle();
+      ErrorReporting.reportIfException(
+        async () => {
+          if (loadData) {
+            this.tier = {};
+            this.clearView(keepResidual);
+            this.updateTitle();
 
-          this.ongoingProgressBar = new ProgressBar(['loadPersonalData'], [1]);
-          this.ongoingProgressBar.setActive();
+            this.ongoingProgressBar = new ProgressBar(['loadPersonalData'], [1]);
+            this.ongoingProgressBar.setActive();
 
-          try {
-            this.lockOptions();
-            await this.loadData();
-          } finally {
-            this.unlockOptions();
+            try {
+              this.lockOptions();
+              await this.loadData();
+            } finally {
+              this.unlockOptions();
+            }
+
+            this.ongoingProgressBar.taskCompleted();
+            this.updateTitle();
+          } else {
+            this.ongoingProgressBar.setActive();
           }
 
-          this.ongoingProgressBar.taskCompleted();
-          this.updateTitle();
-        } else {
-          this.ongoingProgressBar.setActive();
-        }
-
-        this.updateChampionRoleStats();
-        this.updateAverageSoloScores();
-        this.updateCSCHistoryStats();
-        this.updateCSCHistoryHistogram();
-
-      }, 'PersonalTab.updateView()', { summoner: this.summonerName, region: this.region });
+          this.updateChampionRoleStats();
+          this.updateAverageSoloScores();
+          this.updateCSCHistoryStats();
+          this.updateCSCHistoryHistogram();
+        },
+        'PersonalTab.updateView()',
+        { summoner: this.summonerName, region: this.region }
+      );
     });
   }
 
@@ -290,8 +325,8 @@ export class PersonalTab {
   }
 
   private updateChampionRoleStats() {
-    let visibleGroupedStats = this.stats.groupedStats.sort((a, b) => this.sortByMostPlayed && b.Amount != a.Amount ? b.Amount - a.Amount : b.SoloWr - a.SoloWr);
-    visibleGroupedStats = visibleGroupedStats.filter(x => x.Amount >= 3);
+    let visibleGroupedStats = this.stats.groupedStats.sort((a, b) => (this.sortByMostPlayed && b.Amount != a.Amount ? b.Amount - a.Amount : b.SoloWr - a.SoloWr));
+    visibleGroupedStats = visibleGroupedStats.filter((x) => x.Amount >= 3);
 
     const numChampRoleObjects = 4;
     this.championRoleIndex = Math.max(0, Math.min(this.championRoleIndex, visibleGroupedStats.length - numChampRoleObjects));
@@ -324,7 +359,7 @@ export class PersonalTab {
 
       CsTab.setChampionImg(this.patchInfo, elmn.find('.personal-champions-champion-icon img'), stat.ChampionId);
       CsTab.setRoleImg($(elmn.find('.personal-champions-value img').get(0)), stat.Role, this.tier.tier, this.tier.division, this.tier.lp);
-      
+
       CsTab.setSubScore(elmn.find('.personal-champions-solo-score-value'), stat.SoloWr - 0.5, true, false);
 
       elmn.find('.personal-champions-champion-name').html(this.patchInfo.ChampionIdToName[stat.ChampionId] || '');
@@ -332,21 +367,21 @@ export class PersonalTab {
       const daysAgo = Math.round((new Date().getTime() - new Date(stat.LastPlayed).getTime()) / (1000 * 60 * 60 * 24)).toString();
       elmn.find('.personal-champions-games .personal-champions-value').html(stat.Amount);
       elmn.find('.personal-champions-days .personal-champions-value').html(daysAgo);
-      elmn.find('.personal-champions-wr .personal-champions-value').html(Math.round(100 * stat.WinRate) + "%");
-      
+      elmn.find('.personal-champions-wr .personal-champions-value').html(Math.round(100 * stat.WinRate) + '%');
+
       elmn.find('.stat-kda-kills').html((Math.round(stat.AvgKills * 10) / 10).toString());
       elmn.find('.stat-kda-deaths').html((Math.round(stat.AvgDeaths * 10) / 10).toString());
       elmn.find('.stat-kda-assists').html((Math.round(stat.AvgAssists * 10) / 10).toString());
-      
-      const totalAvgDmg = stat.AvgAdToChamps + stat.AvgApToChamps + stat.AvgTrueToChamps
-      elmn.find('.personal-champions-dmg-type-bar-ad').css('width', 100 * stat.AvgAdToChamps / totalAvgDmg + '%');
-      elmn.find('.personal-champions-dmg-type-bar-ap').css('width', 100 * stat.AvgApToChamps / totalAvgDmg + '%');
-      elmn.find('.personal-champions-dmg-type-bar-true').css('width', 100 * stat.AvgTrueToChamps / totalAvgDmg + '%');
+
+      const totalAvgDmg = stat.AvgAdToChamps + stat.AvgApToChamps + stat.AvgTrueToChamps;
+      elmn.find('.personal-champions-dmg-type-bar-ad').css('width', (100 * stat.AvgAdToChamps) / totalAvgDmg + '%');
+      elmn.find('.personal-champions-dmg-type-bar-ap').css('width', (100 * stat.AvgApToChamps) / totalAvgDmg + '%');
+      elmn.find('.personal-champions-dmg-type-bar-true').css('width', (100 * stat.AvgTrueToChamps) / totalAvgDmg + '%');
 
       const setBars = (selector, x, o, t, isPercentage) => {
         elmn.find(selector + ' .personal-champions-value').html(isPercentage ? (Math.round(x * 1000) / 10).toString() + '%' : (Math.round(x * 10) / 10).toString());
-        const xo = Math.max(1, Math.round(100 * x / Math.max(x, o)));
-        const xt = Math.max(1, Math.round(100 * x / Math.max(x, t)));
+        const xo = Math.max(1, Math.round((100 * x) / Math.max(x, o)));
+        const xt = Math.max(1, Math.round((100 * x) / Math.max(x, t)));
         elmn.find(selector + ' .personal-champions-bar-upper').css('width', xo + '%');
         elmn.find(selector + ' .personal-champions-bar-buffer').css('width', 'calc(' + (100 - xo) + '% - 0px)');
         elmn.find(selector + ' .personal-champions-bar-lower').css('width', xt + '%');
@@ -363,16 +398,15 @@ export class PersonalTab {
       elmn.show();
       showTutorial = true;
     }
-    if (showTutorial) { //Need to wait until all are shown so it gets the right coords of the first card
+    if (showTutorial) {
+      //Need to wait until all are shown so it gets the right coords of the first card
       Tutorial.runShowingPersonalCard();
     }
 
-
-    $('.personal-champions-options-sort-most-played').prop("checked", this.sortByMostPlayed);
-    $('.personal-champions-options-sort-score').prop("checked", !this.sortByMostPlayed);
-    $('.personal-champions-options-performance-solo-queue').prop("checked", this.soloQueue);
-    $('.personal-champions-options-performance-flex').prop("checked", !this.soloQueue);
-
+    $('.personal-champions-options-sort-most-played').prop('checked', this.sortByMostPlayed);
+    $('.personal-champions-options-sort-score').prop('checked', !this.sortByMostPlayed);
+    $('.personal-champions-options-performance-solo-queue').prop('checked', this.soloQueue);
+    $('.personal-champions-options-performance-flex').prop('checked', !this.soloQueue);
   }
 
   private updateAverageSoloScores() {
@@ -385,10 +419,14 @@ export class PersonalTab {
       if (!rolePlayCount[g.Role]) rolePlayCount[g.Role] = 0;
       rolePlayCount[g.Role] += g.Amount;
     }
-    const mostPlayedChampions = Object.keys(championPlayCount).filter(x => championPlayCount[x] >= 3)
-      .sort((a, b) => championPlayCount[b] - championPlayCount[a]).slice(0, 3);
-    const mostPlayedRoles = Object.keys(rolePlayCount).filter(x => rolePlayCount[x] >= 3)
-      .sort((a, b) => rolePlayCount[b] - rolePlayCount[a]).slice(0, 2);
+    const mostPlayedChampions = Object.keys(championPlayCount)
+      .filter((x) => championPlayCount[x] >= 3)
+      .sort((a, b) => championPlayCount[b] - championPlayCount[a])
+      .slice(0, 3);
+    const mostPlayedRoles = Object.keys(rolePlayCount)
+      .filter((x) => rolePlayCount[x] >= 3)
+      .sort((a, b) => rolePlayCount[b] - rolePlayCount[a])
+      .slice(0, 2);
 
     let totalSum = 0.0;
     let totalCount = 0.0;
@@ -402,9 +440,7 @@ export class PersonalTab {
       totalSum += g.SoloWr * g.Amount;
       totalCount += g.Amount;
 
-      if (mostPlayedChampions[0] && g.ChampionId == mostPlayedChampions[0] || 
-          mostPlayedChampions[1] && g.ChampionId == mostPlayedChampions[1] || 
-          mostPlayedChampions[2] && g.ChampionId == mostPlayedChampions[2]) {
+      if ((mostPlayedChampions[0] && g.ChampionId == mostPlayedChampions[0]) || (mostPlayedChampions[1] && g.ChampionId == mostPlayedChampions[1]) || (mostPlayedChampions[2] && g.ChampionId == mostPlayedChampions[2])) {
         mainsSum += g.SoloWr * g.Amount;
         mainsCount += g.Amount;
       }
@@ -418,7 +454,6 @@ export class PersonalTab {
         secondarySum += g.SoloWr * g.Amount;
         secondaryCount += g.Amount;
       }
-
     }
 
     if (totalCount > 0) {
@@ -464,7 +499,6 @@ export class PersonalTab {
     } else {
       $('.personal-summary-secondary').hide();
     }
-        
   }
 
   private updateCSCHistoryStats() {
@@ -491,9 +525,9 @@ export class PersonalTab {
       $('.personal-history-list-warning').hide();
     }
 
-    $('.personal-history-options-score-pre-game').prop("checked", this.cscHistoryPreGame);
-    $('.personal-history-options-score-in-game').prop("checked", !this.cscHistoryPreGame);
-  
+    $('.personal-history-options-score-pre-game').prop('checked', this.cscHistoryPreGame);
+    $('.personal-history-options-score-in-game').prop('checked', !this.cscHistoryPreGame);
+
     let showTutorial = false;
     const personalHistoryElems = $('.personal-history-table-container').get();
     for (let i = 0; i < numCscHistoryObjects; ++i) {
@@ -511,8 +545,7 @@ export class PersonalTab {
       const role = data.rolePrediction[idx];
       const pred = this.cscHistoryPreGame ? hist.partialPrediction : hist.fullPrediction;
       const date = new Date(hist.timestamp);
-      const dateHtml = (date.getMonth() + 1) + '/' + date.getDate() + '<br>' + 
-        date.getHours().toString().padStart(2, '0') + ":" + date.getMinutes().toString().padStart(2, '0');
+      const dateHtml = date.getMonth() + 1 + '/' + date.getDate() + '<br>' + date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
 
       CsTab.setChampionImg(this.patchInfo, elmn.find('.personal-history-champion-icon img'), championId);
       CsTab.setRoleImg($(elmn.find('.personal-history-role-icon img').get(0)), role, this.tier.tier, this.tier.division, this.tier.lp);
@@ -527,7 +560,7 @@ export class PersonalTab {
     for (let i = 0; i < cscHistory.length; ++i) {
       const hist = cscHistory[i];
       const pred = this.cscHistoryPreGame ? hist.partialPrediction : hist.fullPrediction;
-      if (pred > 0.5 && hist.userWon || pred < 0.5 && !hist.userWon) {
+      if ((pred > 0.5 && hist.userWon) || (pred < 0.5 && !hist.userWon)) {
         hits++;
       }
     }
@@ -554,9 +587,9 @@ export class PersonalTab {
     }
 
     $($('.personal-history-stats-total-games').get(0)).html(cscHistory.length.toString());
-    $($('.personal-history-stats-total-all').get(0)).html(allCount == 0 ? '??' : Math.round(100 * allHit / allCount).toString());
-    $($('.personal-history-stats-total-csc').get(0)).html(cscCount == 0 ? '??' : Math.round(100 * cscHit / cscCount).toString());
-    $($('.personal-history-stats-total-user').get(0)).html(cscHistory.length == 0 ? '??' : Math.round(100 * hits / cscHistory.length).toString());
+    $($('.personal-history-stats-total-all').get(0)).html(allCount == 0 ? '??' : Math.round((100 * allHit) / allCount).toString());
+    $($('.personal-history-stats-total-csc').get(0)).html(cscCount == 0 ? '??' : Math.round((100 * cscHit) / cscCount).toString());
+    $($('.personal-history-stats-total-user').get(0)).html(cscHistory.length == 0 ? '??' : Math.round((100 * hits) / cscHistory.length).toString());
 
     if (showTutorial) Tutorial.runHistoryInPersonalTab();
   }
@@ -611,20 +644,20 @@ export class PersonalTab {
   }
 
   private canvasDraw(all: number[], csc: number[], player: number[], allCount: number[], cscCount: number[], playerCount: number[]) {
-    const canvas : any = $('.personal-graph-canvas').get()[0];
+    const canvas: any = $('.personal-graph-canvas').get()[0];
     canvas.width = 320;
     canvas.height = 220;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
 
-    ctx.fillStyle = "#BE943A";
-    const yellow = "#BE943A"; //Yellowish
-    const white = "#DFDACB"; //White
-    const blue = "#3B6284"; //Blue
-    const red = "#755663"; //Red
-    const whiteShadow = "#DFDACB55"; //White
-    const blueShadow = "#3B628455"; //Blue
-    const redShadow = "#75566355"; //Red
-    const shadow = "#000000"; //Shadow
+    ctx.fillStyle = '#BE943A';
+    const yellow = '#BE943A'; //Yellowish
+    const white = '#DFDACB'; //White
+    const blue = '#3B6284'; //Blue
+    const red = '#755663'; //Red
+    const whiteShadow = '#DFDACB55'; //White
+    const blueShadow = '#3B628455'; //Blue
+    const redShadow = '#75566355'; //Red
+    const shadow = '#000000'; //Shadow
     // ctx.fillRect(0, 0, 150, 75);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -639,7 +672,7 @@ export class PersonalTab {
       ctx.lineTo(o + 310, o + 210);
       // ctx.closePath();
       ctx.stroke();
-      for (let i = 1; i <= 9; ++i){
+      for (let i = 1; i <= 9; ++i) {
         ctx.beginPath();
         ctx.moveTo(o + 10, o + 10 + 20 * i);
         ctx.lineTo(o + 3, o + 10 + 20 * i);
@@ -679,7 +712,6 @@ export class PersonalTab {
 
     // // the fill color
     // ctx.fill();
-        
   }
 
   public setSortByMostPlayed(value: boolean) {
@@ -724,8 +756,8 @@ export class PersonalTab {
     var x = e.clientX - rect.left;
     var y = e.clientY - rect.top;
 
-    const score = Math.max(0, Math.min(10, Math.round(100 * (x - 10) / 300) / 10));
-    const accuracy = Math.max(0, Math.min(100, Math.round(1000 * (210 - y) / 200) / 10));
+    const score = Math.max(0, Math.min(10, Math.round((100 * (x - 10)) / 300) / 10));
+    const accuracy = Math.max(0, Math.min(100, Math.round((1000 * (210 - y)) / 200) / 10));
     $('.personal-graph-canvas-mouseover').html('(' + score.toString() + ', ' + accuracy.toString() + '%)');
   }
 
@@ -742,22 +774,22 @@ export class PersonalTab {
 
   public async editSummonerAndRegion() {
     if (!Subscriptions.isSubscribed()) return;
-    
-    Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerName.english, this.summonerName || '', [], name => {
+
+    Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerName.english, this.summonerName || '', [], (name) => {
       if (name.length == 0 || name.search('<') != -1 || name.search('>') != -1) {
         Popup.message(TranslatedText.error.english, TranslatedText.badSummonerName.english);
         return;
       }
 
       const currentRegion = (this.patchInfo.RegionIdToGg[this.region] || '').toUpperCase();
-      const regions = Object.values(this.patchInfo.RegionIdToGg).map(x => (<string>x).toUpperCase());
-      Popup.text(TranslatedText.editRegion.english, TranslatedText.enterRegionInitials.english, currentRegion, regions, rawRegion => {
-        const picked = Object.keys(this.patchInfo.RegionIdToGg).filter(k => this.patchInfo.RegionIdToGg[k].toUpperCase() == rawRegion.toUpperCase());
+      const regions = Object.values(this.patchInfo.RegionIdToGg).map((x) => (<string>x).toUpperCase());
+      Popup.text(TranslatedText.editRegion.english, TranslatedText.enterRegionInitials.english, currentRegion, regions, (rawRegion) => {
+        const picked = Object.keys(this.patchInfo.RegionIdToGg).filter((k) => this.patchInfo.RegionIdToGg[k].toUpperCase() == rawRegion.toUpperCase());
         if (picked.length == 0) {
           Popup.message(TranslatedText.error.english, TranslatedText.regionNotFound.english);
           return;
         }
-  
+
         this.enqueueUpdate(async () => {
           const change = this.summonerName != name || this.region != picked[0];
           this.summonerName = name;
@@ -765,7 +797,7 @@ export class PersonalTab {
           this.customSummoner = true;
           if (change) {
             await this.updateView();
-            if (!await Lcu.inChampionSelect()) {
+            if (!(await Lcu.inChampionSelect())) {
               MainWindow.showPersonalTab();
             }
           }
@@ -773,6 +805,4 @@ export class PersonalTab {
       });
     });
   }
-
-
 }

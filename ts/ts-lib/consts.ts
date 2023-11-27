@@ -18,7 +18,7 @@ const interestingFeatures = {
 
 const windowNames = {
   mainWindow: 'mainWindow',
-  background: 'background'
+  background: 'background',
 };
 
 const lcuUrls = {
@@ -36,15 +36,8 @@ const lcuUrls = {
   SummonerInfoByNameQuery: 'lol-summoner/v1/summoners', //?name=... //get name, accountId and puuid
   RankedStatsQuery: 'lol-ranked/v1/ranked-stats/', //{puuid} //get tiers
   //MatchInfoQuery: 'lol-match-history/v1/games/', //{gameId} //Get game details
-  
+
   ChatParticipants: 'chat/v5/participants/champ-select', //Get names of people in CS
 };
 
-export {
-  version,
-  lcuClassId,
-  lolClassId,
-  interestingFeatures,
-  windowNames,
-  lcuUrls
-}
+export { version, lcuClassId, lolClassId, interestingFeatures, windowNames, lcuUrls };

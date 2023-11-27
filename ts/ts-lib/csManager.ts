@@ -1,22 +1,21 @@
-import { interestingFeatures, lcuClassId, lolClassId } from "./consts";
-import { CsDataFetcher } from "./csDataFetcher";
-import { ProgressBar } from "./progressBar"
-import { Lcu } from "./lcu";
-import { Utils } from "./utils";
-import { CSCAI } from "./cscai";
-import { Timer } from "./timer";
-import { CscApi } from "./cscApi";
-import { ErrorReporting } from "./errorReporting";
-import { Logger } from "./logger";
-import { CsTab } from "./csTab";
-import { LocalStorage } from "./localStorage";
-import { MainWindow } from "../windows/mainWindow/mainWindow";
-
+import { interestingFeatures, lcuClassId, lolClassId } from './consts';
+import { CsDataFetcher } from './csDataFetcher';
+import { ProgressBar } from './progressBar';
+import { Lcu } from './lcu';
+import { Utils } from './utils';
+import { CSCAI } from './cscai';
+import { Timer } from './timer';
+import { CscApi } from './cscApi';
+import { ErrorReporting } from './errorReporting';
+import { Logger } from './logger';
+import { CsTab } from './csTab';
+import { LocalStorage } from './localStorage';
+import { MainWindow } from '../windows/mainWindow/mainWindow';
 
 export class CsInput {
   //Trigger onNewCs (except if manual), and require loading CsData
-  public region = "";
-  public queueId = "";
+  public region = '';
+  public queueId = '';
   public ownerName = null;
   public summonerNames: string[] = ['', '', '', '', '', '', '', '', '', '']; //Order here is arbitrary (and will be invisible on the UI since they are later sorted by roles)
   public hiddenSummoners: boolean[] = [false, false, false, false, false, false, false, false, false, false];
@@ -25,7 +24,18 @@ export class CsInput {
   //Trigger onCsUpdate
   public championIds = ['', '', '', '', '', '', '', '', '', ''];
   public picking = [false, false, false, false, false, false, false, false, false, false];
-  public summonerSpells = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
+  public summonerSpells = [
+    [-1, -1],
+    [-1, -1],
+    [-1, -1],
+    [-1, -1],
+    [-1, -1],
+    [-1, -1],
+    [-1, -1],
+    [-1, -1],
+    [-1, -1],
+    [-1, -1],
+  ];
   // public assignedRoles: any[] = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //Pros: when making an empty manual lobby, they don't jump around as you pick champs
   public assignedRoles: any[] = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]; //Pros: when opening CSC from ongoing game, the spectator will arrange according to champs guessing
 
@@ -33,58 +43,75 @@ export class CsInput {
   public championSwaps: string[] = [null, null, null, null, null, null, null, null, null, null];
 
   public static triggersLoadCsData(oldCsInput: CsInput, newCsInput: CsInput) {
-    return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || 
-      !Utils.setsAreEqual(new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(newCsInput.summonerNames.filter(name => name && name.length > 0))) ||
-      !Utils.setsAreEqual(new Set(oldCsInput.chatSummonerNames), new Set(newCsInput.chatSummonerNames));
+    return (
+      oldCsInput.queueId != newCsInput.queueId ||
+      oldCsInput.region != newCsInput.region ||
+      oldCsInput.ownerName != newCsInput.ownerName ||
+      !Utils.setsAreEqual(new Set(oldCsInput.summonerNames.filter((name) => name && name.length > 0)), new Set(newCsInput.summonerNames.filter((name) => name && name.length > 0))) ||
+      !Utils.setsAreEqual(new Set(oldCsInput.chatSummonerNames), new Set(newCsInput.chatSummonerNames))
+    );
   }
 
   public static triggersNewCs(oldCsInput: CsInput, newCsInput: CsInput) {
-    return oldCsInput.queueId != newCsInput.queueId || oldCsInput.region != newCsInput.region || oldCsInput.ownerName != newCsInput.ownerName || 
-      !Utils.setIncludes(new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)));
+    return (
+      oldCsInput.queueId != newCsInput.queueId ||
+      oldCsInput.region != newCsInput.region ||
+      oldCsInput.ownerName != newCsInput.ownerName ||
+      !Utils.setIncludes(new Set(newCsInput.summonerNames.filter((name) => name && name.length > 0)), new Set(oldCsInput.summonerNames.filter((name) => name && name.length > 0)))
+    );
   }
-  
+
   public static anyChangeInSummoners(oldCsInput: CsInput, newCsInput: CsInput) {
-    return !Utils.setsAreEqual(new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)));
+    return !Utils.setsAreEqual(new Set(newCsInput.summonerNames.filter((name) => name && name.length > 0)), new Set(oldCsInput.summonerNames.filter((name) => name && name.length > 0)));
   }
-  
+
   public static anyVisibleChange(oldCsInput: CsInput, newCsInput: CsInput) {
     return JSON.stringify(oldCsInput) != JSON.stringify(newCsInput);
   }
 
   public static isOlderVersionOfTheSameCS(oldCsInput: CsInput, newCsInput: CsInput) {
-    return oldCsInput && newCsInput && oldCsInput.queueId == newCsInput.queueId && oldCsInput.region == newCsInput.region && oldCsInput.ownerName == newCsInput.ownerName && 
-      oldCsInput.championIds.filter(x => x != null && x != '' && x != '0').length == 10 &&
-      newCsInput.championIds.filter(x => x != null && x != '' && x != '0').length == 10 && 
-      oldCsInput.summonerNames.filter(name => name && name.length > 0).length == 10 &&
-      newCsInput.summonerNames.filter(name => name && name.length > 0).length <= 5 && //also less than 5 because names are hidden in solo, and because there could be a bug someone is missing?
-      Utils.setIncludes(new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)), new Set(newCsInput.summonerNames.filter(name => name && name.length > 0))) &&
-      new Set(oldCsInput.summonerNames.filter(name => name && name.length > 0)).size > new Set(newCsInput.summonerNames.filter(name => name && name.length > 0)).size;
+    return (
+      oldCsInput &&
+      newCsInput &&
+      oldCsInput.queueId == newCsInput.queueId &&
+      oldCsInput.region == newCsInput.region &&
+      oldCsInput.ownerName == newCsInput.ownerName &&
+      oldCsInput.championIds.filter((x) => x != null && x != '' && x != '0').length == 10 &&
+      newCsInput.championIds.filter((x) => x != null && x != '' && x != '0').length == 10 &&
+      oldCsInput.summonerNames.filter((name) => name && name.length > 0).length == 10 &&
+      newCsInput.summonerNames.filter((name) => name && name.length > 0).length <= 5 && //also less than 5 because names are hidden in solo, and because there could be a bug someone is missing?
+      Utils.setIncludes(new Set(oldCsInput.summonerNames.filter((name) => name && name.length > 0)), new Set(newCsInput.summonerNames.filter((name) => name && name.length > 0))) &&
+      new Set(oldCsInput.summonerNames.filter((name) => name && name.length > 0)).size > new Set(newCsInput.summonerNames.filter((name) => name && name.length > 0)).size
+    );
   }
-  
+
   public static readyToBeUploaded(csInput: CsInput) {
     //Returns true for both pre-game and in-game
-    return (csInput.queueId == '420' || csInput.queueId == '410' || csInput.queueId == '440') && 
-      csInput.region != '' && 
-      csInput.summonerNames.filter(x => x == null || x == '' ).length <= 5 &&
-      csInput.championIds.filter(x => x == null || x == '' || x == '0').length == 0 && 
-      csInput.picking.filter(x => x == true).length == 0;
+    return (
+      (csInput.queueId == '420' || csInput.queueId == '410' || csInput.queueId == '440') &&
+      csInput.region != '' &&
+      csInput.summonerNames.filter((x) => x == null || x == '').length <= 5 &&
+      csInput.championIds.filter((x) => x == null || x == '' || x == '0').length == 0 &&
+      csInput.picking.filter((x) => x == true).length == 0
+    );
   }
 
   public static shouldComputeBans(csInput: CsInput) {
     return false; //Until we figure out a faster way to do this
-    return csInput.championIds.slice(0, 5).filter(x => x != null && x != "").length == 0 || csInput.championIds.slice(5, 10).filter(x => x != null && x != "").length == 0;
+    return csInput.championIds.slice(0, 5).filter((x) => x != null && x != '').length == 0 || csInput.championIds.slice(5, 10).filter((x) => x != null && x != '').length == 0;
   }
 
   public static isTeamPartial(csInput: CsInput) {
-    return csInput.summonerNames.slice(0, 5).filter(x => x != null && x != "").length == 0 || csInput.summonerNames.slice(5, 10).filter(x => x != null && x != "").length == 0;
+    return csInput.summonerNames.slice(0, 5).filter((x) => x != null && x != '').length == 0 || csInput.summonerNames.slice(5, 10).filter((x) => x != null && x != '').length == 0;
   }
 
   public static individualScoresNeedUpdate(oldCsInput: CsInput, newCsInput: CsInput) {
     const loadData = this.triggersLoadCsData(oldCsInput, newCsInput);
-    const draftChanged = !Utils.arraysEqual(oldCsInput.championIds, newCsInput.championIds) ||
+    const draftChanged =
+      !Utils.arraysEqual(oldCsInput.championIds, newCsInput.championIds) ||
       JSON.stringify(oldCsInput.summonerSpells) != JSON.stringify(newCsInput.summonerSpells) ||
       !Utils.arraysEqual(oldCsInput.assignedRoles, newCsInput.assignedRoles) ||
-      !Utils.arraysEqual(oldCsInput.roleSwaps, newCsInput.roleSwaps) || 
+      !Utils.arraysEqual(oldCsInput.roleSwaps, newCsInput.roleSwaps) ||
       !Utils.arraysEqual(oldCsInput.championSwaps, newCsInput.championSwaps) ||
       oldCsInput.ownerName != newCsInput.ownerName;
 
@@ -102,7 +129,6 @@ export class CsInput {
   public static clone(csInput: CsInput): CsInput {
     return JSON.parse(JSON.stringify(csInput)); //Could be optimizer later
   }
-
 }
 
 export class CsData {
@@ -111,7 +137,7 @@ export class CsData {
   public histories = {};
   public masteries = {};
   public tiers = {};
-  public lcuTiers = {};  //These are preferred to be displayed but may not be used to the AI
+  public lcuTiers = {}; //These are preferred to be displayed but may not be used to the AI
   public matches = {};
 }
 
@@ -157,15 +183,27 @@ export class CsManager {
 
     if (this.connectedToLcu) {
       //Set required features when LCU starts
-      const setRequiredLCUFeatures = async () => { await Lcu.setRequiredFeatures(true, [interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]); };
+      const setRequiredLCUFeatures = async () => {
+        await Lcu.setRequiredFeatures(true, [interestingFeatures.game_flow, interestingFeatures.champ_select, interestingFeatures.lcu_info]);
+      };
       overwolf.games.launchers.onLaunched.removeListener(setRequiredLCUFeatures);
       overwolf.games.launchers.onLaunched.addListener(setRequiredLCUFeatures);
-      overwolf.games.launchers.getRunningLaunchersInfo(info => { if (Lcu.isLcuRunningFromInfo(info)) { setRequiredLCUFeatures(); }});
+      overwolf.games.launchers.getRunningLaunchersInfo((info) => {
+        if (Lcu.isLcuRunningFromInfo(info)) {
+          setRequiredLCUFeatures();
+        }
+      });
 
-      const setRequiredLolFeatures = async () => { await Lcu.setRequiredFeatures(false, [interestingFeatures.teams]); };
+      const setRequiredLolFeatures = async () => {
+        await Lcu.setRequiredFeatures(false, [interestingFeatures.teams]);
+      };
       overwolf.games.onGameLaunched.removeListener(setRequiredLolFeatures);
       overwolf.games.onGameLaunched.addListener(setRequiredLolFeatures);
-      overwolf.games.getRunningGameInfo(info => { if (Lcu.isLolRunningFromInfo(info)) { setRequiredLolFeatures(); }});
+      overwolf.games.getRunningGameInfo((info) => {
+        if (Lcu.isLolRunningFromInfo(info)) {
+          setRequiredLolFeatures();
+        }
+      });
 
       //Listen for champion select
       const that = this; //Need this trick else this will be window inside the callbacks
@@ -174,7 +212,7 @@ export class CsManager {
       overwolf.games.launchers.events.onInfoUpdates.addListener(handleLcuEvent);
       overwolf.games.launchers.events.onNewEvents.removeListener(handleLcuEvent);
       overwolf.games.launchers.events.onNewEvents.addListener(handleLcuEvent);
-      
+
       /* await */ this.handleLcuEvent(null); //Check if currently in champion select
       /* await */ CsManager.pollForSpectator(this, 1000, 10000);
     }
@@ -187,15 +225,30 @@ export class CsManager {
   }
 
   private static debugDone = false;
-  private async debug() {
-    
-
-  }
+  private async debug() {}
 
   private init(csView: any) {
     if (!csView) return;
 
-    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = csView;
+    const {
+      csInputView,
+      rolePredictionView,
+      csInput,
+      rolePrediction,
+      guessedNames,
+      apiTiers,
+      lcuTiers,
+      summonerInfo,
+      bans,
+      score,
+      missingScore,
+      history,
+      historyStats,
+      recommendations,
+      swappable,
+      editable,
+      date,
+    } = csView;
 
     this.currCsInputView = csInput;
     this.currCsRolePredictionView = rolePrediction;
@@ -248,13 +301,15 @@ export class CsManager {
     Logger.debug(newCsInput);
 
     this.latestCsInput = newCsInput;
-    return await ErrorReporting.reportIfException(async () => {
-      await this.updateView();
-      const result = [/* await */ this.updateRest()];
-      return result;
-
-    }, 'CsManager.update()', {newCsInput, csView: this.getCsView()});
-    
+    return await ErrorReporting.reportIfException(
+      async () => {
+        await this.updateView();
+        const result = [/* await */ this.updateRest()];
+        return result;
+      },
+      'CsManager.update()',
+      { newCsInput, csView: this.getCsView() }
+    );
   }
 
   private async updateView() {
@@ -316,13 +371,31 @@ export class CsManager {
         if (useProgressBar) {
           const taskNames = [];
           const taskParallelism = [];
-          if (loadData) { taskNames.push('loadData'); taskParallelism.push(1); }
-          { taskNames.push('prepareData'); taskParallelism.push(1); }
-          { taskNames.push('getScore'); taskParallelism.push(isTeamPartial ? 1 : 3); }
-          if (individualScoresNeedUpdate) { taskNames.push('getMissingScore'); taskParallelism.push(10); }
-          if (computeBans) { taskNames.push('getBans'); taskParallelism.push(1); }
-          { taskNames.push('getRecommendations'); taskParallelism.push(isTeamPartial ? 5 : 10); }
-  
+          if (loadData) {
+            taskNames.push('loadData');
+            taskParallelism.push(1);
+          }
+          {
+            taskNames.push('prepareData');
+            taskParallelism.push(1);
+          }
+          {
+            taskNames.push('getScore');
+            taskParallelism.push(isTeamPartial ? 1 : 3);
+          }
+          if (individualScoresNeedUpdate) {
+            taskNames.push('getMissingScore');
+            taskParallelism.push(10);
+          }
+          if (computeBans) {
+            taskNames.push('getBans');
+            taskParallelism.push(1);
+          }
+          {
+            taskNames.push('getRecommendations');
+            taskParallelism.push(isTeamPartial ? 5 : 10);
+          }
+
           this.ongoingProgressBar = new ProgressBar(taskNames, taskParallelism);
 
           if (activeProgressBar) this.ongoingProgressBar.setActive();
@@ -339,7 +412,7 @@ export class CsManager {
         this.currCsHistory = null;
         this.currCsHistoryStats = null;
         this.currCsRecommendations = null;
-      
+
         if (loadData) {
           this.currCsFirstRunComplete = false;
           if (newCs) {
@@ -349,7 +422,7 @@ export class CsManager {
           this.currCsData = await CsDataFetcher.getCsData(this.csTab.patchInfo, this.currCsInput);
           if (useProgressBar) this.ongoingProgressBar.taskCompleted();
         }
-        
+
         //Mutex the usage of CSCAI since it's a singleton and prepareData sets up for some of the functions
         while (CsManager.cscaiBeingUsed) await Timer.wait(500);
         try {
@@ -360,7 +433,7 @@ export class CsManager {
           const prepData = await CSCAI.prepareData(this.currCsInput, dataIsInPlace ? null : this.currCsData, newRolePred, newSwappedChamps);
           CsManager.cscaiOwner = this;
           const { historySortedByRoles, apiTiers, guessedNames } = prepData;
-          Logger.debug(JSON.stringify({guessedNames, newRolePred}));
+          Logger.debug(JSON.stringify({ guessedNames, newRolePred }));
 
           this.currGuessedNames = guessedNames; //This is just for debug, it doesn't affect what is shown, use hiddenSummoners if needed instead
           this.currCsApiTiers = apiTiers;
@@ -385,7 +458,7 @@ export class CsManager {
           this.currCsScore = {};
           this.currCsScore['full'] = await fullTask;
           if (!isTeamPartial) {
-            this.currCsScore['partial'] = [ await bluePartialTask, await redPartialTask ];
+            this.currCsScore['partial'] = [await bluePartialTask, await redPartialTask];
           }
           this.compressScore(this.currCsScore);
           await this.csTab.onCsUpdate(this, 'score');
@@ -393,7 +466,7 @@ export class CsManager {
 
           if (individualScoresNeedUpdate) {
             if (this.currCsFirstRunComplete && this.pendingCsChange) continue;
-            const missingTasks = {}
+            const missingTasks = {};
             for (let missingI = 0; missingI < 10; missingI++) {
               missingTasks[missingI] = CSCAI.getMissingScore(newRolePred[missingI] + (missingI < 5 ? 0 : 5));
               if (singleThread) await missingTasks[missingI];
@@ -433,11 +506,9 @@ export class CsManager {
           if (!this.pendingCsChange && this.connectedToLcu && CsInput.readyToBeUploaded(this.currCsInput)) {
             /* await */ CsManager.uploadCurrentCS(this.getCsView());
           }
-
         } finally {
           CsManager.cscaiBeingUsed = false;
         }
-        
       }
     } finally {
       this.ongoingCsChange = false;
@@ -490,7 +561,7 @@ export class CsManager {
       const stats = {};
       for (let h of history[name]) {
         if (!(h.Role in stats)) {
-          stats[h.Role] = { wins:0, games:0, timestamp: h.Timestamp };
+          stats[h.Role] = { wins: 0, games: 0, timestamp: h.Timestamp };
         }
 
         if (h.Victory) stats[h.Role].wins++;
@@ -507,7 +578,7 @@ export class CsManager {
         for (let h of history[name]) {
           if (h.Role != role) continue;
           if (!(h.ChampionId in stats)) {
-            stats[h.ChampionId] = { wins:0, games:0, daysAgo: Math.floor((Date.now() - h.Timestamp) / (1000 * 60 * 60 * 24)), kills: 0, deaths: 0, assists: 0 };
+            stats[h.ChampionId] = { wins: 0, games: 0, daysAgo: Math.floor((Date.now() - h.Timestamp) / (1000 * 60 * 60 * 24)), kills: 0, deaths: 0, assists: 0 };
           }
 
           if (h.Victory) stats[h.ChampionId].wins++;
@@ -560,7 +631,7 @@ export class CsManager {
       if (!(h.ChampionId in playCount)) playCount[h.ChampionId] = 0;
       playCount[h.ChampionId]++;
     }
-    const res = Object.keys(playCount).filter(k => playCount[k] >= minPlayed);
+    const res = Object.keys(playCount).filter((k) => playCount[k] >= minPlayed);
     return res;
   }
 
@@ -591,12 +662,11 @@ export class CsManager {
     try {
       if (!info || !info.info || !info.info.champ_select || !info.info.champ_select.raw) return;
       const lcuInfo = JSON.parse(info.info.champ_select.raw);
-      if (!lcuInfo || !lcuInfo.timer || lcuInfo.timer.phase != 'GAME_STARTING' && lcuInfo.timer.phase != 'FINALIZATION') return;
-      
-      await CsManager.pollForSpectator(this, lcuInfo.timer.adjustedTimeLeftInPhase);
+      if (!lcuInfo || !lcuInfo.timer || (lcuInfo.timer.phase != 'GAME_STARTING' && lcuInfo.timer.phase != 'FINALIZATION')) return;
 
+      await CsManager.pollForSpectator(this, lcuInfo.timer.adjustedTimeLeftInPhase);
     } catch (ex) {
-      ErrorReporting.report('handleGameStarting', {ex, info});
+      ErrorReporting.report('handleGameStarting', { ex, info });
     }
   }
 
@@ -621,7 +691,7 @@ export class CsManager {
       try {
         let csInput = await CsManager.getPartialCsInputThroughAPI(nr.region, sId);
         if (csInput != null && !Lcu.WHITELISTED_QUEUES.includes(csInput.queueId)) {
-          Logger.log("Active game not whitelisted queue = " + JSON.stringify(spect));
+          Logger.log('Active game not whitelisted queue = ' + JSON.stringify(spect));
           return null;
         }
 
@@ -632,40 +702,40 @@ export class CsManager {
             csInput.queueId = manager.currCsInputView.queueId; //OW can't get it for some reason so use this
           }
         }
-    
+
         if (csInput == null) {
           await Timer.wait(pollingIntervalMs);
           pollingIntervalMs += 1000;
-          Logger.log("Active game not found = " + JSON.stringify(spect));
+          Logger.log('Active game not found = ' + JSON.stringify(spect));
           continue;
         }
 
         csInput.region = nr.region;
         csInput.ownerName = nr.name;
         csInput.picking = [false, false, false, false, false, false, false, false, false, false];
-    
+
         //Note: no await between you start to use manager and when you call update on it
         {
           const patchInfo = MainWindow.instance().patchInfo;
           const isRanked = patchInfo.RankedQueueTypeIds.includes(parseInt(csInput.queueId));
-          const sToCs = isRanked ? 
-            this.findSpectatorToCsMapping(manager.currCsInputView.championIds, csInput.championIds):
-            this.findSpectatorToCsMapping(manager.currCsInputView.summonerNames, csInput.summonerNames);
+          const sToCs = isRanked
+            ? this.findSpectatorToCsMapping(manager.currCsInputView.championIds, csInput.championIds)
+            : this.findSpectatorToCsMapping(manager.currCsInputView.summonerNames, csInput.summonerNames);
           if (sToCs) {
             //roles not in the data here
-            csInput.assignedRoles =  this.applyMapping(manager.currCsInputView.assignedRoles, sToCs);
+            csInput.assignedRoles = this.applyMapping(manager.currCsInputView.assignedRoles, sToCs);
             // csInput.assignedRoles = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]; //alt
             // csInput.assignedRoles = [0, 1, 2, 3, 4, 0, 1, 2, 3, 4]; //or maybe it's like this?
-            
-            csInput.roleSwaps =  this.applyMapping(manager.currCsInputView.roleSwaps, sToCs);
-            csInput.championSwaps =  this.applyMapping(manager.currCsInputView.championSwaps, sToCs);
+
+            csInput.roleSwaps = this.applyMapping(manager.currCsInputView.roleSwaps, sToCs);
+            csInput.championSwaps = this.applyMapping(manager.currCsInputView.championSwaps, sToCs);
           }
-          
+
           await ((await manager.update(csInput)) || {})[0];
         }
         break;
       } catch (ex) {
-        ErrorReporting.report('pollForSpectator', {ex, spect, csInput});
+        ErrorReporting.report('pollForSpectator', { ex, spect, csInput });
         await Timer.wait(pollingIntervalMs);
         continue;
       }
@@ -680,10 +750,10 @@ export class CsManager {
     const csInput = new CsInput();
     csInput.queueId = spect.result.gameQueueConfigId.toString();
 
-    csInput.summonerNames = spect.result.participants.map(x => x.summonerName);
-    csInput.championIds = spect.result.participants.map(x => x.championId.toString());
-    csInput.summonerSpells = spect.result.participants.map(x => [x.spell1Id || -1, x.spell2Id || -1]);
-  
+    csInput.summonerNames = spect.result.participants.map((x) => x.summonerName);
+    csInput.championIds = spect.result.participants.map((x) => x.championId.toString());
+    csInput.summonerSpells = spect.result.participants.map((x) => [x.spell1Id || -1, x.spell2Id || -1]);
+
     return csInput;
   }
 
@@ -699,12 +769,14 @@ export class CsManager {
 
       if (players && players.length == 10) {
         const sortedPlayers = players.sort((a, b) => b.team.localeCompare(a.team)); // Basically comparing ORDER vs CHAOS, where ORDER should be first
-        csInput.summonerNames = sortedPlayers.map(x => x.summonerName);
-        csInput.championIds = await Promise.all(sortedPlayers.map(async x => (await CSCAI.championNameToId(x.championName)).toString()));
-        csInput.summonerSpells = await Promise.all(sortedPlayers.map(async x => [
-          await CSCAI.summonerSpellNameToId(x.summonerSpells.summonerSpellOne.displayName) || -1, 
-          await CSCAI.summonerSpellNameToId(x.summonerSpells.summonerSpellTwo.displayName) || -1
-        ]));
+        csInput.summonerNames = sortedPlayers.map((x) => x.summonerName);
+        csInput.championIds = await Promise.all(sortedPlayers.map(async (x) => (await CSCAI.championNameToId(x.championName)).toString()));
+        csInput.summonerSpells = await Promise.all(
+          sortedPlayers.map(async (x) => [
+            (await CSCAI.summonerSpellNameToId(x.summonerSpells.summonerSpellOne.displayName)) || -1,
+            (await CSCAI.summonerSpellNameToId(x.summonerSpells.summonerSpellTwo.displayName)) || -1,
+          ])
+        );
 
         return csInput;
       }
@@ -716,7 +788,8 @@ export class CsManager {
       if (teams && teams.length == 10) {
         for (let i = 0; i < 10; ++i) {
           csInput.summonerNames[i] = teams[i].summoner;
-          if (csInput.summonerNames[i].indexOf("'") != -1) { //'[NAME HERE]' **local**
+          if (csInput.summonerNames[i].indexOf("'") != -1) {
+            //'[NAME HERE]' **local**
             csInput.summonerNames[i] = csInput.summonerNames[i].split("'")[1];
           }
           csInput.championIds[i] = (await CSCAI.championNameToId(teams[i].champion)).toString();
@@ -734,7 +807,7 @@ export class CsManager {
     for (let i = 0; i < 10; ++i) {
       const name = csNames[i];
       const idx = spectNames.indexOf(name);
-      if (name.length > 0 && idx >=0) {
+      if (name.length > 0 && idx >= 0) {
         mapping[idx] = i;
       }
     }
@@ -760,21 +833,19 @@ export class CsManager {
       }
     }
     if (nr == null) {
-      ErrorReporting.report('uploadCurrentCS', {ex: 'Lcu.getCurrentNameAndRegion', data});
+      ErrorReporting.report('uploadCurrentCS', { ex: 'Lcu.getCurrentNameAndRegion', data });
       return;
     }
-    
+
     try {
       const puuid = await CsDataFetcher.getPuuidByRegionAndName(nr.region, nr.name);
       const side = CsInput.getOwnerIdx(data.csInputView) < 5 ? 0 : 1;
       const partialPrediction = data.score.partial ? data.score.partial[side][0][side] : 0.5;
       const fullPrediction = data.score.full ? data.score.full[0][side] : 0.5;
       await CscApi.uploadPrediction(nr.region, puuid, JSON.stringify(data), partialPrediction.toString(), fullPrediction.toString());
-  
     } catch (ex) {
-      ErrorReporting.report('uploadCurrentCS', {ex, data});
+      ErrorReporting.report('uploadCurrentCS', { ex, data });
       Logger.warn(ex);
     }
   }
-
 }

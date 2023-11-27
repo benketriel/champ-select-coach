@@ -1,4 +1,4 @@
-import { ErrorReporting } from "./errorReporting";
+import { ErrorReporting } from './errorReporting';
 
 type GetWindowStateResult = overwolf.windows.GetWindowStateResult;
 type OwWindowInfo = overwolf.windows.WindowInfo;
@@ -17,68 +17,66 @@ export class OWWindow {
     return new Promise<void>(async (resolve) => {
       await that.assureObtained();
       let id: string = <string>that._id;
-      overwolf.windows.restore(id, result => {
-        if (!result.success)
-          ErrorReporting.report('OWWindow', `[restore] - an error occurred, windowId=${id}, reason=${result.error}`);
+      overwolf.windows.restore(id, (result) => {
+        if (!result.success) ErrorReporting.report('OWWindow', `[restore] - an error occurred, windowId=${id}, reason=${result.error}`);
         resolve();
       });
-    })
+    });
   }
 
   public async minimize(): Promise<void> {
     let that = this;
 
-    return new Promise<void>(async resolve => {
+    return new Promise<void>(async (resolve) => {
       await that.assureObtained();
       let id: string = <string>that._id;
-      overwolf.windows.minimize(id, () => { });
+      overwolf.windows.minimize(id, () => {});
       return resolve();
-    })
+    });
   }
 
   public async maximize(): Promise<void> {
     let that = this;
 
-    return new Promise<void>(async resolve => {
+    return new Promise<void>(async (resolve) => {
       await that.assureObtained();
       let id: string = <string>that._id;
-      overwolf.windows.maximize(id, () => { });
+      overwolf.windows.maximize(id, () => {});
       return resolve();
-    })
+    });
   }
 
   public async hide(): Promise<void> {
     let that = this;
 
-    return new Promise<void>(async resolve => {
+    return new Promise<void>(async (resolve) => {
       await that.assureObtained();
       let id: string = <string>that._id;
-      overwolf.windows.hide(id, () => { });
+      overwolf.windows.hide(id, () => {});
       return resolve();
-    })
+    });
   }
 
   public async close() {
     let that = this;
 
-    return new Promise<void>(async resolve => {
+    return new Promise<void>(async (resolve) => {
       await that.assureObtained();
       let id: string = <string>that._id;
 
       const result = await this.getWindowState();
 
-      if (result.success &&
-        (result.window_state !== 'closed')) {
+      if (result.success && result.window_state !== 'closed') {
         await this.internalClose();
       }
 
       return resolve();
-    })
+    });
   }
 
   public dragMove(elem: HTMLElement) {
-    elem.className = elem.className + " draggable";
-    elem.onmousedown = e => {
+    elem.className = elem.className + ' draggable';
+    elem.onmousedown = (e) => {
       e.preventDefault();
       overwolf.windows.dragMove(this._name);
     };
@@ -87,13 +85,13 @@ export class OWWindow {
   public async setTopmost(): Promise<void> {
     let that = this;
 
-    return await new Promise<void>(async resolve => {
+    return await new Promise<void>(async (resolve) => {
       await that.assureObtained();
       let id: string = <string>that._id;
       //overwolf.windows.setTopmost(id, true, () => { }); // Do not use just this as then the window will be on top ALWAYS
       //overwolf.windows.setTopmost(id, true, () => overwolf.windows.setTopmost(id, false, () => { }));
       //overwolf.windows.setTopmost(id, false, () => { }); //Seems to work fine
-      overwolf.windows.bringToFront(id, () => { });
+      overwolf.windows.bringToFront(id, () => {});
       return resolve();
     });
   }
@@ -101,25 +99,25 @@ export class OWWindow {
   public async getWindowState(): Promise<GetWindowStateResult> {
     let that = this;
 
-    return new Promise<GetWindowStateResult>(async resolve => {
+    return new Promise<GetWindowStateResult>(async (resolve) => {
       await that.assureObtained();
       let id: string = <string>that._id;
       overwolf.windows.getWindowState(id, resolve);
-    })
+    });
   }
 
   public static async getCurrentInfo(): Promise<OwWindowInfo> {
-    return new Promise<OwWindowInfo>(async resolve => {
-      overwolf.windows.getCurrentWindow(result => {
+    return new Promise<OwWindowInfo>(async (resolve) => {
+      overwolf.windows.getCurrentWindow((result) => {
         resolve(result.window);
-      })
-    })
+      });
+    });
   }
 
   private obtain(): Promise<OwWindowInfo | null> {
     return new Promise((resolve, reject) => {
-      const cb = res => {
-        if (res && res.status === "success" && res.window && res.window.id) {
+      const cb = (res) => {
+        if (res && res.status === 'success' && res.window && res.window.id) {
           this._id = res.window.id;
 
           if (!this._name) {
@@ -138,12 +136,12 @@ export class OWWindow {
       } else {
         overwolf.windows.obtainDeclaredWindow(this._name, cb);
       }
-    })
+    });
   }
 
   private async assureObtained(): Promise<void> {
     let that = this;
-    return new Promise<void>(async resolve => {
+    return new Promise<void>(async (resolve) => {
       await that.obtain();
       return resolve();
     });
@@ -156,14 +154,10 @@ export class OWWindow {
       await that.assureObtained();
       let id: string = <string>that._id;
 
-      overwolf.windows.close(id, res => {
-
-        if (res && res.success)
-          resolve();
-        else
-          reject(res);
+      overwolf.windows.close(id, (res) => {
+        if (res && res.success) resolve();
+        else reject(res);
       });
-    })
+    });
   }
-
 }

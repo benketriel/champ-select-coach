@@ -1,16 +1,14 @@
-import { version } from "./consts";
-import { CscApi } from "./cscApi";
-import { Logger } from "./logger";
-import { Popup } from "./popup";
-import { TranslatedText } from "./textLanguage";
+import { version } from './consts';
+import { CscApi } from './cscApi';
+import { Logger } from './logger';
+import { Popup } from './popup';
+import { TranslatedText } from './textLanguage';
 
 //Cannot import these or it won't compile due to circular dependency:
-//import { Lcu } from "./lcu"; 
+//import { Lcu } from "./lcu";
 //import { CsDataFetcher } from "./csDataFetcher";
 
-
 export class ErrorReporting {
-
   private static countByType = {};
   private static MAX_OF_SAME_TYPE = 5; //Protection from infinite loops
   public static LazyLcu = null;
@@ -48,9 +46,9 @@ export class ErrorReporting {
           region = nameRegion.region;
           name = nameRegion.name;
 
-          summonerId = await this.LazyCsDataFetcher.getSummonerIdByRegionAndName(region, name) || '';
+          summonerId = (await this.LazyCsDataFetcher.getSummonerIdByRegionAndName(region, name)) || '';
         }
-      } catch{}
+      } catch {}
     }
 
     await CscApi.reportError(json, region, summonerId);
@@ -67,9 +65,7 @@ export class ErrorReporting {
         exception = ex;
       }
     }
-    ErrorReporting.report(type, {data, exception});
+    ErrorReporting.report(type, { data, exception });
     Popup.message(TranslatedText.fatalError.english, TranslatedText.fatalErrorMsg.english);
-
   }
-
 }

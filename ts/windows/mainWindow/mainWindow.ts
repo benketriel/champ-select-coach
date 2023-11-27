@@ -1,25 +1,24 @@
-import { version, windowNames } from "../../ts-lib/consts";
-import * as $ from "jquery"; //npm install --save-dev @types/jquery
-import { Timer } from "../../ts-lib/timer";
-import { OWWindow } from "../../ts-lib/ow-window";
-import { CsTab } from "../../ts-lib/csTab";
-import { PersonalTab } from "../../ts-lib/personalTab";
-import { Logger } from "../../ts-lib/logger";
-import { CSCAI } from "../../ts-lib/cscai";
-import { Popup } from "../../ts-lib/popup";
-import { Subscriptions } from "../../ts-lib/subscriptions";
-import { PatchNotes } from "../../ts-lib/patchNotes";
-import { CscApi } from "../../ts-lib/cscApi";
-import { DynamicSettings } from "../../ts-lib/dynamicSettings";
-import { TranslatedText, Translator } from "../../ts-lib/textLanguage";
-import { Beta } from "../../ts-lib/beta";
-import { LocalStorage } from "../../ts-lib/localStorage";
-import { Updates } from "../../ts-lib/updates";
-import { ErrorReporting } from "../../ts-lib/errorReporting";
-import { Lcu } from "../../ts-lib/lcu";
-import { CsDataFetcher } from "../../ts-lib/csDataFetcher";
-import { Tutorial } from "../../ts-lib/tutorial";
-
+import { version, windowNames } from '../../ts-lib/consts';
+import * as $ from 'jquery'; //npm install --save-dev @types/jquery
+import { Timer } from '../../ts-lib/timer';
+import { OWWindow } from '../../ts-lib/ow-window';
+import { CsTab } from '../../ts-lib/csTab';
+import { PersonalTab } from '../../ts-lib/personalTab';
+import { Logger } from '../../ts-lib/logger';
+import { CSCAI } from '../../ts-lib/cscai';
+import { Popup } from '../../ts-lib/popup';
+import { Subscriptions } from '../../ts-lib/subscriptions';
+import { PatchNotes } from '../../ts-lib/patchNotes';
+import { CscApi } from '../../ts-lib/cscApi';
+import { DynamicSettings } from '../../ts-lib/dynamicSettings';
+import { TranslatedText, Translator } from '../../ts-lib/textLanguage';
+import { Beta } from '../../ts-lib/beta';
+import { LocalStorage } from '../../ts-lib/localStorage';
+import { Updates } from '../../ts-lib/updates';
+import { ErrorReporting } from '../../ts-lib/errorReporting';
+import { Lcu } from '../../ts-lib/lcu';
+import { CsDataFetcher } from '../../ts-lib/csDataFetcher';
+import { Tutorial } from '../../ts-lib/tutorial';
 
 declare var _owAdConstructor: any;
 
@@ -41,19 +40,19 @@ export class MainWindow {
   public static MAX_PATCH_NOTES: number = 10;
 
   public static instance() {
-    return this._instance = this._instance || new MainWindow();
+    return (this._instance = this._instance || new MainWindow());
   }
 
   public run() {}
 
   constructor() {
-    Logger.log("MainWindow begin");
+    Logger.log('MainWindow begin');
 
     this.window = new OWWindow(windowNames.mainWindow);
 
     //Track window state to pause/resume ads
-    overwolf.windows.onStateChanged.removeListener(async x => await MainWindow.handleMinimizeStateChanged(x));
-    overwolf.windows.onStateChanged.addListener(async x => await MainWindow.handleMinimizeStateChanged(x));
+    overwolf.windows.onStateChanged.removeListener(async (x) => await MainWindow.handleMinimizeStateChanged(x));
+    overwolf.windows.onStateChanged.addListener(async (x) => await MainWindow.handleMinimizeStateChanged(x));
 
     /* await */ this.initWindow();
   }
@@ -104,7 +103,7 @@ export class MainWindow {
   private static owAdObjReady: boolean = false;
   private static async activateAds() {
     if (MainWindow.owAdObj != null) return; //Already active
-    while(!_owAdConstructor) await Timer.wait(1000);
+    while (!_owAdConstructor) await Timer.wait(1000);
 
     //For testing use:
     //localStorage.owAdsForceAdUnit = "Ad_test";
@@ -118,7 +117,7 @@ export class MainWindow {
 
     $('#owad').html('');
     $('#owad').show();
-    MainWindow.owAdObj = new _owAdConstructor(document.getElementById("owad"), {size: {width: 400, height: 300}});
+    MainWindow.owAdObj = new _owAdConstructor(document.getElementById('owad'), { size: { width: 400, height: 300 } });
     MainWindow.owAdObj.addEventListener('ow_internal_rendered', async () => {
       MainWindow.owAdObjReady = true;
       await MainWindow.activity();
@@ -137,10 +136,10 @@ export class MainWindow {
   private static minimized = false;
   public static async handleMinimizeStateChanged(state: any) {
     if (state && state.window_name == windowNames.mainWindow) {
-      if (!MainWindow.owAdObjReady){
+      if (!MainWindow.owAdObjReady) {
         await Timer.wait(1000);
         let maxTries = 20;
-        while(!MainWindow.owAdObjReady && --maxTries > 0){
+        while (!MainWindow.owAdObjReady && --maxTries > 0) {
           await Timer.wait(1000);
         }
         if (maxTries == 0) return;
@@ -150,11 +149,10 @@ export class MainWindow {
         MainWindow.deactivateAds(); //No ads for subscribed
         return;
       }
-      if (state.window_state === "minimized") {
+      if (state.window_state === 'minimized') {
         MainWindow.minimized = true;
         MainWindow.deactivateAds();
-      }
-      else if(state.window_previous_state === "minimized" && state.window_state === "normal"){
+      } else if (state.window_previous_state === 'minimized' && state.window_state === 'normal') {
         MainWindow.minimized = false;
         if (!Subscriptions.isSubscribed()) {
           await MainWindow.activateAds();
@@ -192,7 +190,12 @@ export class MainWindow {
       let currTx = 0;
       let currTy = 0;
       if (currTrans && currTrans != 'none') {
-        const arr = $(tt).css('transform').split('(')[1].split(')')[0].split(', ').map(x => parseFloat(x));
+        const arr = $(tt)
+          .css('transform')
+          .split('(')[1]
+          .split(')')[0]
+          .split(', ')
+          .map((x) => parseFloat(x));
         currTx = arr[4];
         currTy = arr[5];
       }
@@ -280,7 +283,6 @@ export class MainWindow {
     for (let i = 0; i < CsTab.NUM_HISTORY; ++i) {
       $('.cs-table-history-cell .cs-table-cell').append(await (await fetch('csTabHistoryItem.html')).text());
     }
-
   }
 
   private static lastKeyPress: number = 0;
@@ -295,56 +297,72 @@ export class MainWindow {
       const hs = $('body').height() / 720.0;
       $('.window-container').css('transform', 'scaleX(' + ws + ') scaleY(' + hs + ')');
     };
-    window.addEventListener("resize", onResize);
+    window.addEventListener('resize', onResize);
     onResize();
 
     //Menu navigation
-    $('.side-menu-current-cs').on('click', async () => { $('.slide-overlay-close').trigger('click'); MainWindow.showLcuCS(); });
+    $('.side-menu-current-cs').on('click', async () => {
+      $('.slide-overlay-close').trigger('click');
+      MainWindow.showLcuCS();
+    });
     for (let i = 0; i < MainWindow.MAX_MENU_HISTORY_SIZE; ++i) {
-      $($('.side-menu-old-cs')[i]).on('click', async () => { $('.slide-overlay-close').trigger('click'); await MainWindow.showHistoryCS(i); });
-      $($('.deleteHistoryItem')[i]).on('click', event => { 
+      $($('.side-menu-old-cs')[i]).on('click', async () => {
+        $('.slide-overlay-close').trigger('click');
+        await MainWindow.showHistoryCS(i);
+      });
+      $($('.deleteHistoryItem')[i]).on('click', (event) => {
         Popup.prompt(
           TranslatedText.deleteHistory.english,
           TranslatedText.thisWillRemoveLobbyAreYouSure.english,
-          async () => await MainWindow.deleteHistoryCS(i), 
-          () => null);
-        event.stopPropagation(); 
+          async () => await MainWindow.deleteHistoryCS(i),
+          () => null
+        );
+        event.stopPropagation();
       });
     }
-    $('.side-menu-add-manual-cs-plus').on('click', async () => { $('.slide-overlay-close').trigger('click'); await MainWindow.addNewEditableHistoryCS(); });
-    $('.s-lcu-status').on('click', async () => { $('.slide-overlay-close').trigger('click'); await MainWindow.showPersonalTab(); });
-    $('.homeButton').on('click', async () => { $('.slide-overlay-close').trigger('click'); await MainWindow.showPersonalTab(); });
+    $('.side-menu-add-manual-cs-plus').on('click', async () => {
+      $('.slide-overlay-close').trigger('click');
+      await MainWindow.addNewEditableHistoryCS();
+    });
+    $('.s-lcu-status').on('click', async () => {
+      $('.slide-overlay-close').trigger('click');
+      await MainWindow.showPersonalTab();
+    });
+    $('.homeButton').on('click', async () => {
+      $('.slide-overlay-close').trigger('click');
+      await MainWindow.showPersonalTab();
+    });
 
     //Small Windows
-    $('.faqButton').on('click', async () => { 
+    $('.faqButton').on('click', async () => {
       $('.slide-overlay').stop();
       $('.slide-overlay').animate({ left: '100%' });
       $('.slide-overlay-faq').stop();
       $('.slide-overlay-faq').animate({ left: 0 });
     });
-    $('.settingsButton').on('click', async () => { 
+    $('.settingsButton').on('click', async () => {
       $('.slide-overlay').stop();
       $('.slide-overlay').animate({ left: '100%' });
       $('.slide-overlay-settings').stop();
       $('.slide-overlay-settings').animate({ left: 0 });
     });
-    $('.feedbackButton').on('click', async () => { 
+    $('.feedbackButton').on('click', async () => {
       $('.slide-overlay').stop();
       $('.slide-overlay').animate({ left: '100%' });
       $('.slide-overlay-feedback').stop();
       $('.slide-overlay-feedback').animate({ left: 0 });
     });
-    $('.newsButton').on('click', async () => { 
+    $('.newsButton').on('click', async () => {
       $('.slide-overlay').stop();
       $('.slide-overlay').animate({ left: '100%' });
       $('.slide-overlay-news').stop();
       $('.slide-overlay-news').animate({ left: 0 });
     });
-    $('.slide-overlay-close').on('click', () => { 
+    $('.slide-overlay-close').on('click', () => {
       $('.slide-overlay').stop();
       $('.slide-overlay').animate({ left: '100%' });
     });
-    $('.accordeon-title').on('click', e => { 
+    $('.accordeon-title').on('click', (e) => {
       if ($(e.currentTarget).siblings('.accordeon-content').is(':visible')) {
         $(e.currentTarget).siblings('.accordeon-content').slideUp();
         $('.accordeon-title').removeClass('accordeon-title-selected');
@@ -357,7 +375,6 @@ export class MainWindow {
       }
     });
     $('.accordeon-content').hide();
-    
 
     $('.settings-button-version').on('click', async () => await MainWindow.versionButtonClick());
     $('.settings-beta-version').prop('checked', await Beta.isBetaVersion());
@@ -380,58 +397,82 @@ export class MainWindow {
     $('.settings-button-language img').attr('src', '/img/flags/' + LocalStorage.getLanguage() + '.png');
     $('.settings-button-language').on('click', async () => await MainWindow.changeLanguage(that.patchInfo));
 
-    $('.settings-button-overwolf-settings').on('click', () => { window.location.href = 'overwolf://settings/hotkeys'; });
-    
-    $('.settings-button-reset-tutorial').on('click', () => { LocalStorage.resetTutorials(); Tutorial.runWelcome(); });
+    $('.settings-button-overwolf-settings').on('click', () => {
+      window.location.href = 'overwolf://settings/hotkeys';
+    });
+
+    $('.settings-button-reset-tutorial').on('click', () => {
+      LocalStorage.resetTutorials();
+      Tutorial.runWelcome();
+    });
 
     $('.settings-button-subscribe').on('click', async () => await Subscriptions.subscribe());
     $('.owad-container-footer').on('click', async () => await Subscriptions.subscribe());
-    
-    //Popup
-    $('.popupCloseButton').on('click', () => { Popup.close(); });
-    $('.popup-button-yes').on('click', () => { Popup.yes(); });
-    $('.popup-button-no').on('click', () => { Popup.no(); });
 
-    $('.popup-input-text-input').on('input', () => { Popup.textChange(); });
+    //Popup
+    $('.popupCloseButton').on('click', () => {
+      Popup.close();
+    });
+    $('.popup-button-yes').on('click', () => {
+      Popup.yes();
+    });
+    $('.popup-button-no').on('click', () => {
+      Popup.no();
+    });
+
+    $('.popup-input-text-input').on('input', () => {
+      Popup.textChange();
+    });
     //$('.popup-input-text-input').on('keypress', event => { if (event.key === "Enter") { Popup.yes(); event.preventDefault(); } });
-    
-    $('.popup-flag').on('click', event => { Popup.flagClick(event); });
+
+    $('.popup-flag').on('click', (event) => {
+      Popup.flagClick(event);
+    });
 
     //Global
-    $('.drags-window').each((index, elem) => { /* await */ this.setDrag(elem);});
-    $('.closeButton').on('click', async () => { overwolf.windows.sendMessage(windowNames.background, 'close', '', () => {}); });
-    $('.minimizeButton').on('click', () => { this.window.minimize(); });
-    $('.rateApp').on('click', () => { overwolf.utils.openStore({ page:overwolf.utils.enums.eStorePage.ReviewsPage, uid:"ljkaeojllenacnoipfcdpdllhcfndmohikaiphgi"}); });
+    $('.drags-window').each((index, elem) => {
+      /* await */ this.setDrag(elem);
+    });
+    $('.closeButton').on('click', async () => {
+      overwolf.windows.sendMessage(windowNames.background, 'close', '', () => {});
+    });
+    $('.minimizeButton').on('click', () => {
+      this.window.minimize();
+    });
+    $('.rateApp').on('click', () => {
+      overwolf.utils.openStore({ page: overwolf.utils.enums.eStorePage.ReviewsPage, uid: 'ljkaeojllenacnoipfcdpdllhcfndmohikaiphgi' });
+    });
 
-    $('body').on('keyup', async e => {
+    $('body').on('keyup', async (e) => {
       if (new Date().getTime() - MainWindow.lastKeyPress < 250) return;
       if (Tutorial.isShowingTutorial()) {
-        e.preventDefault(); 
-        if (e.key === "Escape") {
+        e.preventDefault();
+        if (e.key === 'Escape') {
           Tutorial.advance();
         }
         return;
       }
 
       MainWindow.lastKeyPress = new Date().getTime();
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         Popup.close();
         $('.slide-overlay').stop();
         $('.slide-overlay').animate({ left: '100%' });
-      } 
-      if (e.key === "Enter") {
+      }
+      if (e.key === 'Enter') {
         $(':focus').trigger('blur');
         Popup.yes();
-        e.preventDefault(); 
-      } 
+        e.preventDefault();
+      }
       await MainWindow.activity();
     });
     $('body').on('mousedown', async () => await MainWindow.activity());
-    $('.tooltip').on('mouseenter', e => that.repositionOverflowingPopup(e.currentTarget));
+    $('.tooltip').on('mouseenter', (e) => that.repositionOverflowingPopup(e.currentTarget));
 
-    $('.translated-text').on('DOMSubtreeModified', (e: any) => { Translator.updateTranslation(this.patchInfo, e.currentTarget); });
+    $('.translated-text').on('DOMSubtreeModified', (e: any) => {
+      Translator.updateTranslation(this.patchInfo, e.currentTarget);
+    });
     Translator.updateAllTranslations(this.patchInfo);
-
   }
 
   //Make callbacks static since the 'this' is confusing to pass to a callback, use MainWindow.instance() instead
@@ -452,24 +493,23 @@ export class MainWindow {
     const main = MainWindow.instance();
     if (await main.csTab.currentManagerHasRegion()) {
       await main.csTab.addEditableCsToHistory(null);
-      main.selectedView = ""; //In case 0 was already selected
+      main.selectedView = ''; //In case 0 was already selected
       MainWindow.showHistoryCS(0);
     } else {
       const patchInfo = main.patchInfo;
-      const regions = Object.values(patchInfo.RegionIdToGg).map(x => (<string>x).toUpperCase());
-      Popup.text(TranslatedText.editRegion.english, TranslatedText.enterRegionInitials.english, '', regions, async rawRegion => {
-        const picked = Object.keys(patchInfo.RegionIdToGg).filter(k => patchInfo.RegionIdToGg[k].toUpperCase() == rawRegion.toUpperCase());
+      const regions = Object.values(patchInfo.RegionIdToGg).map((x) => (<string>x).toUpperCase());
+      Popup.text(TranslatedText.editRegion.english, TranslatedText.enterRegionInitials.english, '', regions, async (rawRegion) => {
+        const picked = Object.keys(patchInfo.RegionIdToGg).filter((k) => patchInfo.RegionIdToGg[k].toUpperCase() == rawRegion.toUpperCase());
         if (picked.length == 0) {
           Popup.message(TranslatedText.error.english, TranslatedText.regionNotFound.english);
           return;
         }
         await main.csTab.addEditableCsToHistory(picked[0]);
-        main.selectedView = ""; //In case 0 was already selected
+        main.selectedView = ''; //In case 0 was already selected
         MainWindow.showHistoryCS(0);
-      });  
+      });
     }
   }
-
 
   public static async showHistoryCS(i: number) {
     const main = MainWindow.instance();
@@ -561,10 +601,10 @@ export class MainWindow {
       const name = (<string>$('#feedback-name').val()).trim();
       const contact = (<string>$('#feedback-contact').val()).trim();
       const msg = (<string>$('#feedback-message').val()).trim();
-      $('#feedback-name').attr("disabled", "disabled");
-      $('#feedback-contact').attr("disabled", "disabled");
-      $('#feedback-message').attr("disabled", "disabled");
-  
+      $('#feedback-name').attr('disabled', 'disabled');
+      $('#feedback-contact').attr('disabled', 'disabled');
+      $('#feedback-message').attr('disabled', 'disabled');
+
       if (name.length == 0 || msg.length == 0) {
         $('.feedback-error').html(TranslatedText.pleaseFillInFields.english);
         $('.feedback-error').hide();
@@ -584,7 +624,7 @@ export class MainWindow {
           data.summoner = nameRegion.name;
           data.region = nameRegion.region;
         }
-      } catch{}
+      } catch {}
 
       if (!(await CscApi.feedback(JSON.stringify(data)))) {
         $('.feedback-error').html(TranslatedText.unableToConnect.english);
@@ -602,11 +642,11 @@ export class MainWindow {
       $('.feedback-error').html(TranslatedText.anErrorOccurred.english);
       $('.feedback-error').hide();
       $('.feedback-error').fadeIn();
-      ErrorReporting.report('submitFeedback', {ex});
+      ErrorReporting.report('submitFeedback', { ex });
     } finally {
-      $('#feedback-name').removeAttr("disabled");
-      $('#feedback-contact').removeAttr("disabled");
-      $('#feedback-message').removeAttr("disabled");
+      $('#feedback-name').removeAttr('disabled');
+      $('#feedback-contact').removeAttr('disabled');
+      $('#feedback-message').removeAttr('disabled');
     }
   }
 
@@ -622,7 +662,6 @@ export class MainWindow {
           MainWindow.lastStatusPopup = status.announcement;
           // Popup.message(TranslatedText.announcement.english, status.announcement);
         }
-
       } else {
         $('.announcement-scrolling-text').hide();
       }
@@ -631,7 +670,7 @@ export class MainWindow {
         await MainWindow.versionButtonClick(); //Force update if not supported and not up to date
       }
     } catch (ex) {
-      ErrorReporting.report('setStatus', {ex, statusJSON});
+      ErrorReporting.report('setStatus', { ex, statusJSON });
     }
   }
 
@@ -639,7 +678,7 @@ export class MainWindow {
   private static async versionButtonClick() {
     $('.settings-button-version').hide(); //Also prevents multiple concurrent clicks
     $('.settings-version-loading-spinner').show();
-    $('.settings-beta-version').attr("disabled", "disabled"); //Also prevents multiple concurrent clicks
+    $('.settings-beta-version').attr('disabled', 'disabled'); //Also prevents multiple concurrent clicks
 
     if (MainWindow.currUpdateState == null || MainWindow.currUpdateState == Updates.updateStates.UpToDate) {
       $('.settings-version-text').html(TranslatedText.checkingForUpdates.english);
@@ -673,13 +712,13 @@ export class MainWindow {
     }
 
     $('.settings-version-id').html(version);
-    if (await Beta.isBetaVersion() && (MainWindow.currUpdateState == null || MainWindow.currUpdateState == Updates.updateStates.UpToDate)) {
+    if ((await Beta.isBetaVersion()) && (MainWindow.currUpdateState == null || MainWindow.currUpdateState == Updates.updateStates.UpToDate)) {
       $('.settings-version-id-beta').show();
     } else {
       $('.settings-version-id-beta').hide();
     }
 
-    $('.settings-beta-version').removeAttr("disabled");
+    $('.settings-beta-version').removeAttr('disabled');
     $('.settings-version-loading-spinner').hide();
     $('.settings-button-version').show();
   }
@@ -709,15 +748,13 @@ export class MainWindow {
   public async getWindowState() {
     return await this.window.getWindowState();
   }
-  
+
   private async setDrag(elem: HTMLElement) {
     this.window.dragMove(elem);
   }
-
-
 }
 
-
-if (document.getElementById("owad")) {  //The background controller imports this class but we don't want it to run then and cause havoc
+if (document.getElementById('owad')) {
+  //The background controller imports this class but we don't want it to run then and cause havoc
   MainWindow.instance().run();
 }

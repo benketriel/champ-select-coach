@@ -1,17 +1,16 @@
-import { CsInput, CsManager } from "./csManager";
-import { Logger } from "./logger";
-import { Timer } from "./timer";
-import * as $ from "jquery"; //npm install --save-dev @types/jquery
-import { MainWindow } from "../windows/mainWindow/mainWindow";
-import { version } from "./consts";
-import { Utils } from "./utils";
-import { LocalStorage } from "./localStorage";
-import { ErrorReporting } from "./errorReporting";
-import { Popup } from "./popup";
-import { TranslatedText } from "./textLanguage";
-import { Subscriptions } from "./subscriptions";
-import { Tutorial } from "./tutorial";
-
+import { CsInput, CsManager } from './csManager';
+import { Logger } from './logger';
+import { Timer } from './timer';
+import * as $ from 'jquery'; //npm install --save-dev @types/jquery
+import { MainWindow } from '../windows/mainWindow/mainWindow';
+import { version } from './consts';
+import { Utils } from './utils';
+import { LocalStorage } from './localStorage';
+import { ErrorReporting } from './errorReporting';
+import { Popup } from './popup';
+import { TranslatedText } from './textLanguage';
+import { Subscriptions } from './subscriptions';
+import { Tutorial } from './tutorial';
 
 export class CsTab {
   private lcuCsManager: CsManager;
@@ -36,7 +35,7 @@ export class CsTab {
 
   private async init() {
     const that = this;
-    
+
     await Subscriptions.updateSubscriptionStatus();
 
     const history = await LocalStorage.getCsHistory();
@@ -85,19 +84,30 @@ export class CsTab {
       const team = Math.floor((parseInt(i) / 2) % 2);
       const role = Math.floor(parseInt(i) / 4);
 
-      const elm = editIcons[i]
+      const elm = editIcons[i];
       const isActive = async () => that.currentCsManager.getCsView().editable && Subscriptions.isSubscribed();
       const onClick = idx == 0 ? async () => that.editChampion(role + 5 * team) : async () => that.editSummoner(role + 5 * team);
       Utils.setCallbacksForEditButton(elm, isActive, onClick);
     }
-    Utils.setCallbacksForEditButton($('.cs-region-edit-button').get(0), async () => that.currentCsManager.getCsView().editable && Subscriptions.isSubscribed(), async () => that.editRegion());
+    Utils.setCallbacksForEditButton(
+      $('.cs-region-edit-button').get(0),
+      async () => that.currentCsManager.getCsView().editable && Subscriptions.isSubscribed(),
+      async () => that.editRegion()
+    );
 
-    $('.cs-side-blue').on('change', async () => { await that.editSide(true); });
-    $('.cs-side-red').on('change', async () => { await that.editSide(false); });
+    $('.cs-side-blue').on('change', async () => {
+      await that.editSide(true);
+    });
+    $('.cs-side-red').on('change', async () => {
+      await that.editSide(false);
+    });
 
-    $('.cs-queue-solo').on('change', async () => { await that.editQueue(true); });
-    $('.cs-queue-flex').on('change', async () => { await that.editQueue(false); });
-    
+    $('.cs-queue-solo').on('change', async () => {
+      await that.editQueue(true);
+    });
+    $('.cs-queue-flex').on('change', async () => {
+      await that.editQueue(false);
+    });
   }
 
   public async onNewCs(managerAsking: any) {
@@ -165,7 +175,18 @@ export class CsTab {
     csView.csInput.hiddenSummoners = [false, false, false, false, false, false, false, false, false, false];
     csView.csInput.chatSummonerNames = [];
     csView.csInput.picking = [false, false, false, false, false, false, false, false, false, false];
-    csView.csInput.summonerSpells = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
+    csView.csInput.summonerSpells = [
+      [-1, -1],
+      [-1, -1],
+      [-1, -1],
+      [-1, -1],
+      [-1, -1],
+      [-1, -1],
+      [-1, -1],
+      [-1, -1],
+      [-1, -1],
+      [-1, -1],
+    ];
     //csView.csInput.assignedRoles = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
     csView.guessedNames = csView.csInput.summonerNames;
 
@@ -175,10 +196,10 @@ export class CsTab {
     if (editable) {
       const shortTask = newManager.refresh();
       if (!shortTask) return; //An error occured
-  
+
       const longTask = await shortTask;
       if (!longTask) return; //An error occured
-      
+
       saveAfterRefresh = async () => {
         await (longTask || {})[0];
         await this.saveHistory(); //I mean, it did save every single update as it called onCsUpdate so this is redundant, but keep for completeness (what is one more when we have so many anyway :) )
@@ -206,7 +227,7 @@ export class CsTab {
   }
 
   public async saveHistory() {
-    const history = this.historyCsManagers.map(m => m.getCsView());
+    const history = this.historyCsManagers.map((m) => m.getCsView());
     if (this.lcuCsManager.currCsFirstRunComplete) {
       const csView = this.lcuCsManager.getCsView();
       csView.date = new Date().getTime();
@@ -218,8 +239,7 @@ export class CsTab {
   }
 
   private updateLcuCSMenuView() {
-    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
-      this.lcuCsManager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.lcuCsManager.getCsView();
 
     const ownerIdx = CsInput.getOwnerIdx(csInputView);
     const mergedTier = CsTab.mergeTiers(lcuTiers, apiTiers)[csInputView.summonerNames[ownerIdx]] || {};
@@ -278,10 +298,9 @@ export class CsTab {
       dateElm.hide();
     } else {
       const dateObj = new Date(date);
-      const dateString = (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '<br>' + 
-        dateObj.getHours().toString().padStart(2, '0') + ":" + dateObj.getMinutes().toString().padStart(2, '0');
+      const dateString = dateObj.getMonth() + 1 + '/' + dateObj.getDate() + '<br>' + dateObj.getHours().toString().padStart(2, '0') + ':' + dateObj.getMinutes().toString().padStart(2, '0');
       dateElm.html(dateString);
-        
+
       editElm.hide();
       dateElm.show();
     }
@@ -290,16 +309,16 @@ export class CsTab {
   }
 
   public static setChampionImg(patchInfo: any, element: any, championId: string) {
-    const championName = patchInfo.ChampionIdToName[championId] || "";
+    const championName = patchInfo.ChampionIdToName[championId] || '';
     const currName = element.attr('title');
-    if (currName == championName) return;  //Already showing this
+    if (currName == championName) return; //Already showing this
     element.attr('title', championName);
 
     const champInfo = patchInfo.ChampionNameToSprite[championName];
     if (champInfo) {
       element.attr('src', '/img/champion-sprites/' + champInfo.file + '?v=' + version);
       element.off('load');
-      element.on('load', function() {
+      element.on('load', function () {
         element.css('margin-top', '' + (-champInfo.y - 2) + 'px');
         element.css('margin-left', '' + (-champInfo.x - 2) + 'px');
         element.show();
@@ -313,10 +332,10 @@ export class CsTab {
     division = division || '';
     lp = lp || '';
     const grayscale = tier == '';
-    const tierFile = tier == "platinum" ? 'plat' : tier == '' ? 'plat' : tier; // Because plat looks the best in grayscale
+    const tierFile = tier == 'platinum' ? 'plat' : tier == '' ? 'plat' : tier; // Because plat looks the best in grayscale
     const posFileNames = ['Top', 'Jungle', 'Mid', 'Bot', 'Support'];
 
-    const hash = tierFile + '-' + posFileNames[role] + (grayscale ? 'g':'');
+    const hash = tierFile + '-' + posFileNames[role] + (grayscale ? 'g' : '');
     const currName = element.attr('title');
     if (currName == hash) {
       element.show();
@@ -328,7 +347,9 @@ export class CsTab {
     // element.parent().attr('title', (tier == '' ? '' : Utils.capitalizeFirstLetter(tier) + ' ' + division + ' ' + lp + ' LP ') + posFileNames[role]);
     element.css('filter', grayscale ? 'grayscale(100%)' : '');
     element.off('load');
-    element.on('load', function() { element.show(); });
+    element.on('load', function () {
+      element.show();
+    });
   }
 
   // Heart of this class
@@ -340,13 +361,12 @@ export class CsTab {
     let time = new Date().getTime();
     const timeStats = {};
     //Updates the html view, change is for optimization, if empty reset everything
-    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = 
-      manager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = manager.getCsView();
 
     const mergedTier = CsTab.mergeTiers(lcuTiers, apiTiers);
     //csInputView and rolePredictionView are always available
     const ownerIdx = CsInput.getOwnerIdx(csInputView);
-    const side = Math.floor(ownerIdx/5);
+    const side = Math.floor(ownerIdx / 5);
     const patchInfo = MainWindow.instance().patchInfo;
     const swappedChampsView = CsManager.applyChampionSwaps(csInputView);
     if (swappable) {
@@ -358,7 +378,8 @@ export class CsTab {
     if (change == 'clearData') {
       change = '';
     }
-    timeStats['init'] = new Date().getTime() - time; time = new Date().getTime();
+    timeStats['init'] = new Date().getTime() - time;
+    time = new Date().getTime();
     if (!change || change == '' || change == 'instant') {
       const roleToIdxView = this.roleToIdx(rolePredictionView);
       this.setAllToLoading(manager.ongoingUpdaters > 0);
@@ -368,23 +389,25 @@ export class CsTab {
       this.updateSummonersAndRoles(patchInfo, side, csInputView, rolePredictionView, mergedTier);
       this.updatePicking(side, csInputView, rolePredictionView, swappable && !editable);
     }
-    timeStats['instant'] = new Date().getTime() - time; time = new Date().getTime();
+    timeStats['instant'] = new Date().getTime() - time;
+    time = new Date().getTime();
     if (!change || change == '' || change == 'data') {
       this.updateWarnings(patchInfo, csInput, history);
       this.updateHistory(patchInfo, side, rolePrediction, csInput, history, historyStats, mergedTier);
       if (change == 'data') {
-        const roleToIdx =  this.roleToIdx(rolePrediction);
+        const roleToIdx = this.roleToIdx(rolePrediction);
         this.updateSwaps(patchInfo, side, csInput, roleToIdx, mergedTier, !editable); //Now the tiers are updated
         this.updateSummonersAndRoles(patchInfo, side, csInput, rolePrediction, mergedTier); //Now the tiers are updated
       }
       $('.s-icon-button').trigger('mouseleave');
     }
-    timeStats['data'] = new Date().getTime() - time; time = new Date().getTime();
+    timeStats['data'] = new Date().getTime() - time;
+    time = new Date().getTime();
     if (!change || change == '' || change == 'score') {
       if (score && score.full && score.partial) {
         this.updateScore(score.full[0][side], score.partial[side][0][side], score.partial[1 - side][0][1 - side]);
       } else if (score && score.full) {
-        this.updateScore(score.full[0][Math.floor(ownerIdx/5)], -1, -1);
+        this.updateScore(score.full[0][Math.floor(ownerIdx / 5)], -1, -1);
       } else {
         this.updateScore(0.5, -1, -1);
       }
@@ -398,36 +421,40 @@ export class CsTab {
         this.updateRoleScores(side, null);
       }
     }
-    timeStats['score'] = new Date().getTime() - time; time = new Date().getTime();
+    timeStats['score'] = new Date().getTime() - time;
+    time = new Date().getTime();
     if (!change || change == '' || change == 'missing') {
       if (score && score.full) this.updateTeamScores(side, csInput, rolePrediction, score.full[0], missingScore);
     }
-    timeStats['missing'] = new Date().getTime() - time; time = new Date().getTime();
+    timeStats['missing'] = new Date().getTime() - time;
+    time = new Date().getTime();
     if (change == 'bans') {
       this.updateBans(patchInfo, bans);
       $('.cs-ban-recommendations').show();
     } else {
       $('.cs-ban-recommendations').hide();
     }
-    timeStats['bans'] = new Date().getTime() - time; time = new Date().getTime();
+    timeStats['bans'] = new Date().getTime() - time;
+    time = new Date().getTime();
     if (!change || change == '' || change.startsWith('picks')) {
       if (score && score.full && rolePrediction && csInput) {
-        const roleToIdx =  this.roleToIdx(rolePrediction);
+        const roleToIdx = this.roleToIdx(rolePrediction);
 
-        for (let pickI of (change == '' ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : [parseInt(change.substring(5))])) {
+        for (let pickI of change == '' ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : [parseInt(change.substring(5))]) {
           const name = csInput.summonerNames[roleToIdx[pickI]];
           const role = pickI % 5;
           const currRecommendations = (recommendations || {})[pickI] || [];
           const currHistory = (history || {})[name] || [];
           const currHistoryStats = (((historyStats || {}).champStats || {})[name] || {})[role] || {};
-    
+
           this.updateRecommendations(patchInfo, side, score.full, pickI, currRecommendations, currHistory, currHistoryStats);
         }
       } else {
         this.updateRecommendations(patchInfo, side, null, null, null, null, null);
       }
     }
-    timeStats['picks'] = new Date().getTime() - time; time = new Date().getTime();
+    timeStats['picks'] = new Date().getTime() - time;
+    time = new Date().getTime();
     if (!change || change == '' || change == 'finished') {
       //Do nothing, this is for registering into history
     }
@@ -438,14 +465,13 @@ export class CsTab {
     if (editable) {
       Tutorial.runEditableCS();
     }
-
   }
 
   private roleToIdx(roles: number[]) {
     const res = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
     for (let i = 0; i < 10; i++) {
       res[Math.floor(i / 5) * 5 + roles[i]] = i;
-    }    
+    }
     return res;
   }
 
@@ -531,7 +557,7 @@ export class CsTab {
     $('.cs-wr-total-frame').removeClass('cs-wr-total-frame-little-danger-holes');
   }
 
-  private updateObjectives(side:number, scores: number[][]) {
+  private updateObjectives(side: number, scores: number[][]) {
     if (!scores) {
       $('.cs-objective-cell-value').css('opacity', '0.0');
       $('.cs-objective-timer-cell-value').css('opacity', '0.0');
@@ -573,7 +599,7 @@ export class CsTab {
   }
 
   private updateDistributionLegend(patchInfo: any, side: number, championIds: string[], rolePrediction: number[]) {
-    const imgElems = $('.cs-colors-legend-table').find('img').get(); 
+    const imgElems = $('.cs-colors-legend-table').find('img').get();
     for (let i = 0; i < 5; ++i) {
       const el0 = $(imgElems[side * 5 + rolePrediction[i]]);
       const el1 = $(imgElems[(1 - side) * 5 + rolePrediction[5 + i]]);
@@ -582,9 +608,9 @@ export class CsTab {
     }
   }
 
-  private updateDistributions(side:number, scores: number[][]) {
+  private updateDistributions(side: number, scores: number[][]) {
     if (!scores) {
-      const barElems =  $('.cs-total-bars-table').find('.cs-colors-bar').get();
+      const barElems = $('.cs-total-bars-table').find('.cs-colors-bar').get();
       for (let i = 0; i < barElems.length; ++i) {
         this.setBar(barElems[i], 0.0);
       }
@@ -603,10 +629,7 @@ export class CsTab {
     const fbArr = scores[IOUT_FIRST_BLOOD];
     const teamFbArr = fbArr.slice(side * 5, side * 5 + 5);
     const enemyFbArr = fbArr.slice((1 - side) * 5, (1 - side) * 5 + 5);
-    const fbNorm = Math.max(
-      teamFbArr[0] + teamFbArr[1] + teamFbArr[2] + teamFbArr[3] + teamFbArr[4], 
-      enemyFbArr[0] + enemyFbArr[1] + enemyFbArr[2] + enemyFbArr[3] + enemyFbArr[4]
-    );
+    const fbNorm = Math.max(teamFbArr[0] + teamFbArr[1] + teamFbArr[2] + teamFbArr[3] + teamFbArr[4], enemyFbArr[0] + enemyFbArr[1] + enemyFbArr[2] + enemyFbArr[3] + enemyFbArr[4]);
 
     const teamDmgArr = scores[side == 0 ? IOUT_DMG_TOTAL_BLUE : IOUT_DMG_TOTAL_RED];
     const enemyDmgArr = scores[side == 1 ? IOUT_DMG_TOTAL_BLUE : IOUT_DMG_TOTAL_RED];
@@ -620,7 +643,7 @@ export class CsTab {
     const teamKpArr = scores[side == 0 ? IOUT_KP_BLUE : IOUT_KP_RED];
     const enemyKpArr = scores[side == 1 ? IOUT_KP_BLUE : IOUT_KP_RED];
 
-    const barElems =  $('.cs-total-bars-table').find('.cs-colors-bar').get();
+    const barElems = $('.cs-total-bars-table').find('.cs-colors-bar').get();
     for (let role = 0; role < 5; ++role) {
       this.setBar(barElems[0 + role], teamFbArr[role] / fbNorm);
       this.setBar(barElems[5 + role], enemyFbArr[role] / fbNorm);
@@ -662,7 +685,7 @@ export class CsTab {
     const IOUT_ROLE_GOLD = 21; //+3
     const prioElems = $('.cs-table-prio-p').get();
     const winnerElems = $('.cs-table-lane-winner-p').get();
-    
+
     for (let i = 0; i < 5; ++i) {
       const earlyXp = scores[IOUT_ROLE_EARLY_XP + i * 3][side];
       const xp = scores[IOUT_ROLE_XP + i * 3][side];
@@ -680,7 +703,7 @@ export class CsTab {
   }
 
   public static setSubScore(elem: any, score: number, isMyTeam: boolean, fadeIn: boolean = true) {
-    const signedScore = (Math.round(score * 100) >= 0 ? "+" : "") + Utils.probabilityToScore(score);
+    const signedScore = (Math.round(score * 100) >= 0 ? '+' : '') + Utils.probabilityToScore(score);
 
     elem.html(signedScore);
 
@@ -689,15 +712,15 @@ export class CsTab {
     elem.removeClass('text-little-success');
     elem.removeClass('text-little-danger');
     if (Math.abs(score) >= 0.05) {
-      if (score > 0 && isMyTeam || score < 0 && !isMyTeam) {
+      if ((score > 0 && isMyTeam) || (score < 0 && !isMyTeam)) {
         elem.addClass('text-success');
-      } else if (score < 0 && isMyTeam || score > 0 && !isMyTeam) {
+      } else if ((score < 0 && isMyTeam) || (score > 0 && !isMyTeam)) {
         elem.addClass('text-danger');
       }
     } else if (Math.abs(score) >= 0.02) {
-      if (score > 0 && isMyTeam || score < 0 && !isMyTeam) {
+      if ((score > 0 && isMyTeam) || (score < 0 && !isMyTeam)) {
         elem.addClass('text-little-success');
-      } else if (score < 0 && isMyTeam || score > 0 && !isMyTeam) {
+      } else if ((score < 0 && isMyTeam) || (score > 0 && !isMyTeam)) {
         elem.addClass('text-little-danger');
       }
     }
@@ -716,12 +739,12 @@ export class CsTab {
 
     const blue = CsInput.getOwnerIdx(inputView) < 5;
 
-    $('.cs-side-blue').prop("checked", blue);
-    $('.cs-side-red').prop("checked", !blue);
+    $('.cs-side-blue').prop('checked', blue);
+    $('.cs-side-red').prop('checked', !blue);
 
     const isFlex = CsTab.isFlex(patchInfo, inputView.queueId);
-    $('.cs-queue-solo').prop("checked", !isFlex);
-    $('.cs-queue-flex').prop("checked", isFlex);
+    $('.cs-queue-solo').prop('checked', !isFlex);
+    $('.cs-queue-flex').prop('checked', isFlex);
 
     if (!editableCs) {
       $('.cs-side input').hide();
@@ -759,7 +782,7 @@ export class CsTab {
       $('.cs-warning-unranked').show();
       warn = true;
     }
-    if (inputView && history && inputView.summonerNames.filter(name => name != '' && (!(name in history) || history[name].length == 0)).length == 0) {
+    if (inputView && history && inputView.summonerNames.filter((name) => name != '' && (!(name in history) || history[name].length == 0)).length == 0) {
       $('.cs-warning-missing-history').hide();
     } else {
       $('.cs-warning-missing-history').show();
@@ -771,13 +794,12 @@ export class CsTab {
     } else {
       $('.cs-warning').hide();
     }
-    
   }
 
   private updateSwaps(patchInfo: any, side: number, inputView: CsInput, roleToIdx: number[], lcuTiers: any, showDefaults: boolean) {
     if (!inputView || !roleToIdx) {
       return;
-    } 
+    }
 
     const swappedChampsView = CsManager.applyChampionSwaps(inputView);
 
@@ -809,8 +831,8 @@ export class CsTab {
       for (let otherRole = 0; otherRole < 5; ++otherRole) {
         if (otherRole == role) continue;
 
-        CsTab.setRoleImg($(rImgElems0[z]), otherRole, lcuTier0.tier, lcuTier0.division, lcuTier0.lp)
-        CsTab.setRoleImg($(rImgElems1[z]), otherRole, lcuTier1.tier, lcuTier1.division, lcuTier1.lp)
+        CsTab.setRoleImg($(rImgElems0[z]), otherRole, lcuTier0.tier, lcuTier0.division, lcuTier0.lp);
+        CsTab.setRoleImg($(rImgElems1[z]), otherRole, lcuTier1.tier, lcuTier1.division, lcuTier1.lp);
 
         const cId0 = swappedChampsView[roleToIdx[otherRole]];
         if (cId0 && cId0 != '' && cId0 != '0' && cId0 != '-1' && cId0.length > 0) {
@@ -829,7 +851,6 @@ export class CsTab {
 
         z++;
       }
-  
     }
   }
 
@@ -846,8 +867,8 @@ export class CsTab {
     for (let i = 0; i < 5; ++i) {
       const role0 = rolePrediction[i];
       const role1 = rolePrediction[5 + i];
-      CsTab.setChampionImg(patchInfo, $(championsImgs[2 * role0 + side]), swappedChampsView[i])
-      CsTab.setChampionImg(patchInfo, $(championsImgs[2 * role1 + 1 - side]), swappedChampsView[5 + i])
+      CsTab.setChampionImg(patchInfo, $(championsImgs[2 * role0 + side]), swappedChampsView[i]);
+      CsTab.setChampionImg(patchInfo, $(championsImgs[2 * role1 + 1 - side]), swappedChampsView[5 + i]);
 
       const sName0 = inputView.summonerNames[i];
       const sName1 = inputView.summonerNames[i + 5];
@@ -858,8 +879,8 @@ export class CsTab {
 
       const t0 = (tiers || {})[inputView.summonerNames[i]] || {};
       const t1 = (tiers || {})[inputView.summonerNames[i + 5]] || {};
-      tierFields[2 * role0 + side].innerHTML = (!t0.tier || t0.tier == '' ? '' : Utils.capitalizeFirstLetter(t0.tier) + ' ' + t0.division + ' ' + t0.lp + ' LP ');
-      tierFields[2 * role1 + 1 - side].innerHTML = (!t1.tier || t1.tier == '' ? '' : Utils.capitalizeFirstLetter(t1.tier) + ' ' + t1.division + ' ' + t1.lp + ' LP ');
+      tierFields[2 * role0 + side].innerHTML = !t0.tier || t0.tier == '' ? '' : Utils.capitalizeFirstLetter(t0.tier) + ' ' + t0.division + ' ' + t0.lp + ' LP ';
+      tierFields[2 * role1 + 1 - side].innerHTML = !t1.tier || t1.tier == '' ? '' : Utils.capitalizeFirstLetter(t1.tier) + ' ' + t1.division + ' ' + t1.lp + ' LP ';
 
       const tTeam = (tiers || {})[inputView.summonerNames[i + 5 * side]] || {};
       const teamRole = rolePrediction[i + 5 * side];
@@ -887,7 +908,7 @@ export class CsTab {
       // const assigned0 = inputView.assignedRoles[i];
       // const assigned1 = inputView.assignedRoles[5 + i];
       // && assigned1 != -1 && champ1 != '0' && champ1 != '-1' && champ1.length > 0
-      const allPicking = [inputView.picking.slice(0, 5).filter(x => x).length, inputView.picking.slice(5).filter(x => x).length]
+      const allPicking = [inputView.picking.slice(0, 5).filter((x) => x).length, inputView.picking.slice(5).filter((x) => x).length];
 
       for (let j = 0; j < elems.length; ++j) {
         //Show only on your side because else it shows on arbitrary two since you don't know the roles and it looks ugly
@@ -906,7 +927,6 @@ export class CsTab {
         }
       }
     }
-
   }
 
   private updateBans(patchInfo: any, bans: any) {
@@ -920,13 +940,13 @@ export class CsTab {
       for (let j = 0; j < 5; ++j) {
         const cId = bans[i][1 + j]['Item1'];
         const score = parseFloat(bans[i][1 + j]['Item2']) - roleEmptyScore;
-        const championName = patchInfo.ChampionIdToName[cId] || "";
-  
+        const championName = patchInfo.ChampionIdToName[cId] || '';
+
         $(names[5 + i * 5 + j]).html(championName);
         //$(scores[5 + i * 5 + j]).html(Utils.probabilityToScore(score));
-        $(scores[5 + i * 5 + j]).html(Utils.probabilityToScore(parseFloat(bans[i][1 + j]['Item2'])) + " - " + Utils.probabilityToScore(roleEmptyScore));
+        $(scores[5 + i * 5 + j]).html(Utils.probabilityToScore(parseFloat(bans[i][1 + j]['Item2'])) + ' - ' + Utils.probabilityToScore(roleEmptyScore));
         CsTab.setChampionImg(patchInfo, $(images[5 + i * 5 + j]), cId);
-        top5.push({'Item1': bans[i][1 + j]['Item1'], 'Item2': score});
+        top5.push({ Item1: bans[i][1 + j]['Item1'], Item2: score });
       }
     }
 
@@ -934,13 +954,12 @@ export class CsTab {
     for (let i = 0; i < 5; ++i) {
       const cId = top5[i]['Item1'];
       const score = parseFloat(top5[i]['Item2']);
-      const championName = patchInfo.ChampionIdToName[cId] || "";
+      const championName = patchInfo.ChampionIdToName[cId] || '';
 
       $(names[i]).html(championName);
       $(scores[i]).html(Utils.probabilityToScore(score));
       CsTab.setChampionImg(patchInfo, $(images[i]), cId);
     }
-
   }
 
   private updateHistory(patchInfo: any, side: number, rolePrediction: number[], inputView: CsInput, history: any, historyStats: any, lcuTiers: any) {
@@ -963,21 +982,22 @@ export class CsTab {
       const name = inputView.summonerNames[i];
       const role = rolePrediction[i];
       const team = Math.floor(i / 5);
-      const elemI = (2 * role + (team + side) % 2) % 10; //Good luck understanding this
-      const mainRoleI = 4 * role + (team + side) % 2;
+      const elemI = (2 * role + ((team + side) % 2)) % 10; //Good luck understanding this
+      const mainRoleI = 4 * role + ((team + side) % 2);
       const lcuTier = (lcuTiers || {})[name] || {};
       const currHistory = (history || {})[name] || [];
       const currRoleStats = ((historyStats || {}).roleStats || {})[name] || [];
 
-      const totalGames = <number>Object.values(currRoleStats).map((x: any) => x.games).reduce((a, b) => <number>a + <number>b, 0);
+      const totalGames = <number>Object.values(currRoleStats)
+        .map((x: any) => x.games)
+        .reduce((a, b) => <number>a + <number>b, 0);
 
-      const mainRoles = Object.keys(currRoleStats).sort((a,b) => currRoleStats[a].games < currRoleStats[b].games ? 1 : currRoleStats[a].games > currRoleStats[b].games ? -1 : 
-        currRoleStats[a].timestamp < currRoleStats[b].timestamp ? 1 : -1);
+      const mainRoles = Object.keys(currRoleStats).sort((a, b) => (currRoleStats[a].games < currRoleStats[b].games ? 1 : currRoleStats[a].games > currRoleStats[b].games ? -1 : currRoleStats[a].timestamp < currRoleStats[b].timestamp ? 1 : -1));
 
       if (mainRoles.length > 0) {
         // $(roleWrElements[mainRoleI]).html(Math.round(100 * roleStats[mainRoles[0]].wins / roleStats[mainRoles[0]].games).toString() + '%');
         // $(roleWrElements[mainRoleI]).html(roleStats[mainRoles[0]].wins + '/'  + roleStats[mainRoles[0]].games);
-        $(roleWrElements[mainRoleI]).html(Math.round(100 * currRoleStats[mainRoles[0]].games / totalGames).toString() + '%');
+        $(roleWrElements[mainRoleI]).html(Math.round((100 * currRoleStats[mainRoles[0]].games) / totalGames).toString() + '%');
         $(roleWrElements[mainRoleI]).show();
         CsTab.setRoleImg($(roleImgElements[mainRoleI]), parseInt(mainRoles[0]), lcuTier.tier, lcuTier.division, lcuTier.lp);
       } else {
@@ -987,14 +1007,14 @@ export class CsTab {
       if (mainRoles.length > 1) {
         // $(roleWrElements[mainRoleI + 2]).html(Math.round(100 * roleStats[mainRoles[1]].wins / roleStats[mainRoles[1]].games).toString() + '%');
         // $(roleWrElements[mainRoleI + 2]).html(roleStats[mainRoles[1]].wins + '/' + roleStats[mainRoles[1]].games);
-        $(roleWrElements[mainRoleI + 2]).html(Math.round(100 * currRoleStats[mainRoles[1]].games / totalGames).toString() + '%');
+        $(roleWrElements[mainRoleI + 2]).html(Math.round((100 * currRoleStats[mainRoles[1]].games) / totalGames).toString() + '%');
         $(roleWrElements[mainRoleI + 2]).show();
         CsTab.setRoleImg($(roleImgElements[mainRoleI + 2]), parseInt(mainRoles[1]), lcuTier.tier, lcuTier.division, lcuTier.lp);
       } else {
         $(roleWrElements[mainRoleI + 2]).hide();
         $(roleImgElements[mainRoleI + 2]).hide();
       }
-  
+
       if (currHistory.length == 0 && name.length > 0) {
         $(historyWarningElements[elemI]).show();
       } else {
@@ -1009,16 +1029,16 @@ export class CsTab {
           separator.hide();
           continue;
         }
-        
+
         const hist = currHistory[h];
         CsTab.setChampionImg(patchInfo, root.find('.cs-table-history-champion img'), hist.ChampionId);
         CsTab.setRoleImg(root.find('.cs-table-history-role img'), hist.Role, lcuTier.tier, lcuTier.division, lcuTier.lp);
-        root.find('.cs-table-stats-champion-name').html(patchInfo.ChampionIdToName[hist.ChampionId] || "");
+        root.find('.cs-table-stats-champion-name').html(patchInfo.ChampionIdToName[hist.ChampionId] || '');
 
         if (
-          elemI % 2 == 0 && h < CsTab.NUM_HISTORY - 1 && h + 1 < currHistory.length && (currHistory[h].Timestamp - currHistory[h + 1].Timestamp) > 1000 * 60 * 60 * 3 ||
-          elemI % 2 == 1 && h > 0 && (currHistory[h - 1].Timestamp - currHistory[h].Timestamp) > 1000 * 60 * 60 * 3
-          ) {
+          (elemI % 2 == 0 && h < CsTab.NUM_HISTORY - 1 && h + 1 < currHistory.length && currHistory[h].Timestamp - currHistory[h + 1].Timestamp > 1000 * 60 * 60 * 3) ||
+          (elemI % 2 == 1 && h > 0 && currHistory[h - 1].Timestamp - currHistory[h].Timestamp > 1000 * 60 * 60 * 3)
+        ) {
           separator.show();
         } else {
           separator.hide();
@@ -1070,13 +1090,13 @@ export class CsTab {
       // $('.cs-lds-ring').hide();
       return;
     }
-    
+
     const elements = $('.cs-table-recommended-champion').get();
     const baseline = fullScore[0][Math.floor(participantI / 5)];
     const role = participantI % 5;
     const team = Math.floor(participantI / 5);
 
-    const partI = (2 * role + (team + side) % 2) % 10; //Good luck understanding this
+    const partI = (2 * role + ((team + side) % 2)) % 10; //Good luck understanding this
     for (let i = 0; i < CsTab.NUM_RECOMMENDATIONS; ++i) {
       const root = $(elements[partI * CsTab.NUM_RECOMMENDATIONS + (team == side ? i : CsTab.NUM_RECOMMENDATIONS - 1 - i)]);
       const rootElems = root.find('.cs-table-stats-value').get();
@@ -1093,15 +1113,15 @@ export class CsTab {
         continue;
         //return;
       }
-      root.find('.cs-table-stats-champion-name').html(patchInfo.ChampionIdToName[cId] || "");
+      root.find('.cs-table-stats-champion-name').html(patchInfo.ChampionIdToName[cId] || '');
       CsTab.setSubScore($(rootElems[0]), recommendations[i].winRate - baseline, team == side);
       CsTab.setChampionImg(patchInfo, root.find('.cs-table-recommended-champion-border img'), cId);
       $(rootElems[1]).html(stats.games);
       $(rootElems[2]).html(stats.daysAgo);
-      $(rootElems[3]).html(Math.round(100 * stats.wins / stats.games).toString() + '%');
-      $(rootElems[4]).html((Math.round(10 * stats.assists / stats.games) / 10).toString());
-      $(rootElems[5]).html((Math.round(10 * stats.deaths / stats.games) / 10).toString());
-      $(rootElems[6]).html((Math.round(10 * stats.kills / stats.games) / 10).toString());
+      $(rootElems[3]).html(Math.round((100 * stats.wins) / stats.games).toString() + '%');
+      $(rootElems[4]).html((Math.round((10 * stats.assists) / stats.games) / 10).toString());
+      $(rootElems[5]).html((Math.round((10 * stats.deaths) / stats.games) / 10).toString());
+      $(rootElems[6]).html((Math.round((10 * stats.kills) / stats.games) / 10).toString());
 
       root.show();
       root.stop();
@@ -1137,7 +1157,7 @@ export class CsTab {
   public async swapRole(roleFrom: number, role5to: number) {
     const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
-    const roleToIdx =  this.roleToIdx(rolePredictionView);
+    const roleToIdx = this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const swapped = CsInput.clone(csInputView);
     for (const j in swapped.roleSwaps) {
@@ -1152,7 +1172,7 @@ export class CsTab {
 
     const swappedChampsView = CsManager.applyChampionSwaps(csInputView);
 
-    const roleToIdx =  this.roleToIdx(rolePredictionView);
+    const roleToIdx = this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const swapped = CsInput.clone(csInputView);
     if (editable) {
@@ -1176,10 +1196,10 @@ export class CsTab {
   public editSummoner(role: number) {
     const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
-    const roleToIdx =  this.roleToIdx(rolePredictionView);
+    const roleToIdx = this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const idx = roleToIdx[(role + (blue ? 0 : 5)) % 10];
-    Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerName.english, csInputView.summonerNames[idx], [], async result => {
+    Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerName.english, csInputView.summonerNames[idx], [], async (result) => {
       const edited = CsInput.clone(csInputView);
       if (edited.ownerName == edited.summonerNames[idx]) {
         edited.ownerName = result;
@@ -1192,12 +1212,12 @@ export class CsTab {
   public editChampion(role: number) {
     const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
-    const roleToIdx =  this.roleToIdx(rolePredictionView);
+    const roleToIdx = this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const idx = roleToIdx[(role + (blue ? 0 : 5)) % 10];
-    const currName = this.patchInfo.ChampionIdToName[csInputView.championIds[idx]] || "";
-    Popup.text(TranslatedText.editChampion.english, TranslatedText.enterChampionName.english, currName, Object.values(this.patchInfo.ChampionIdToName), async result => {
-      const picked = Object.keys(this.patchInfo.ChampionIdToName).filter(k => this.patchInfo.ChampionIdToName[k] == result);
+    const currName = this.patchInfo.ChampionIdToName[csInputView.championIds[idx]] || '';
+    Popup.text(TranslatedText.editChampion.english, TranslatedText.enterChampionName.english, currName, Object.values(this.patchInfo.ChampionIdToName), async (result) => {
+      const picked = Object.keys(this.patchInfo.ChampionIdToName).filter((k) => this.patchInfo.ChampionIdToName[k] == result);
       if (result.length > 0 && picked.length == 0) {
         Popup.message(TranslatedText.error.english, TranslatedText.championNotFound.english);
         return;
@@ -1213,10 +1233,9 @@ export class CsTab {
     const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
     const currentRegion = (this.patchInfo.RegionIdToGg[csInputView.region] || '').toUpperCase();
-    const regions = Object.values(this.patchInfo.RegionIdToGg).map(x => (<string>x).toUpperCase());
-    Popup.text(TranslatedText.editRegion.english, TranslatedText.enterRegionInitials.english, currentRegion, regions, async result => {
-
-      const picked = Object.keys(this.patchInfo.RegionIdToGg).filter(k => this.patchInfo.RegionIdToGg[k].toUpperCase() == result.toUpperCase());
+    const regions = Object.values(this.patchInfo.RegionIdToGg).map((x) => (<string>x).toUpperCase());
+    Popup.text(TranslatedText.editRegion.english, TranslatedText.enterRegionInitials.english, currentRegion, regions, async (result) => {
+      const picked = Object.keys(this.patchInfo.RegionIdToGg).filter((k) => this.patchInfo.RegionIdToGg[k].toUpperCase() == result.toUpperCase());
       if (picked.length == 0) {
         Popup.message(TranslatedText.error.english, TranslatedText.regionNotFound.english);
         return;
@@ -1232,20 +1251,19 @@ export class CsTab {
     const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
 
     const edited = CsInput.clone(csInputView);
-    if (edited.ownerName == null || edited.ownerName == "" || !edited.summonerNames.includes(edited.ownerName)) {
-      const availableNames = edited.summonerNames.filter(x => x && x.length > 0);
+    if (edited.ownerName == null || edited.ownerName == '' || !edited.summonerNames.includes(edited.ownerName)) {
+      const availableNames = edited.summonerNames.filter((x) => x && x.length > 0);
       if (availableNames.length == 0) {
         Popup.message(TranslatedText.error.english, TranslatedText.inputOneSummonerName.english);
         //Reverse click
-        $('.cs-side-blue').prop("checked", !blue);
-        $('.cs-side-red').prop("checked", blue);
+        $('.cs-side-blue').prop('checked', !blue);
+        $('.cs-side-red').prop('checked', blue);
         return;
       }
       edited.ownerName = availableNames[0];
     }
     const currBlue = CsInput.getOwnerIdx(csInputView) < 5;
     if (currBlue != blue) {
-      
       edited.summonerNames = this.flipArray(edited.summonerNames);
       edited.championIds = this.flipArray(edited.championIds);
       edited.picking = this.flipArray(edited.picking);
@@ -1253,7 +1271,7 @@ export class CsTab {
       edited.assignedRoles = this.flipArray(edited.assignedRoles);
       edited.roleSwaps = this.flipArray(edited.roleSwaps);
       edited.championSwaps = this.flipArray(edited.championSwaps);
-    
+
       await this.currentCsManager.manualCsChange(edited);
     }
   }
@@ -1269,6 +1287,4 @@ export class CsTab {
     edited.queueId = soloQueue ? '420' : '440';
     await this.currentCsManager.manualCsChange(edited);
   }
-
-
 }

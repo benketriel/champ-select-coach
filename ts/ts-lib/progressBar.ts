@@ -1,7 +1,6 @@
-import { LocalStorage } from "./localStorage";
-import { Timer } from "./timer";
-import * as $ from "jquery"; //npm install --save-dev @types/jquery
-
+import { LocalStorage } from './localStorage';
+import { Timer } from './timer';
+import * as $ from 'jquery'; //npm install --save-dev @types/jquery
 
 export class ProgressBar {
   private static currentlyActive: ProgressBar;
@@ -15,7 +14,7 @@ export class ProgressBar {
   private remainingTaskSeconds = [];
   private remainingTotalSeconds = 0.0;
   private secondsOnTask = 0.0;
-  private totalSeconds = 0.00001;  //Prevent division by 0
+  private totalSeconds = 0.00001; //Prevent division by 0
 
   constructor(taskNames: string[], taskParallelism: number[]) {
     this.remainingTaskNames = taskNames;
@@ -25,7 +24,7 @@ export class ProgressBar {
     for (const i in taskNames) {
       const t = taskNames[i];
       const n = taskParallelism[i];
-      const s = (t in stats) ? stats[t] : 1.0;
+      const s = t in stats ? stats[t] : 1.0;
       this.remainingTaskSeconds.push(s * n);
       this.remainingTotalSeconds += s * n;
     }
@@ -36,7 +35,7 @@ export class ProgressBar {
   private setValue() {
     //Actually edits the html element (this singleton class owns it)
     if (this == ProgressBar.currentlyActive) {
-      $('.progress-bar-value').css('width', Math.round(1089 * this.currentlyShownValue) +'px');
+      $('.progress-bar-value').css('width', Math.round(1089 * this.currentlyShownValue) + 'px');
     }
   }
 
@@ -68,23 +67,21 @@ export class ProgressBar {
   }
 
   private async tick() {
-    for (let remainingTicks = ProgressBar.MAX_SECONDS * 1000.0 / ProgressBar.TICK_MS; remainingTicks > 0; remainingTicks--) {
+    for (let remainingTicks = (ProgressBar.MAX_SECONDS * 1000.0) / ProgressBar.TICK_MS; remainingTicks > 0; remainingTicks--) {
       this.secondsOnTask += ProgressBar.TICK_MS / 1000.0;
       this.totalSeconds += ProgressBar.TICK_MS / 1000.0;
-      let taskEstimatedSeconds = (this.remainingTaskSeconds.length == 0) ? 0.0 : this.remainingTaskSeconds[0];
+      let taskEstimatedSeconds = this.remainingTaskSeconds.length == 0 ? 0.0 : this.remainingTaskSeconds[0];
       this.currentValue = this.totalSeconds / (this.totalSeconds - this.secondsOnTask + Math.max(this.secondsOnTask, taskEstimatedSeconds) + this.remainingTotalSeconds - taskEstimatedSeconds);
       this.currentlyShownValue = this.currentlyShownValue * 0.5 + 0.5 * this.currentValue;
       this.setValue();
       await Timer.wait(ProgressBar.TICK_MS);
-      if (this.remainingTaskSeconds.length == 0 && this.currentlyShownValue >= 0.999 || this != ProgressBar.currentlyActive && this.currentValue >= 0.999) {
+      if ((this.remainingTaskSeconds.length == 0 && this.currentlyShownValue >= 0.999) || (this != ProgressBar.currentlyActive && this.currentValue >= 0.999)) {
         this.currentlyShownValue = 0.0;
         this.setValue();
         break;
       }
     }
   }
-
-
 
   private sampleTaskCompletionTime(taskName: string, seconds: number, parallelism: number) {
     const stats = LocalStorage.getProgressBarStats();
@@ -93,10 +90,9 @@ export class ProgressBar {
     if (!(taskName in stats)) {
       stats[taskName] = seconds / parallelism;
     } else {
-      stats[taskName] = stats[taskName] * ProgressBar.ALPHA + (1 - ProgressBar.ALPHA) * seconds / parallelism;
+      stats[taskName] = stats[taskName] * ProgressBar.ALPHA + ((1 - ProgressBar.ALPHA) * seconds) / parallelism;
     }
 
     LocalStorage.setProgressBarStats(stats);
   }
-
 }
