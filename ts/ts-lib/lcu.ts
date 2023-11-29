@@ -511,6 +511,7 @@ export class Lcu {
         }
         res = await Lcu.riotRequest(lcuUrls.ChatParticipants);
       }
+      //Logger.log(JSON.stringify(res));
 
       if (res && res.participants) {
         let names = res.participants.map((p) => p.name).filter((x) => x != null && x.length > 0);

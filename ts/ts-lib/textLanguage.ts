@@ -5,7 +5,7 @@ import { Logger } from './logger';
 export const TranslatedText = {
   /*
     For anyone who wants to contribute read this first:
-      All you need to do is add a row to every entry, with the language you are translating to.
+      Check the existing translations to see how to do a new one, all you need to do is add a row to every entry, with the language you are translating to.
       For full sentences feel free to paraphrase if it comes more natural.
       Try to maintain the translations of similar length to prevent issues of text overflowing in the UI.
       It's highly recommended to understand the context of each entry before translating.
@@ -14,7 +14,8 @@ export const TranslatedText = {
 
     Some further constraints exist but these can be done by someone other than the translator, since they do not depend on the 
     language knowledge, but rather on HTML:
-      Do not translate two different items into the same text (can fix by just adding a space in the end of one of them)
+      Do not translate two different items into the same text (can fix by just adding a space in the end of one of them), this is 
+      because the code will also create an inverse dictionary between the translated text and its key
       The text may be the same in different languages in the same item, for example 'Total' in spanish/english.
       Failing to translate one item, will make it default to English
       Some fields have formatting parts such as line breaks or other html tags. These should be kept in all translations.
@@ -620,7 +621,7 @@ export const TranslatedText = {
   },
   whatDoesTheScoreRepresentAnswer: {
     english:
-      '\n          Each 1.0 is 10% win rate, so a 5.6 score will be predicted to win at 56% chance.\n          For individual scores they are a difference either from 5.0 (ex. solo scores), or from the current score (ex. alternative champion picks), depending on the context.\n        ',
+      '\n              Each 1.0 is 10% win rate, so a 5.6 score will be predicted to win at 56% chance. For individual scores they are a difference either from 5.0 (ex. solo scores), or from the current score (ex. alternative champion picks), depending on the\n              context.\n            ',
     spanish: 'Cada 1.0 son 10%, así que un 5.6 indica que la probabilidad para ganar es 56%. Puntuaciones individuales son diferencias comparando con 5.0 (ej. puntuaciones sólo), o comparando con el puntuación actual (ej. otros campeones)',
     french:
       'Chaque 1.0 de score represente 10% de chance de gagner la partie. Par exemple, pour un score CSC de 5.6, vous avez en moyenne 56% de chance de gagner la partie.\n          Les autres scores sont calculés comme la différence par rapport à un score de 5.0 (ex : le scores individuel).\n        ',
@@ -633,7 +634,7 @@ export const TranslatedText = {
   },
   doesItWorkOnNormalsAnswer: {
     english:
-      '\n          The AI was only trained on (millions of) <span class="faq-highlight">ranked</span> solo and flex games.\n          Scores for game modes other than solo/flex queue will be less accurate, and should be used with a grain of salt.\n        ',
+      '\n              The AI was only trained on (millions of) <span class="faq-highlight">ranked</span> solo and flex games. Scores for game modes other than solo/flex queue will be less accurate, and should be used with a grain of salt.\n            ',
     spanish: 'La inteligencia artificial aprendió mirando solamente (millones de) partidas <span class="faq-highlight">clasificatorias</span> sólo/flex. Puntuaciones en otros modos son un poco menos exactas',
     french: 'L\'intelligence artificielle à été entrainée seulement sur des parties classées de <span class="faq-highlight">ranked</span> soloQ et flex. Les scores calculés dans les autres modes de jeux seront donc moins précis.',
   },
@@ -645,7 +646,7 @@ export const TranslatedText = {
   },
   whyBadIndividualAnswer: {
     english:
-      '\n          The AI is aware of the winrate, but it also looks at many more things around your performance in game.\n          Maybe you have climbed to a new elo in which however you are playing is no longer good enough to continue climbing.\n          The opposite is also true where you some players may have bad winrates but high scores.\n        ',
+      '\n              The AI is aware of the winrate, but it also looks at many more things around your performance in game. Maybe you have climbed to a new elo in which however you are playing is no longer good enough to continue climbing. The opposite is\n              also true where you some players may have bad winrates but high scores.\n            ',
     spanish:
       'La inteligencia artificial ve que has ganado, pero también ve muchos más detalles acerca de cada partida. Quizás ha escalado a un rango más alto en el cual la inteligencia artificial predice que si no mejora no seguirá ganando de la misma manera. Lo contrario también puede ser, que ciertos jugadores que han perdido muchas partidas jugaron bien, pero tuvieron mala suerte.',
     french:
@@ -659,7 +660,7 @@ export const TranslatedText = {
   },
   counteredChampionsAnswer: {
     english:
-      '\n          The AI is aware of counterpicks as well, but it also knows to put them in perspective of champion mastery.\n          More often than not, picking a champion on which the player has experience is preferred even when countered by the enemy champion (if the goal is to win the game).\n        ',
+      '\n              The AI is aware of counterpicks as well, but it also knows to put them in perspective of champion mastery. More often than not, picking a champion on which the player has experience is preferred even when countered by the enemy champion\n              (if the goal is to win the game).\n            ',
     spanish:
       'La inteligencia artificial conoce bien las interacciones de los campeones, pero también sabe poner esta información en perpectiva a cuánto el jugador conoze cada campeón. Muchas veces es mejor jugar un campeón que el jugador conoce bien (si la meta es ganar la partida).',
     french:
@@ -673,7 +674,7 @@ export const TranslatedText = {
   },
   howReliableAreTheScoresAnswer: {
     english:
-      "\n          The AI doesn't just predict who will win, but gives a win chance.\n          Over many games, this chance is extremely accurate, so for example exactly 60% of games where the AI said 6.0 were then actually won.\n          Likewise, when the AI isn't sure, it will say values closer to 5.0.\n          The overall accuracy of the AI is ~60% (pre-game scores), however the accuracy for a single score is the score itself. The accuracy of 5.3 is 53%.\n          It is normal that for fewer games the statistics can differ a lot in both directions, just like flipping a coin won't give you exactly 50% of each outcome.\n        ",
+      "\n              The AI doesn't just predict who will win, but gives a win chance. Over many games, this chance is extremely accurate, so for example exactly 60% of games where the AI said 6.0 were then actually won. Likewise, when the AI isn't sure, it\n              will say values closer to 5.0. The overall accuracy of the AI is ~60% (pre-game scores), however the accuracy for a single score is the score itself. The accuracy of 5.3 is 53%. It is normal that for fewer games the statistics can\n              differ a lot in both directions, just like flipping a coin won't give you exactly 50% of each outcome.\n            ",
     spanish:
       'La inteligencia artificial no sólo predice quien va a ganar, sino que da un porcentaje. Sobre muchas partidas, el porcentaje es extremadamente preciso, por ejemplo exáctamente 60% de las partidas en donde la puntuación fué 6.0 se ganaron. De igual manera, cuando la inteligencia artificial no está segura, la puntuación se acerca a 5.0. La precisión promedia total es de ~60% (puntuaciones antes del inicio de la partida), pero la precisión de cada puntuación es la puntuación misma. Una puntuación de 5.3 tiene una precisión de 53%. Es normal que las estadísticas pueden variar mucho al mirar solamente unas pocas partidas, igual como cuando al lanzar una moneda unas veces no se reciben exáctamente 50% de cada resultado.',
     french:
@@ -687,7 +688,7 @@ export const TranslatedText = {
   },
   whoAreDevsAnswer: {
     english:
-      '\n          This project is made by a single person with some help from others from time to time.\n          I am a master elo EUW/EUNE player, who also has worked with machine learning both in the industry and the academy for over 10 years.\n          This started as a tool for my own private use in 2018.\n          After realizing how useful it was, I decided to share it with the community since 2020.\n          I have been prioritizing the improvement of the AI above anything else, making small improvements over time.\n          Feel free to reach out to me on Discord or on LinkedIn!\n        ',
+      '\n              This project is made by a single person with some help from others from time to time. I am a master elo EUW/EUNE player, who also has worked with machine learning both in the industry and the academy for over 10 years. This started as a\n              tool for my own private use in 2018. After realizing how useful it was, I decided to share it with the community since 2020. I have been prioritizing the improvement of the AI above anything else, making small improvements over time.\n              Feel free to reach out to me on Discord or on LinkedIn!\n            ',
     spanish:
       'Este proyecto fue creado por una persona con la ayuda de otros de vez en cuando. Yo soy un jugador de EUW/EUNE master, que ha trabajado con inteligencia artificial en la industría y academía por más de 10 años. Hice estas prediciones en 2018 para uso propio, pero al ver lo útiles que son, decidí compartirlas con la comunidad desde 2020. Siempre he priorizado mejorar la precisión más que cualquier otra cosa, mejorando poco a poco con el tiempo. Puede contactarme en Discord o LinkedIn, sería un gusto!',
     french:
@@ -701,11 +702,11 @@ export const TranslatedText = {
   },
   howDoesAIPatchAnswer: {
     english:
-      "\n          The AI is constantly training on most, if not all, ranked games - soloQ &amp; flex, to keep up to date.\n          We have observed how when new champions are released, the AI can still give a roughly accurate score for champions it has never seen in the past, \n          and the overall accuracy doesn't really drop in a noticeable manner.\n          We keep updating the AI on a regular basis, to follow the small details of the patch changes.\n        ",
+      "\n              The AI is constantly training on most, if not all, ranked games - soloQ/flex, to keep up to date. We have observed how when new champions are released, the AI can still give a roughly accurate score for champions it has never seen in\n              the past, and the overall accuracy doesn't really drop in a noticeable manner. We keep updating the AI on a regular basis, to follow the small details of the patch changes.\n            ",
     spanish:
       'La inteligencia artificial esta constantemente aprendiendo de casi todas las partidas clasificatorias - sólo/flex, para mantenerse al día. Hemos observado que aún cuando salen nuevos campeones, la inteligencia artificial es capaz de dar una puntuación aproximada, y la precisión no baja de manera notable. Seguiremos actualizando el modelo de manera cotidiana, para seguir los pequeños cambios cuando ocurren',
     french:
-      "\n          L'IA est entrainée sur toutes des parties classées soloQ &amp; flex qui se jouent tous les jours.\n          Même lorsque de nouveaux champions sortent, l'IA arrive tout de même à donner un score, et sa precision ne baisse pas de manière significative. \n          Nous continuons de mettre à jour l'IA de façon regulière, pour suivre au mieux les changements lors de sorties de patchs.\n          ",
+      "\n          L'IA est entrainée sur toutes des parties classées soloQ/flex qui se jouent tous les jours.\n          Même lorsque de nouveaux champions sortent, l'IA arrive tout de même à donner un score, et sa precision ne baisse pas de manière significative. \n          Nous continuons de mettre à jour l'IA de façon regulière, pour suivre au mieux les changements lors de sorties de patchs.\n          ",
   },
 
   addFeatureX: {
@@ -715,7 +716,7 @@ export const TranslatedText = {
   },
   addFeatureXAnswer: {
     english:
-      "\n          Please write your ideas in the discord, maybe even someone has already lifted it.<br>\n          For features related to results, generally speaking, this app will be AI based all the way, never depending on anyone's understanding of the game.\n          We will not add outputs which are based on some rule of thumb on a statistic, since these can be flawed, are based on opinion, and vary over time.\n          This way we ensure integrity and accuracy of results, since we can test and measure it.\n        ",
+      "\n              Please write your ideas in the discord, maybe even someone has already lifted it.<br>\n              For features related to results, generally speaking, this app will be AI based all the way, never depending on anyone's understanding of the game. We will not add outputs which are based on some rule of thumb on a statistic, since these\n              can be flawed, are based on opinion, and vary over time. This way we ensure integrity and accuracy of results, since we can test and measure it.\n            ",
     spanish:
       'Por favor cuéntenos de sus ideas en discord, tal vez alguien más ya lo mencionó. Para funciones relacionadas a resultados, generalmente esta aplicación las basará solamnete en inteligencia artificial para nunca tener que depender del conocimiento humano el cual puede ser limitado, basado en opiniones, y cambiar con el tiempo. De esta manera aseguramos la integridad de los resultados, al poder probarlos y medirlos',
     french:
@@ -729,7 +730,7 @@ export const TranslatedText = {
   },
   translateToYAnswer: {
     english:
-      '\n          If you can help us translate to a new language or if you find issues in the current translations, please let us know on the discord.\n          However, patch notes and dynamic notifications will be in English for the time being.\n        ',
+      '\n              If you can help us translate to a new language or if you find issues in the current translations, please let us know on the discord. However, patch notes and dynamic notifications will be in English for the time being.\n            ',
     spanish: 'Si usted puede ayudar con una traducción o si encuentra errores en una traducción por favor infórmenos en discord. Lástimamente, las noticias no se traducen por ahora.',
     french:
       '\n          Si vous voulez nous aider à traduire CSC dans une nouvelle langue, ou si vous voyez des problèmes avec la traduction dans votre langue, Merci de nous en faire part sur le Discord !\n          Cela dit, les notes de patch ainsi que les mises à jour dynamiques resterons en anglais pour le moment.',
@@ -758,7 +759,7 @@ export const TranslatedText = {
     french: 'Version:',
   },
   betaInfo: {
-    english: '\n              Check this if you want to help test the newest <br>\n              features before they are added for everyone',
+    english: '\n                  Check this if you want to help test the newest <br>\n                  features before they are added for everyone',
     spanish: '\n          Seleccione si desea ayudar a probar <br>las nuevas funciones antes de que <br>sean publicadas a todos',
     french: '\n          Cochez ceci si vous voulez aider à <br>tester les nouvelles versions avant <br>les autres utilisateurs',
   },
@@ -793,7 +794,7 @@ export const TranslatedText = {
     french: 'Jamais',
   },
   toFrontOnCSInfo: {
-    english: '\n              This will make the CSC window automatically <br>\n              pop to the front when entering champion select',
+    english: '\n                  This will make the CSC window automatically <br>\n                  pop to the front when entering champion select',
     spanish: 'Indica si desea que la ventana de CSC <br>se ponga al frente cuando se inicie un<br> lobby nuevo',
     french: 'Ceci fera automatiquement passer CSC <br>en premier plan lorsque vous entrerez <br>dans une selection de champions',
   },
@@ -803,7 +804,7 @@ export const TranslatedText = {
     french: 'Focaliser CSC sur la selection de champion',
   },
   singleThreadInfo: {
-    english: '\n              Check this if you are experiencing <br>\n              CPU problems during champion select',
+    english: '\n                  Check this if you are experiencing <br>\n                  CPU problems during champion select',
     spanish: 'Limita el uso del CPU a un core',
     french: '\n          Cochez ceci si vous avez des problèmes de <br>CPU pendant la selection de champion',
   },
@@ -846,7 +847,7 @@ export const TranslatedText = {
   },
   feedbackJoinDiscord: {
     english:
-      '\n        The best way to contact us is via the <a class="inline-a-link-button" href="https://discord.gg/YGcWxhyXmn">CSC discord</a>.\n        You can <a class="inline-a-link-button" href="https://discord.gg/Fw9QFKstFk">Report issues</a>, <a class="inline-a-link-button" href="https://discord.gg/fFFaVxCYCQ">Propose new features</a>, \n        discuss ideas or results with other users, check the ongoing status of development, and get in-depth info about the app\n      ',
+      '\n          The best way to contact us is via the <a class="inline-a-link-button" href="https://discord.gg/YGcWxhyXmn">CSC discord</a>. You can <a class="inline-a-link-button" href="https://discord.gg/Fw9QFKstFk">Report issues</a>,\n          <a class="inline-a-link-button" href="https://discord.gg/fFFaVxCYCQ">Propose new features</a>, discuss ideas or results with other users, check the ongoing status of development, and get in-depth info about the app\n        ',
     spanish:
       'La mejor manera de contactarnos es en el <a class="inline-a-link-button" href="https://discord.gg/YGcWxhyXmn">CSC discord</a>. Podrá <a class="inline-a-link-button" href="https://discord.gg/Fw9QFKstFk">Reportar problemas</a>, <a class="inline-a-link-button" href="https://discord.gg/fFFaVxCYCQ">Proponer nuevas funciones</a>, discutir ideas o resultados con otros usuarios, leer acerca del estado del desarrollo, y recibir mejor entendimiento de la aplicación.',
     french:
@@ -895,7 +896,7 @@ export const TranslatedText = {
     french: 'Historique des patchs',
   },
   onlyLatest10Patches: {
-    english: 'Only the latest 10 patches are shown, the rest can be found in our <a class="inline-a-link-button" href="https://discord.gg/YGcWxhyXmn">Discord</a>. \n      There you can also read about the future planned work, or request features.',
+    english: 'Only the latest 10 patches are shown, the rest can be found in our <a class="inline-a-link-button" href="https://discord.gg/YGcWxhyXmn">Discord</a>. There you can also read about the future planned work, or request features.',
     spanish:
       'Lástimamente esta información no está traducida.<br>Solamente los últimos 10 cambios se muestran, el resto se encuentra en <a class="inline-a-link-button" href="https://discord.gg/YGcWxhyXmn">Discord</a>. Allá puede además leer acerca de las funciones planeadas para el futuro, o solicitar funciones.',
     french:

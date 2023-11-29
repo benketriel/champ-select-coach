@@ -78,9 +78,7 @@ export class CsDataFetcher {
     const summonerIds = [(csData.summonerInfo[name] || {}).id || ''];
 
     const masteriesTask = this.cacheAndFetch(region, summonerIds, false, this.masteryCache, CscApi.getMasteries); //DB
-    const tiersTask = this.cacheAndFetch(region, summonerIds, false, soloQueue ? this.cscApiSoloQTierCache : this.cscApiFlexTierCache, (region: string, sIds: string[]) =>
-      CscApi.getTiers(region, soloQueue, sIds)
-    ); //DB
+    const tiersTask = this.cacheAndFetch(region, summonerIds, false, soloQueue ? this.cscApiSoloQTierCache : this.cscApiFlexTierCache, (region: string, sIds: string[]) => CscApi.getTiers(region, soloQueue, sIds)); //DB
 
     const historiesByPuuid = await this.cacheAndFetch(region, puuids, true, this.historyCache, CscApi.getHistories); //API call (slow)
     const matchIds = <string[]>[...new Set(Utils.flattenArray(Object.keys(historiesByPuuid).map((x) => historiesByPuuid[x])))];
@@ -137,9 +135,7 @@ export class CsDataFetcher {
 
     const isFlex = CsTab.isFlex(patchInfo, csInput.queueId);
     const masteriesTask = this.cacheAndFetch(csInput.region, summonerIds, false, this.masteryCache, CscApi.getMasteries); //DB
-    const tiersTask = this.cacheAndFetch(csInput.region, summonerIds, false, isFlex ? this.cscApiFlexTierCache : this.cscApiSoloQTierCache, (region: string, sIds: string[]) =>
-      CscApi.getTiers(region, !isFlex, sIds)
-    ); //DB
+    const tiersTask = this.cacheAndFetch(csInput.region, summonerIds, false, isFlex ? this.cscApiFlexTierCache : this.cscApiSoloQTierCache, (region: string, sIds: string[]) => CscApi.getTiers(region, !isFlex, sIds)); //DB
 
     const historiesByPuuid = await this.cacheAndFetch(csInput.region, puuids, true, this.historyCache, CscApi.getHistories); //API call (slow)
     const matchIds = <string[]>[...new Set(Utils.flattenArray(Object.keys(historiesByPuuid).map((x) => historiesByPuuid[x])))];

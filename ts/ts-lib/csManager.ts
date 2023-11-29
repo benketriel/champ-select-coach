@@ -230,25 +230,7 @@ export class CsManager {
   private init(csView: any) {
     if (!csView) return;
 
-    const {
-      csInputView,
-      rolePredictionView,
-      csInput,
-      rolePrediction,
-      guessedNames,
-      apiTiers,
-      lcuTiers,
-      summonerInfo,
-      bans,
-      score,
-      missingScore,
-      history,
-      historyStats,
-      recommendations,
-      swappable,
-      editable,
-      date,
-    } = csView;
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = csView;
 
     this.currCsInputView = csInput;
     this.currCsRolePredictionView = rolePrediction;
@@ -718,9 +700,7 @@ export class CsManager {
         {
           const patchInfo = MainWindow.instance().patchInfo;
           const isRanked = patchInfo.RankedQueueTypeIds.includes(parseInt(csInput.queueId));
-          const sToCs = isRanked
-            ? this.findSpectatorToCsMapping(manager.currCsInputView.championIds, csInput.championIds)
-            : this.findSpectatorToCsMapping(manager.currCsInputView.summonerNames, csInput.summonerNames);
+          const sToCs = isRanked ? this.findSpectatorToCsMapping(manager.currCsInputView.championIds, csInput.championIds) : this.findSpectatorToCsMapping(manager.currCsInputView.summonerNames, csInput.summonerNames);
           if (sToCs) {
             //roles not in the data here
             csInput.assignedRoles = this.applyMapping(manager.currCsInputView.assignedRoles, sToCs);
@@ -772,10 +752,7 @@ export class CsManager {
         csInput.summonerNames = sortedPlayers.map((x) => x.summonerName);
         csInput.championIds = await Promise.all(sortedPlayers.map(async (x) => (await CSCAI.championNameToId(x.championName)).toString()));
         csInput.summonerSpells = await Promise.all(
-          sortedPlayers.map(async (x) => [
-            (await CSCAI.summonerSpellNameToId(x.summonerSpells.summonerSpellOne.displayName)) || -1,
-            (await CSCAI.summonerSpellNameToId(x.summonerSpells.summonerSpellTwo.displayName)) || -1,
-          ])
+          sortedPlayers.map(async (x) => [(await CSCAI.summonerSpellNameToId(x.summonerSpells.summonerSpellOne.displayName)) || -1, (await CSCAI.summonerSpellNameToId(x.summonerSpells.summonerSpellTwo.displayName)) || -1])
         );
 
         return csInput;

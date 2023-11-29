@@ -23,6 +23,7 @@ const windowNames = {
 
 const lcuUrls = {
   //see https://www.mingweisamuel.com/lcu-schema/tool/
+  //see https://lcu.kebs.dev/
   //ChampSelectQuery: 'lol-champ-select/v1/session',
   //SummonerNamesQuery: 'lol-summoner/v2/summoner-names', //?ids=[...]
   //RegionQuery: 'lol-platform-config/v1/namespaces/LoginDataPacket/platformId',
