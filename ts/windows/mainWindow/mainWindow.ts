@@ -615,14 +615,14 @@ export class MainWindow {
         name,
         contact,
         msg,
-        summoner: '',
+        riotID: '',
         region: '',
       };
       try {
-        const nameRegion = await Lcu.getCurrentNameAndRegion();
-        if (nameRegion && nameRegion.name && nameRegion.region) {
-          data.summoner = nameRegion.name;
-          data.region = nameRegion.region;
+        const curr = await Lcu.getCurrentRiotIDAndRegion();
+        if (curr && curr.riotID && curr.region) {
+          data.riotID = curr.riotID;
+          data.region = curr.region;
         }
       } catch {}
 

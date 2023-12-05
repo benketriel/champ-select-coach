@@ -207,8 +207,20 @@ export class PatchNotes {
 
       ['v0.3.16', '2023/10/09', 'AI update', ['Increased accuracy by another 0.5%']],
 
-      // 'Subscription only: A minimap with the champions is shown instead of the ads.',
-      //'Multiple 3rd party tools can be configured to open when clicking the champions.',
+      [
+        'v0.3.17',
+        '2023/12/05',
+        'RiotID',
+        [
+          "Fixed backend to support migration to RiotIDs - now players must input the tagline after a '#' symbol",
+          'A ✓ is shown when a hidden teammate was detected by the AI, indicating that its prediction is as good as when visible',
+          'Wider histogram lines because they were previously hard to see on some monitors',
+          'Will now load at most 200 games from your CSC history (and from the latest 60 months as before). Some players experienced lag when they had too many games in their history.',
+          'Updated AI model',
+        ],
+      ],
+
+      //
     ];
   }
 }

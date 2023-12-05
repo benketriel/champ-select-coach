@@ -19,12 +19,11 @@ export class PersonalTab {
   private static DATA_TIMEOUT_MS: number = 1000 * 60 * 5;
   private patchInfo: any;
 
-  private summonerName: string = '';
+  private riotID: string = '';
   private region: string = '';
-  private customSummoner: boolean = false;
   private data: CsData = null;
   private dataLoadedTimestamp: number = 0;
-  private dataLoadedForName: string = null;
+  private dataLoadedForRiotID: string = null;
   private dataLoadedForRegion: string = null;
   private dataLoadedForSoloQueue: boolean = false;
   private stats: any = null;
@@ -141,21 +140,20 @@ export class PersonalTab {
   }
 
   private async syncWithLCU() {
-    const x = await Lcu.getCurrentNameAndRegion();
+    const curr = await Lcu.getCurrentRiotIDAndRegion();
 
-    if (x && x.name) {
+    if (curr && curr.riotID) {
       $('.lcuStatusLightDisconnected').hide();
       $('.lcuStatusLightConnected').show();
       $('.s-lcu-status-text').removeClass('s-lcu-status-text-disconnected');
       $('.s-lcu-status-text').removeClass('translated-text');
       $('.s-lcu-status-text').off('DOMSubtreeModified'); //This is needed to remove the translation callback as well
-      $('.s-lcu-status-text').html(x.name);
+      $('.s-lcu-status-text').html(curr.riotID);
 
       this.enqueueUpdate(async () => {
-        const change = this.summonerName != x.name || this.region != x.region;
-        this.summonerName = x.name;
-        this.region = x.region;
-        this.customSummoner = false;
+        const change = this.riotID != curr.riotID || this.region != curr.region;
+        this.riotID = curr.riotID;
+        this.region = curr.region;
         if (change) {
           await this.updateView();
           if (!(await Lcu.inChampionSelect())) {
@@ -173,7 +171,7 @@ export class PersonalTab {
   }
 
   public readyToBeDisplayed() {
-    return this.summonerName.length > 0 && this.region.length > 0;
+    return this.riotID.length > 0 && this.region.length > 0;
   }
 
   private clearView(keepResidual: boolean) {
@@ -257,12 +255,12 @@ export class PersonalTab {
 
   public async updateView() {
     this.enqueueUpdate(async () => {
-      if (this.summonerName == null || this.region == null) {
+      if (this.riotID == null || this.region == null) {
         this.clearView(false);
         return;
       }
-      const loadData = this.summonerName != this.dataLoadedForName || this.region != this.dataLoadedForRegion || this.soloQueue != this.dataLoadedForSoloQueue || new Date().getTime() - this.dataLoadedTimestamp > PersonalTab.DATA_TIMEOUT_MS;
-      const keepResidual = this.summonerName == this.dataLoadedForName && this.region == this.dataLoadedForRegion;
+      const loadData = this.riotID != this.dataLoadedForRiotID || this.region != this.dataLoadedForRegion || this.soloQueue != this.dataLoadedForSoloQueue || new Date().getTime() - this.dataLoadedTimestamp > PersonalTab.DATA_TIMEOUT_MS;
+      const keepResidual = this.riotID == this.dataLoadedForRiotID && this.region == this.dataLoadedForRegion;
       ErrorReporting.reportIfException(
         async () => {
           if (loadData) {
@@ -292,19 +290,19 @@ export class PersonalTab {
           this.updateCSCHistoryHistogram();
         },
         'PersonalTab.updateView()',
-        { summoner: this.summonerName, region: this.region }
+        { summoner: this.riotID, region: this.region }
       );
     });
   }
 
   private updateTitle() {
-    const nameString = this.summonerName;
-    const tierString = this.summonerName == '' || !this.tier || !this.tier.tier || this.tier.tier == '' ? '' : Utils.capitalizeFirstLetter(this.tier.tier) + ' ' + this.tier.division + ' ' + this.tier.lp + ' LP ';
-    const regionString = this.summonerName == '' || !this.region || this.region == '' ? '' : this.patchInfo.RegionIdToGg[this.region].toUpperCase();
-    $('.personal-title-content').html(this.summonerName == '' ? '' : nameString + ' - ' + tierString + ' ' + regionString);
-    $('.personal-graph-legend-personal .personal-graph-legend-text').html(this.summonerName);
+    const riotIDString = this.riotID;
+    const tierString = this.riotID == '' || !this.tier || !this.tier.tier || this.tier.tier == '' ? '' : Utils.capitalizeFirstLetter(this.tier.tier) + ' ' + this.tier.division + ' ' + this.tier.lp + ' LP ';
+    const regionString = this.riotID == '' || !this.region || this.region == '' ? '' : this.patchInfo.RegionIdToGg[this.region].toUpperCase();
+    $('.personal-title-content').html(this.riotID == '' ? '' : riotIDString + ' - ' + tierString + ' ' + regionString);
+    $('.personal-graph-legend-personal .personal-graph-legend-text').html(this.riotID);
 
-    if (this.summonerName == '') {
+    if (this.riotID == '') {
       $('.personal-title-empty').show();
     } else {
       $('.personal-title-empty').hide();
@@ -312,16 +310,19 @@ export class PersonalTab {
   }
 
   private async loadData() {
-    this.data = await CsDataFetcher.getPersonalData(this.region, this.summonerName, this.soloQueue);
+    this.data = await CsDataFetcher.getPersonalData(this.region, this.riotID, this.soloQueue);
     this.dataLoadedTimestamp = new Date().getTime();
-    this.dataLoadedForName = this.summonerName;
+    this.dataLoadedForRiotID = this.riotID;
     this.dataLoadedForRegion = this.region;
     this.dataLoadedForSoloQueue = this.soloQueue;
-    this.stats = await CSCAI.analyzePersonalData(this.summonerName, this.region, this.soloQueue, this.data);
-    this.tier = CsTab.mergeTiers(this.data.lcuTiers, this.stats.apiTiers)[this.summonerName] || {};
+    this.stats = await CSCAI.analyzePersonalData(this.riotID, this.region, this.soloQueue, this.data);
+    this.tier = CsTab.mergeTiers(this.data.lcuTiers, this.stats.apiTiers)[this.riotID] || {};
 
-    const puuid = (this.data.summonerInfo[this.summonerName] || {}).puuid;
+    const puuid = (this.data.summonerInfo[this.riotID] || {}).puuid;
     this.cscHistory = await CsDataFetcher.getCscHistoryData(this.region, puuid);
+    if (this.cscHistory && this.cscHistory.personalHistory) {
+      this.cscHistory.personalHistory = this.cscHistory.personalHistory.slice(-200);
+    }
   }
 
   private updateChampionRoleStats() {
@@ -539,6 +540,7 @@ export class PersonalTab {
       const hist = cscHistory[cscHistory.length - 1 - (this.cscHistoryIndex + i)];
       const data = JSON.parse(hist.data);
       const csInput = <CsInput>data.csInput;
+      CsManager.repairOldCsInput(csInput);
       const idx = CsInput.getOwnerIdx(csInput);
       const swappedChamps = CsManager.applyChampionSwaps(csInput);
       const championId = swappedChamps[idx];
@@ -696,7 +698,7 @@ export class PersonalTab {
     for (let wh = 0; wh < 6; ++wh) {
       ctx.strokeStyle = wh == 0 ? whiteShadow : wh == 1 ? blueShadow : wh == 2 ? redShadow : wh == 3 ? white : wh == 4 ? blue : red;
       const data = wh == 0 ? allCount : wh == 1 ? cscCount : wh == 2 ? playerCount : wh == 3 ? all : wh == 4 ? csc : player;
-      ctx.lineWidth = wh < 3 ? 1 : 2;
+      ctx.lineWidth = wh < 3 ? 3 : 4;
 
       for (let i = 1; i < 9; ++i) {
         var y0 = data[i];
@@ -775,9 +777,9 @@ export class PersonalTab {
   public async editSummonerAndRegion() {
     if (!Subscriptions.isSubscribed()) return;
 
-    Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerName.english, this.summonerName || '', [], (name) => {
-      if (name.length == 0 || name.search('<') != -1 || name.search('>') != -1) {
-        Popup.message(TranslatedText.error.english, TranslatedText.badSummonerName.english);
+    Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerRiotID.english, this.riotID || '', [], (riotID) => {
+      if (riotID.length == 0 || riotID.search('<') != -1 || riotID.search('>') != -1) {
+        Popup.message(TranslatedText.error.english, TranslatedText.badRiotID.english);
         return;
       }
 
@@ -791,10 +793,9 @@ export class PersonalTab {
         }
 
         this.enqueueUpdate(async () => {
-          const change = this.summonerName != name || this.region != picked[0];
-          this.summonerName = name;
+          const change = this.riotID != riotID || this.region != picked[0];
+          this.riotID = riotID;
           this.region = picked[0];
-          this.customSummoner = true;
           if (change) {
             await this.updateView();
             if (!(await Lcu.inChampionSelect())) {

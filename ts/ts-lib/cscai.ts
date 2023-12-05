@@ -78,10 +78,10 @@ export class CSCAI {
     return await new Promise<any>((resolve) => ai.GetRiotConnectionCreds(resolve));
   }
 
-  public static async analyzePersonalData(summonerName: string, region: string, soloQueue: boolean, data: CsData) {
+  public static async analyzePersonalData(riotID: string, region: string, soloQueue: boolean, data: CsData) {
     const ai = await this.instance();
     const dataJSON = JSON.stringify(data);
-    return CSCAI.rethrowStrings(await new Promise<any>((resolve) => ai.AnalyzePersonalData(summonerName, region, soloQueue, dataJSON, resolve)));
+    return CSCAI.rethrowStrings(await new Promise<any>((resolve) => ai.AnalyzePersonalData(riotID, region, soloQueue, dataJSON, resolve)));
   }
 
   public static async getRolePredictions(csInput: CsInput, swappedChampions: string[]) {

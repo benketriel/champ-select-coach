@@ -37,21 +37,24 @@ export class ErrorReporting {
     if (this.countByType[type] > this.MAX_OF_SAME_TYPE) return;
 
     let region = '<Unknown region>';
-    let name = '<Unknown reporter name>';
-    let summonerId = '<Unknown reporter id>';
-    if (this.LazyLcu && this.LazyCsDataFetcher) {
+    let riotID = '<Unknown reporter riotID>';
+    let puuid = '<Unknown reporter puuid>';
+    if (this.LazyLcu) {
       try {
-        const nameRegion = await this.LazyLcu.getCurrentNameAndRegion();
-        if (nameRegion && nameRegion.name && nameRegion.region) {
-          region = nameRegion.region;
-          name = nameRegion.name;
+        const curr = await this.LazyLcu.getCurrentRiotIDAndRegion();
+        if (curr && curr.riotID && curr.region) {
+          region = curr.region;
+          riotID = curr.riotID;
 
-          summonerId = (await this.LazyCsDataFetcher.getSummonerIdByRegionAndName(region, name)) || '';
+          if (this.LazyCsDataFetcher) {
+            const accounts = await this.LazyCsDataFetcher.cacheAndFetch(region, [riotID], true, this.LazyCsDataFetcher.accountCache, CscApi.getAccountsByRiotId);
+            puuid = (accounts[riotID] || {}).puuid || '';
+          }
         }
       } catch {}
     }
 
-    await CscApi.reportError(json, region, summonerId);
+    await CscApi.reportError(json, region, puuid);
 
     return;
   }

@@ -173,7 +173,7 @@ export class CsTab {
     if (region != null && region.length > 0) csView.csInput.region = region;
 
     csView.csInput.hiddenSummoners = [false, false, false, false, false, false, false, false, false, false];
-    csView.csInput.chatSummonerNames = [];
+    csView.csInput.chatRiotIDs = [];
     csView.csInput.picking = [false, false, false, false, false, false, false, false, false, false];
     csView.csInput.summonerSpells = [
       [-1, -1],
@@ -188,7 +188,7 @@ export class CsTab {
       [-1, -1],
     ];
     //csView.csInput.assignedRoles = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
-    csView.guessedNames = csView.csInput.summonerNames;
+    csView.guessedRiotIDs = csView.csInput.riotIDs;
 
     const newManager = new CsManager(this, false, csView, swappable, editable);
 
@@ -239,10 +239,10 @@ export class CsTab {
   }
 
   private updateLcuCSMenuView() {
-    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.lcuCsManager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedRiotIDs, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.lcuCsManager.getCsView();
 
     const ownerIdx = CsInput.getOwnerIdx(csInputView);
-    const mergedTier = CsTab.mergeTiers(lcuTiers, apiTiers)[csInputView.summonerNames[ownerIdx]] || {};
+    const mergedTier = CsTab.mergeTiers(lcuTiers, apiTiers)[csInputView.riotIDs[ownerIdx]] || {};
     let fullScore = score && score['full'] ? score['full'][0][0] : 0.5;
     fullScore = ownerIdx < 5 ? fullScore : 1 - fullScore;
 
@@ -272,7 +272,7 @@ export class CsTab {
       const ownerIdx = CsInput.getOwnerIdx(csInput);
       const mergedTier = CsTab.mergeTiers(csView.lcuTiers, csView.apiTiers);
 
-      const tier = mergedTier[csInput.summonerNames[ownerIdx]] || {};
+      const tier = mergedTier[csInput.riotIDs[ownerIdx]] || {};
       let score = csView.score && csView.score['full'] ? csView.score['full'][0][0] : 0.5;
       score = ownerIdx < 5 ? score : 1 - score;
 
@@ -361,7 +361,7 @@ export class CsTab {
     let time = new Date().getTime();
     const timeStats = {};
     //Updates the html view, change is for optimization, if empty reset everything
-    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = manager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedRiotIDs, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = manager.getCsView();
 
     const mergedTier = CsTab.mergeTiers(lcuTiers, apiTiers);
     //csInputView and rolePredictionView are always available
@@ -441,11 +441,11 @@ export class CsTab {
         const roleToIdx = this.roleToIdx(rolePrediction);
 
         for (let pickI of change == '' ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : [parseInt(change.substring(5))]) {
-          const name = csInput.summonerNames[roleToIdx[pickI]];
+          const riotID = csInput.riotIDs[roleToIdx[pickI]];
           const role = pickI % 5;
           const currRecommendations = (recommendations || {})[pickI] || [];
-          const currHistory = (history || {})[name] || [];
-          const currHistoryStats = (((historyStats || {}).champStats || {})[name] || {})[role] || {};
+          const currHistory = (history || {})[riotID] || [];
+          const currHistoryStats = (((historyStats || {}).champStats || {})[riotID] || {})[role] || {};
 
           this.updateRecommendations(patchInfo, side, score.full, pickI, currRecommendations, currHistory, currHistoryStats);
         }
@@ -477,19 +477,18 @@ export class CsTab {
 
   public static mergeTiers(lcuTiers: any, apiTiers: any[]) {
     const res = {};
-    if (lcuTiers) {
-      for (const name in lcuTiers) {
-        res[name] = lcuTiers[name];
-      }
-    }
-    //Api tiers removed because they are just too outdated
-    // if (apiTiers) {
-    //   for (const i in apiTiers) {
-    //     const x = apiTiers[i];
-    //     if (res[x.name] && res[x.name].tier != '') continue;
-    //     res[x.name] = { tier: x.tier.toLowerCase(), division: x.division, lp: x.lp };
+    // if (lcuTiers) {
+    //   for (const riotID in lcuTiers) {
+    //     res[riotID] = lcuTiers[riotID];
     //   }
     // }
+    if (apiTiers) {
+      for (const i in apiTiers) {
+        const x = apiTiers[i];
+        if (res[x.riotID] && res[x.riotID].tier != '') continue;
+        res[x.riotID] = { tier: x.tier.toLowerCase(), division: x.division, lp: x.lp };
+      }
+    }
     return res;
   }
 
@@ -782,7 +781,7 @@ export class CsTab {
       $('.cs-warning-unranked').show();
       warn = true;
     }
-    if (inputView && history && inputView.summonerNames.filter((name) => name != '' && (!(name in history) || history[name].length == 0)).length == 0) {
+    if (inputView && history && inputView.riotIDs.filter((riotID) => riotID != '' && (!(riotID in history) || history[riotID].length == 0)).length == 0) {
       $('.cs-warning-missing-history').hide();
     } else {
       $('.cs-warning-missing-history').show();
@@ -807,8 +806,8 @@ export class CsTab {
     for (let role = 0; role < 5; ++role) {
       const idx0 = roleToIdx[role];
       const idx1 = roleToIdx[5 + role];
-      const lcuTier0 = (lcuTiers || {})[inputView.summonerNames[idx0]] || {};
-      const lcuTier1 = (lcuTiers || {})[inputView.summonerNames[idx1]] || {};
+      const lcuTier0 = (lcuTiers || {})[inputView.riotIDs[idx0]] || {};
+      const lcuTier1 = (lcuTiers || {})[inputView.riotIDs[idx1]] || {};
       const e0 = swapElems[2 * role + side];
       const e1 = swapElems[2 * role + 1 - side];
       let z = 0;
@@ -859,30 +858,33 @@ export class CsTab {
 
     const swappedChampsView = CsManager.applyChampionSwaps(inputView);
     const championsImgs = $('.cs-table').find('.cs-table-champion-icon-cell .cs-table-champion-icon img').get();
-    const summonerNames = $('.cs-table').find('.cs-table-summoner-name-cell .cs-table-cell').get();
+    const riotIDs = $('.cs-table').find('.cs-table-summoner-name-cell .cs-table-cell').get();
     const tierFields = $('.cs-table').find('.cs-table-summoner-tier-cell .cs-table-cell').get();
     const roleIcons = $('.cs-table').find('.role-icon img').get();
     const roleTooltips = $('.cs-table').find('.role-icon .translated-text').get();
     const roleNames = ['Top', 'Jungle', 'Mid', 'Bot', 'Support'];
+
+    const foundHiddenTeammates = inputView.chatRiotIDs.length == 5 && inputView.hiddenSummoners.filter((x) => !x).length < 5;
+
     for (let i = 0; i < 5; ++i) {
       const role0 = rolePrediction[i];
       const role1 = rolePrediction[5 + i];
       CsTab.setChampionImg(patchInfo, $(championsImgs[2 * role0 + side]), swappedChampsView[i]);
       CsTab.setChampionImg(patchInfo, $(championsImgs[2 * role1 + 1 - side]), swappedChampsView[5 + i]);
 
-      const sName0 = inputView.summonerNames[i];
-      const sName1 = inputView.summonerNames[i + 5];
-      summonerNames[2 * role0 + side].innerHTML = !sName0 || sName0 == '' ? '❔' : sName0; //�
-      summonerNames[2 * role1 + 1 - side].innerHTML = !sName1 || sName1 == '' ? '❔' : sName1;
-      $(summonerNames[2 * role0 + side]).css('text-overflow', 'ellipsis');
-      $(summonerNames[2 * role1 + 1 - side]).css('text-overflow', 'ellipsis');
+      const riotID0 = inputView.riotIDs[i];
+      const riotID1 = inputView.riotIDs[i + 5];
+      riotIDs[2 * role0 + side].innerHTML = riotID0 && riotID0 != '' ? riotID0 : side == 0 && foundHiddenTeammates ? '✓' : '❔';
+      riotIDs[2 * role1 + 1 - side].innerHTML = riotID1 && riotID1 != '' ? riotID1 : side == 1 && foundHiddenTeammates ? '✓' : '❔';
+      $(riotIDs[2 * role0 + side]).css('text-overflow', 'ellipsis');
+      $(riotIDs[2 * role1 + 1 - side]).css('text-overflow', 'ellipsis');
 
-      const t0 = (tiers || {})[inputView.summonerNames[i]] || {};
-      const t1 = (tiers || {})[inputView.summonerNames[i + 5]] || {};
+      const t0 = (tiers || {})[inputView.riotIDs[i]] || {};
+      const t1 = (tiers || {})[inputView.riotIDs[i + 5]] || {};
       tierFields[2 * role0 + side].innerHTML = !t0.tier || t0.tier == '' ? '' : Utils.capitalizeFirstLetter(t0.tier) + ' ' + t0.division + ' ' + t0.lp + ' LP ';
       tierFields[2 * role1 + 1 - side].innerHTML = !t1.tier || t1.tier == '' ? '' : Utils.capitalizeFirstLetter(t1.tier) + ' ' + t1.division + ' ' + t1.lp + ' LP ';
 
-      const tTeam = (tiers || {})[inputView.summonerNames[i + 5 * side]] || {};
+      const tTeam = (tiers || {})[inputView.riotIDs[i + 5 * side]] || {};
       const teamRole = rolePrediction[i + 5 * side];
       CsTab.setRoleImg($(roleIcons[teamRole]), teamRole, tTeam.tier, tTeam.division, tTeam.lp);
       roleTooltips[teamRole].innerHTML = roleNames[teamRole];
@@ -930,7 +932,7 @@ export class CsTab {
   }
 
   private updateBans(patchInfo: any, bans: any) {
-    const names = $('.cs-table-recommended-bans-champion-name');
+    const champNames = $('.cs-table-recommended-bans-champion-name');
     const scores = $('.cs-table-recommended-bans-score');
     const images = $('.cs-table-recommended-bans-champion-border img');
 
@@ -942,7 +944,7 @@ export class CsTab {
         const score = parseFloat(bans[i][1 + j]['Item2']) - roleEmptyScore;
         const championName = patchInfo.ChampionIdToName[cId] || '';
 
-        $(names[5 + i * 5 + j]).html(championName);
+        $(champNames[5 + i * 5 + j]).html(championName);
         //$(scores[5 + i * 5 + j]).html(Utils.probabilityToScore(score));
         $(scores[5 + i * 5 + j]).html(Utils.probabilityToScore(parseFloat(bans[i][1 + j]['Item2'])) + ' - ' + Utils.probabilityToScore(roleEmptyScore));
         CsTab.setChampionImg(patchInfo, $(images[5 + i * 5 + j]), cId);
@@ -956,7 +958,7 @@ export class CsTab {
       const score = parseFloat(top5[i]['Item2']);
       const championName = patchInfo.ChampionIdToName[cId] || '';
 
-      $(names[i]).html(championName);
+      $(champNames[i]).html(championName);
       $(scores[i]).html(Utils.probabilityToScore(score));
       CsTab.setChampionImg(patchInfo, $(images[i]), cId);
     }
@@ -979,14 +981,14 @@ export class CsTab {
     const roleImgElements = $('.cs-table-role-win-lose-cell img').get();
 
     for (let i = 0; i < 10; ++i) {
-      const name = inputView.summonerNames[i];
+      const riotID = inputView.riotIDs[i];
       const role = rolePrediction[i];
       const team = Math.floor(i / 5);
       const elemI = (2 * role + ((team + side) % 2)) % 10; //Good luck understanding this
       const mainRoleI = 4 * role + ((team + side) % 2);
-      const lcuTier = (lcuTiers || {})[name] || {};
-      const currHistory = (history || {})[name] || [];
-      const currRoleStats = ((historyStats || {}).roleStats || {})[name] || [];
+      const lcuTier = (lcuTiers || {})[riotID] || {};
+      const currHistory = (history || {})[riotID] || [];
+      const currRoleStats = ((historyStats || {}).roleStats || {})[riotID] || [];
 
       const totalGames = <number>Object.values(currRoleStats)
         .map((x: any) => x.games)
@@ -1015,7 +1017,7 @@ export class CsTab {
         $(roleImgElements[mainRoleI + 2]).hide();
       }
 
-      if (currHistory.length == 0 && name.length > 0) {
+      if (currHistory.length == 0 && riotID.length > 0) {
         $(historyWarningElements[elemI]).show();
       } else {
         $(historyWarningElements[elemI]).hide();
@@ -1077,10 +1079,10 @@ export class CsTab {
     }
 
     for (let i = 0; i < 5; ++i) {
-      const nameBlue = inputView.summonerNames[i];
-      const nameRed = inputView.summonerNames[5 + i];
-      CsTab.setSubScore($(elems[4 * rolePrediction[i] + side + 2]), nameBlue != '' && nameBlue in missingScore ? fullScore[0] - missingScore[nameBlue][0] : 0.0, side == 0);
-      CsTab.setSubScore($(elems[4 * rolePrediction[5 + i] + 1 - side + 2]), nameRed != '' && nameRed in missingScore ? fullScore[1] - missingScore[nameRed][1] : 0.0, side != 0);
+      const riotIDBlue = inputView.riotIDs[i];
+      const riotIDRed = inputView.riotIDs[5 + i];
+      CsTab.setSubScore($(elems[4 * rolePrediction[i] + side + 2]), riotIDBlue != '' && riotIDBlue in missingScore ? fullScore[0] - missingScore[riotIDBlue][0] : 0.0, side == 0);
+      CsTab.setSubScore($(elems[4 * rolePrediction[5 + i] + 1 - side + 2]), riotIDRed != '' && riotIDRed in missingScore ? fullScore[1] - missingScore[riotIDRed][1] : 0.0, side != 0);
     }
   }
 
@@ -1107,7 +1109,7 @@ export class CsTab {
       const cId = recommendations[i].championId;
       const stats = champStats[cId];
       if (!stats) {
-        //The recommendations came from C# however the name is hidden, so just don't show
+        //The recommendations came from C# however the riotID is hidden, so just don't show
         //ErrorReporting.report('updatePicks', '!stats');
         root.hide();
         continue;
@@ -1155,7 +1157,8 @@ export class CsTab {
 
   //Manual edits
   public async swapRole(roleFrom: number, role5to: number) {
-    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedRiotIDs, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } =
+      this.currentCsManager.getCsView();
 
     const roleToIdx = this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
@@ -1168,7 +1171,8 @@ export class CsTab {
   }
 
   public async swapChampion(roleFrom: number, role5to: number) {
-    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedRiotIDs, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } =
+      this.currentCsManager.getCsView();
 
     const swappedChampsView = CsManager.applyChampionSwaps(csInputView);
 
@@ -1194,29 +1198,31 @@ export class CsTab {
   }
 
   public editSummoner(role: number) {
-    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedRiotIDs, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } =
+      this.currentCsManager.getCsView();
 
     const roleToIdx = this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const idx = roleToIdx[(role + (blue ? 0 : 5)) % 10];
-    Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerName.english, csInputView.summonerNames[idx], [], async (result) => {
+    Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerRiotID.english, csInputView.riotIDs[idx], [], async (result) => {
       const edited = CsInput.clone(csInputView);
-      if (edited.ownerName == edited.summonerNames[idx]) {
-        edited.ownerName = result;
+      if (edited.ownerRiotID == edited.riotIDs[idx]) {
+        edited.ownerRiotID = result;
       }
-      edited.summonerNames[idx] = result;
+      edited.riotIDs[idx] = result;
       await this.currentCsManager.manualCsChange(edited);
     });
   }
 
   public editChampion(role: number) {
-    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedRiotIDs, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } =
+      this.currentCsManager.getCsView();
 
     const roleToIdx = this.roleToIdx(rolePredictionView);
     const blue = CsInput.getOwnerIdx(csInputView) < 5;
     const idx = roleToIdx[(role + (blue ? 0 : 5)) % 10];
-    const currName = this.patchInfo.ChampionIdToName[csInputView.championIds[idx]] || '';
-    Popup.text(TranslatedText.editChampion.english, TranslatedText.enterChampionName.english, currName, Object.values(this.patchInfo.ChampionIdToName), async (result) => {
+    const currChampionName = this.patchInfo.ChampionIdToName[csInputView.championIds[idx]] || '';
+    Popup.text(TranslatedText.editChampion.english, TranslatedText.enterChampionName.english, currChampionName, Object.values(this.patchInfo.ChampionIdToName), async (result) => {
       const picked = Object.keys(this.patchInfo.ChampionIdToName).filter((k) => this.patchInfo.ChampionIdToName[k] == result);
       if (result.length > 0 && picked.length == 0) {
         Popup.message(TranslatedText.error.english, TranslatedText.championNotFound.english);
@@ -1230,7 +1236,8 @@ export class CsTab {
   }
 
   public editRegion() {
-    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedRiotIDs, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } =
+      this.currentCsManager.getCsView();
 
     const currentRegion = (this.patchInfo.RegionIdToGg[csInputView.region] || '').toUpperCase();
     const regions = Object.values(this.patchInfo.RegionIdToGg).map((x) => (<string>x).toUpperCase());
@@ -1248,23 +1255,24 @@ export class CsTab {
   }
 
   public async editSide(blue: boolean) {
-    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedRiotIDs, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } =
+      this.currentCsManager.getCsView();
 
     const edited = CsInput.clone(csInputView);
-    if (edited.ownerName == null || edited.ownerName == '' || !edited.summonerNames.includes(edited.ownerName)) {
-      const availableNames = edited.summonerNames.filter((x) => x && x.length > 0);
-      if (availableNames.length == 0) {
-        Popup.message(TranslatedText.error.english, TranslatedText.inputOneSummonerName.english);
+    if (edited.ownerRiotID == null || edited.ownerRiotID == '' || !edited.riotIDs.includes(edited.ownerRiotID)) {
+      const availableRiotIDs = edited.riotIDs.filter((x) => x && x.length > 0);
+      if (availableRiotIDs.length == 0) {
+        Popup.message(TranslatedText.error.english, TranslatedText.inputOneRiotID.english);
         //Reverse click
         $('.cs-side-blue').prop('checked', !blue);
         $('.cs-side-red').prop('checked', blue);
         return;
       }
-      edited.ownerName = availableNames[0];
+      edited.ownerRiotID = availableRiotIDs[0];
     }
     const currBlue = CsInput.getOwnerIdx(csInputView) < 5;
     if (currBlue != blue) {
-      edited.summonerNames = this.flipArray(edited.summonerNames);
+      edited.riotIDs = this.flipArray(edited.riotIDs);
       edited.championIds = this.flipArray(edited.championIds);
       edited.picking = this.flipArray(edited.picking);
       edited.summonerSpells = this.flipArray(edited.summonerSpells);
@@ -1281,7 +1289,8 @@ export class CsTab {
   }
 
   public async editQueue(soloQueue: boolean) {
-    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedNames, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } = this.currentCsManager.getCsView();
+    const { csInputView, rolePredictionView, csInput, rolePrediction, guessedRiotIDs, apiTiers, lcuTiers, summonerInfo, bans, score, missingScore, history, historyStats, recommendations, swappable, editable, date } =
+      this.currentCsManager.getCsView();
 
     const edited = CsInput.clone(csInputView);
     edited.queueId = soloQueue ? '420' : '440';

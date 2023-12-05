@@ -84,16 +84,21 @@ export class Lcu {
     }
   }
 
-  public static async getCurrentNameAndRegion(): Promise<any> {
+  public static async getCurrentRiotIDAndRegion(): Promise<any> {
     try {
       const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>((resolve) => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
 
-      if (info && info.success && info.res && info.res.summoner_info && info.res.summoner_info.display_name && info.res.summoner_info.platform_id) {
-        return { name: info.res.summoner_info.display_name, region: info.res.summoner_info.platform_id };
+      if (info && info.success && info.res && info.res.summoner_info && info.res.summoner_info.platform_id && info.res.summoner_info.player_info) {
+        const player_info = JSON.parse(info.res.summoner_info.player_info);
+        if (player_info && player_info.gameName && player_info.tagLine) {
+          let riotID = player_info.gameName + '#' + player_info.tagLine;
+          if (riotID == '#') riotID = '';
+          return { riotID: riotID, region: info.res.summoner_info.platform_id };
+        }
       }
       Logger.log(info);
     } catch (ex) {
-      ErrorReporting.report('getCurrentNameAndRegion', ex);
+      ErrorReporting.report('getCurrentRiotIDAndRegion', ex);
     }
     return null;
   }
@@ -131,8 +136,12 @@ export class Lcu {
         // let sId = x["summonerId"].toString();
 
         let cId = x['championId'].toString();
-        let name = ((x['summonerInfo'] || {})['displayName'] || '').toString();
-        // let puuid = ((x["summonerInfo"] || {})["puuid"] || "").toString();
+        let gameName = ((x['summonerInfo'] || {})['gameName'] || '').toString();
+        let tagLine = ((x['summonerInfo'] || {})['tagLine'] || '').toString();
+        let riotID = gameName + '#' + tagLine;
+        if (riotID == '#') riotID = '';
+
+        // let puuid = ((x["summonerInfo"] || {})["puuid"] || "").toString(); //Reminder: This uses another encoding of puuids, so it's only usable in LCU things
         let position = x['assignedPosition'].toString();
         let spells = [x['spell1Id'] || -1, x['spell2Id'] || -1];
         if (spells[0] > 255) spells[0] = -1;
@@ -143,7 +152,7 @@ export class Lcu {
         //}
         let visible = (x['nameVisibilityType'] || '') != 'HIDDEN';
 
-        cellInfoIds[cellId] = { champId: cId, name: name, position: position, spells: spells, visible: visible };
+        cellInfoIds[cellId] = { champId: cId, riotID: riotID, position: position, spells: spells, visible: visible };
       }
       let opponentCellChampionIds = {};
       for (let x of info['theirTeam']) {
@@ -184,7 +193,7 @@ export class Lcu {
       let myTeam = Object.keys(cellInfoIds).map((cellId) => {
         const cid = cellInfoIds[cellId];
         let champId = cid.champId;
-        const name = cid.name;
+        const riotID = cid.riotID;
         const position = cid.position;
         const spells = cid.spells;
         const hidden = !cid.visible;
@@ -196,7 +205,7 @@ export class Lcu {
           picking = cellLastChamp[cellId].picking;
         }
         const champion = champId || '';
-        return { name, champion, lockedIn, picking, position, spells, hidden };
+        return { riotID: riotID, champion, lockedIn, picking, position, spells, hidden };
       });
 
       let opponentTeam = Object.keys(opponentCellChampionIds).map((cellId) => {
@@ -211,27 +220,27 @@ export class Lcu {
         let champion = champId || '';
 
         //This info is hidden from LCU
-        const name = '';
+        const riotID = '';
         const position: any = '';
         const spells = [-1, -1];
         const hidden = true;
-        return { name, champion, lockedIn, picking, position, spells, hidden };
+        return { riotID, champion, lockedIn, picking, position, spells, hidden };
       });
 
       const blueTeam = blueSide ? myTeam : opponentTeam;
       const redTeam = blueSide ? opponentTeam : myTeam;
 
       const newCsInput = new CsInput();
-      newCsInput.ownerName = prevCsInput == null ? '' : prevCsInput.ownerName;
+      newCsInput.ownerRiotID = prevCsInput == null ? '' : prevCsInput.ownerRiotID;
       newCsInput.queueId = prevCsInput == null ? '' : prevCsInput.queueId;
       newCsInput.region = prevCsInput == null ? '' : prevCsInput.region;
-      newCsInput.summonerNames = blueTeam
-        .map((x) => x.name)
+      newCsInput.riotIDs = blueTeam
+        .map((x) => x.riotID)
         .concat(['', '', '', '', ''])
         .slice(0, 5)
         .concat(
           redTeam
-            .map((x) => x.name)
+            .map((x) => x.riotID)
             .concat(['', '', '', '', ''])
             .slice(0, 5)
         );
@@ -304,16 +313,16 @@ export class Lcu {
           newCsInput.assignedRoles[i] == 'top' ? 0 : newCsInput.assignedRoles[i] == 'utility' ? 4 : newCsInput.assignedRoles[i] == 'bottom' ? 3 : newCsInput.assignedRoles[i] == 'middle' ? 2 : newCsInput.assignedRoles[i] == 'jungle' ? 1 : -1;
       }
 
-      let findChatNames = !csInProgress || new Date().getTime() - this.LastAskedForChat > Lcu.LCU_CHAT_TIMEOUT_MILLIS;
+      let findChatRiotIDs = !csInProgress || new Date().getTime() - this.LastAskedForChat > Lcu.LCU_CHAT_TIMEOUT_MILLIS;
 
-      if (newCsInput.region == '' || newCsInput.queueId == '' || newCsInput.ownerName == '' || CsInput.triggersNewCs(prevCsInput, newCsInput) || CsInput.anyChangeInSummoners(prevCsInput, newCsInput)) {
+      if (newCsInput.region == '' || newCsInput.queueId == '' || newCsInput.ownerRiotID == '' || CsInput.triggersNewCs(prevCsInput, newCsInput) || CsInput.anyChangeInSummoners(prevCsInput, newCsInput)) {
         const all_info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>((resolve) => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
         if (
           !all_info ||
           !all_info.res ||
           !all_info.res.summoner_info ||
           !all_info.res.summoner_info.platform_id ||
-          !all_info.res.summoner_info.display_name ||
+          !all_info.res.summoner_info.player_info ||
           !all_info.res.lobby_info ||
           !all_info.res.lobby_info.queueId ||
           !Lcu.WHITELISTED_QUEUES.includes(all_info.res.lobby_info.queueId)
@@ -321,6 +330,14 @@ export class Lcu {
           Logger.log('InvalidInfo');
           return null;
         }
+        const player_info = JSON.parse(all_info.res.summoner_info.player_info);
+        if (!player_info || !player_info.gameName || !player_info.tagLine) {
+          Logger.log('InvalidPlayerInfo');
+          return null;
+        }
+        let riotID = player_info.gameName + '#' + player_info.tagLine;
+        if (riotID == '#') riotID = '';
+
         Logger.log(
           'New meta info: ' +
             JSON.stringify({
@@ -328,20 +345,21 @@ export class Lcu {
               'all_info.res.summoner_info.platform_id': all_info.res.summoner_info.platform_id,
               'newCsInput.queueId': newCsInput.queueId,
               'all_info.res.lobby_info.queueId': all_info.res.lobby_info.queueId,
-              'newCsInput.ownerName': newCsInput.ownerName,
-              'all_info.res.summoner_info.display_name': all_info.res.summoner_info.display_name,
+              'newCsInput.ownerRiotID': newCsInput.ownerRiotID,
+              riotID: riotID,
             })
         );
 
         newCsInput.region = all_info.res.summoner_info.platform_id;
         newCsInput.queueId = all_info.res.lobby_info.queueId;
-        newCsInput.ownerName = all_info.res.summoner_info.display_name;
+        newCsInput.ownerRiotID = riotID;
+
         Logger.log('QueueId:' + newCsInput.queueId);
-        findChatNames = true;
+        findChatRiotIDs = true;
       } else {
         newCsInput.roleSwaps = prevCsInput.roleSwaps;
         newCsInput.championSwaps = prevCsInput.championSwaps;
-        newCsInput.chatSummonerNames = prevCsInput.chatSummonerNames;
+        newCsInput.chatRiotIDs = prevCsInput.chatRiotIDs;
       }
 
       if (!Lcu.WHITELISTED_QUEUES.includes(newCsInput.queueId)) {
@@ -349,9 +367,9 @@ export class Lcu {
         return null;
       }
 
-      if (findChatNames) {
+      if (findChatRiotIDs) {
         this.LastAskedForChat = new Date().getTime();
-        newCsInput.chatSummonerNames = await Lcu.getSummonerNamesFromChat();
+        newCsInput.chatRiotIDs = await Lcu.getRiotIDsFromChat();
       }
 
       return newCsInput;
@@ -391,81 +409,81 @@ export class Lcu {
     return lolInfo.classId == 5426;
   }
 
-  public static async getSummonersTierByPuuid(puuids: Array<string>) {
-    if (!puuids) return null;
+  // public static async getSummonersTierByPuuid(puuids: Array<string>) {
+  //   if (!puuids) return null;
 
-    try {
-      const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>((resolve) => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
-      if (!info || !info.res || !info.res.credentials) {
-        Logger.warn('getSummonersTierByPuuid:LcuConnectionFailed');
-        return null;
-      }
+  //   try {
+  //     const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>((resolve) => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
+  //     if (!info || !info.res || !info.res.credentials) {
+  //       Logger.warn('getSummonersTierByPuuid:LcuConnectionFailed');
+  //       return null;
+  //     }
 
-      return await Promise.all(puuids.map(async (puuid) => await Lcu.getSummonerTierByPuuid(info.res.credentials, puuid)));
-    } catch (ex) {
-      ErrorReporting.report('getSummonersTierByPuuid', { ex, puuids });
-      return puuids.map(() => null);
-    }
-  }
+  //     return await Promise.all(puuids.map(async (puuid) => await Lcu.getSummonerTierByPuuid(info.res.credentials, puuid)));
+  //   } catch (ex) {
+  //     ErrorReporting.report('getSummonersTierByPuuid', { ex, puuids });
+  //     return puuids.map(() => null);
+  //   }
+  // }
 
-  public static async getSummonerTierByPuuid(creds: any, puuid: string) {
-    try {
-      if (!puuid) return null;
-      let tierInfo = await Lcu.lcuRequest(creds, lcuUrls.RankedStatsQuery + puuid);
-      return tierInfo;
-    } catch (ex) {
-      ErrorReporting.report('getSummonerTierByPuuid', { ex, puuid });
-      return null;
-    }
-  }
+  // public static async getSummonerTierByPuuid(creds: any, puuid: string) {
+  //   try {
+  //     if (!puuid) return null;
+  //     let tierInfo = await Lcu.lcuRequest(creds, lcuUrls.RankedStatsQuery + puuid);
+  //     return tierInfo;
+  //   } catch (ex) {
+  //     ErrorReporting.report('getSummonerTierByPuuid', { ex, puuid });
+  //     return null;
+  //   }
+  // }
 
-  public static async getSummonerPuuidsByName(names: Array<string>) {
-    if (!names) return null;
+  // public static async getSummonerPuuidsByRiotID(riotIDs: Array<string>) {
+  //   if (!riotIDs) return null;
 
-    try {
-      const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>((resolve) => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
-      if (!info || !info.res || !info.res.credentials) {
-        Logger.warn('getSummonerPuuidsByName:LcuConnectionFailed');
-        return null;
-      }
+  //   try {
+  //     const info: overwolf.games.launchers.events.GetInfoResult = await new Promise<overwolf.games.launchers.events.GetInfoResult>((resolve) => overwolf.games.launchers.events.getInfo(lcuClassId, resolve));
+  //     if (!info || !info.res || !info.res.credentials) {
+  //       Logger.warn('getSummonerPuuidsByRiotID:LcuConnectionFailed');
+  //       return null;
+  //     }
 
-      return await Promise.all(names.map(async (name) => await Lcu.getSummonerPuuidByName(info.res.credentials, name)));
-    } catch (ex) {
-      ErrorReporting.report('getSummonerPuuidsByName', { ex, names });
-      return names.map(() => null);
-    }
-  }
+  //     return await Promise.all(riotIDs.map(async (riotID) => await Lcu.getSummonerPuuidByRiotID(info.res.credentials, riotID)));
+  //   } catch (ex) {
+  //     ErrorReporting.report('getSummonerPuuidsByRiotID', { ex, riotIDs: riotIDs });
+  //     return riotIDs.map(() => null);
+  //   }
+  // }
 
-  public static async getSummonerPuuidByName(creds: any, summonerName: string) {
-    try {
-      if (!summonerName) return null;
+  // public static async getSummonerPuuidByRiotID(creds: any, riotID: string) {
+  //   try {
+  //     if (!riotID) return null;
 
-      let info = await Lcu.lcuRequest(creds, lcuUrls.SummonerInfoByNameQuery + '?name=' + summonerName);
-      if (null == info || !info.puuid) return null;
-      let puuid = info.puuid;
+  //     let info = await Lcu.lcuRequest(creds, lcuUrls.SummonerInfoByRiotIDQuery + '?riotID=' + riotID);
+  //     if (null == info || !info.puuid) return null;
+  //     let puuid = info.puuid;
 
-      return puuid;
-    } catch (ex) {
-      ErrorReporting.report('getSummonerPuuidByName', { ex, summonerName });
-      return null;
-    }
-  }
+  //     return puuid;
+  //   } catch (ex) {
+  //     ErrorReporting.report('getSummonerPuuidByRiotID', { ex, riotID: riotID });
+  //     return null;
+  //   }
+  // }
 
-  public static async getSummonersTierByName(summonerNames: Array<string>) {
-    const result = {};
-    if (!summonerNames) return { result };
+  // public static async getSummonersTierByRiotID(riotIDs: Array<string>) {
+  //   const result = {};
+  //   if (!riotIDs) return { result };
 
-    const lcuPuuids = <string[]>await Lcu.getSummonerPuuidsByName(summonerNames);
-    const lcuTiers = await Lcu.getSummonersTierByPuuid(lcuPuuids);
-    for (let i = 0; i < summonerNames.length; ++i) {
-      if (summonerNames[i] && lcuTiers && lcuTiers[i]) {
-        result[summonerNames[i]] = lcuTiers[i];
-      }
-    }
-    return { result };
-  }
+  //   const lcuPuuids = <string[]>await Lcu.getSummonerPuuidsByRiotID(riotIDs);
+  //   const lcuTiers = await Lcu.getSummonersTierByPuuid(lcuPuuids);
+  //   for (let i = 0; i < riotIDs.length; ++i) {
+  //     if (riotIDs[i] && lcuTiers && lcuTiers[i]) {
+  //       result[riotIDs[i]] = lcuTiers[i];
+  //     }
+  //   }
+  //   return { result };
+  // }
 
-  public static async getSummonerNamesFromChat() {
+  public static async getRiotIDsFromChat() {
     //return []; //To disable
     try {
       let maxWait = 10;
@@ -487,7 +505,7 @@ export class Lcu {
         this.DbgTrace = creds[2];
         if (this.RiotPort == '' || this.RiotToken == '') {
           Logger.log('Failed to connect to RiotClientServices');
-          ErrorReporting.report('getSummonerNamesFromChat', { dbgTrace: this.DbgTrace });
+          ErrorReporting.report('getRiotIDsFromChat', { dbgTrace: this.DbgTrace });
           return [];
         }
       }
@@ -506,7 +524,7 @@ export class Lcu {
         this.DbgTrace = creds[2];
         if (this.RiotPort == '' || this.RiotToken == '') {
           Logger.log('Failed to connect to RiotClientServices');
-          ErrorReporting.report('getSummonerNamesFromChat', { dbgTrace: this.DbgTrace });
+          ErrorReporting.report('getRiotIDsFromChat', { dbgTrace: this.DbgTrace });
           return [];
         }
         res = await Lcu.riotRequest(lcuUrls.ChatParticipants);
@@ -514,18 +532,21 @@ export class Lcu {
       //Logger.log(JSON.stringify(res));
 
       if (res && res.participants) {
-        let names = res.participants.map((p) => p.name).filter((x) => x != null && x.length > 0);
-        names = [...new Set(names)];
-        names.sort(); //If the order changes here we don't want it to make a fuzz about it
-        Logger.debug(names);
-        Logger.log('Successfully found ' + names.length + ' summoner names in current lobby');
-        return names;
+        let riotIDs = res.participants
+          .map((p) => (p.game_name || '') + '#' + (p.game_tag || ''))
+          .map((p) => (p == '#' ? '' : p))
+          .filter((x) => x != null && x.length > 0);
+        riotIDs = [...new Set(riotIDs)];
+        riotIDs.sort(); //If the order changes here we don't want it to make an updated lobby from it
+        Logger.debug(riotIDs);
+        Logger.log('Successfully found ' + riotIDs.length + ' riotIDs in current lobby');
+        return riotIDs;
       } else {
-        ErrorReporting.report('getSummonerNamesFromChat', { res, dbgTrace: this.DbgTrace });
+        ErrorReporting.report('getRiotIDsFromChat', { res, dbgTrace: this.DbgTrace });
       }
       return [];
     } catch (ex) {
-      ErrorReporting.report('getSummonerNamesFromChat', { ex, dbgTrace: this.DbgTrace });
+      ErrorReporting.report('getRiotIDsFromChat', { ex, dbgTrace: this.DbgTrace });
       return [];
     }
   }

@@ -11,6 +11,6 @@ export class Logger {
 
   public static debug(msg) {
     if (typeof msg === 'object') msg = JSON.stringify(msg);
-    //console.log(msg); //TODO comment on prod
+    //console.log(msg);
   }
 }

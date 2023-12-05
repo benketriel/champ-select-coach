@@ -1,4 +1,4 @@
-const version = 'v0.3.16';
+const version = 'v0.3.17';
 const lcuClassId = 10902;
 const lolClassId = 5426;
 
@@ -25,7 +25,6 @@ const lcuUrls = {
   //see https://www.mingweisamuel.com/lcu-schema/tool/
   //see https://lcu.kebs.dev/
   //ChampSelectQuery: 'lol-champ-select/v1/session',
-  //SummonerNamesQuery: 'lol-summoner/v2/summoner-names', //?ids=[...]
   //RegionQuery: 'lol-platform-config/v1/namespaces/LoginDataPacket/platformId',
 
   //MatchHistoryQueryV1: 'lol-match-history/v1/matchlist', //own matches with only info about own performance

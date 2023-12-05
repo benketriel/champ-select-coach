@@ -81,10 +81,10 @@ export const TranslatedText = {
     spanish: 'Jugador',
     french: 'Joueur',
   },
-  enterPlayerName: {
-    english: 'Enter player name',
-    spanish: 'Ingrese el nombre del jugador',
-    french: 'Entrer le nom du joueur',
+  enterPlayerRiotID: {
+    english: 'Enter player name#tag',
+    spanish: 'Ingrese el name#tag del jugador',
+    french: 'Entrer le name#tag du joueur',
   },
   editChampion: {
     english: 'Edit Champion',
@@ -122,15 +122,15 @@ export const TranslatedText = {
     spanish: 'No se encontró ninguna region con esas iniciales<br>Disponibles: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, PH, RU, SG, TH, TR, TW, VN',
     french: 'Impossible de trouver la région<br>Disponibles: BR, EUNE, EUW, JP, KR, LAN, LAS, NA, OCE, PH, RU, SG, TH, TR, TW, VN',
   },
-  inputOneSummonerName: {
-    english: 'Please input at least one summoner name',
-    spanish: 'Por favor primero ingrese el nombre de un invocador',
-    french: "Merci d'entrer au moins un nom d'invocateur",
+  inputOneRiotID: {
+    english: 'Please input at least one RiotID',
+    spanish: 'Por favor primero ingrese el RiotID de un invocador',
+    french: "Merci d'entrer au moins un RiotID d'invocateur",
   },
-  badSummonerName: {
-    english: 'Invalid summoner name',
-    spanish: 'Nombre inválido',
-    french: 'Nom invalide',
+  badRiotID: {
+    english: 'Invalid name#tag',
+    spanish: 'name#tag inválido',
+    french: 'name#tag invalide',
   },
 
   deleteHistory: {
@@ -826,7 +826,7 @@ export const TranslatedText = {
   manageSubscription: {
     english: 'Manage subscription',
     spanish: 'Administrar suscripción',
-    french: "Gérer l'abonnement", //TODO check translation
+    french: "Gérer l'abonnement",
   },
   resetTutorial: {
     english: 'Reset Tutorial',
