@@ -215,10 +215,12 @@ export class PatchNotes {
           "Fixed backend to support migration to RiotIDs - now players must input the tagline after a '#' symbol",
           'A ✓ is shown when a hidden teammate was detected by the AI, indicating that its prediction is as good as when visible',
           'Wider histogram lines because they were previously hard to see on some monitors',
-          'Will now load at most 200 games from your CSC history (and from the latest 60 months as before). Some players experienced lag when they had too many games in their history.',
+          'Will now load at most 200 games from your CSC history (and from the latest 6 months as before). Some players experienced lag when they had too many games in their history',
           'Updated AI model',
         ],
       ],
+
+      ['v0.3.18', '2023/12/17', 'Hwei', ['Hwei Sprites']],
 
       //
     ];
