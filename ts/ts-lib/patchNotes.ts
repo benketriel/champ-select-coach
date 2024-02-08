@@ -222,6 +222,8 @@ export class PatchNotes {
 
       ['v0.3.18', '2023/12/17', 'Hwei', ['Hwei Sprites']],
 
+      ['v0.3.19', '2024/02/08', 'Smolder and AI', ['Smolder Sprites', 'AI update']],
+
       //
     ];
   }
