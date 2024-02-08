@@ -35,7 +35,7 @@ const lcuUrls = {
   //SummonerInfoByIdQuery: 'lol-summoner/v1/summoners/', //{id} //get name, accountId and puuid
   SummonerInfoByNameQuery: 'lol-summoner/v1/summoners', //?name=... //get name, accountId and puuid
   RankedStatsQuery: 'lol-ranked/v1/ranked-stats/', //{puuid} //get tiers
-  //MatchInfoQuery: 'lol-match-history/v1/games/', //{gameId} //Get game details
+  //MatchInfoQuery: 'lol-match-history/v1/games/', //{gameId} //get game details
 
   ChatParticipants: 'chat/v5/participants/champ-select', //Get names of people in CS
 };
