@@ -224,6 +224,8 @@ export class PatchNotes {
 
       ['v0.3.19', '2024/02/08', 'Smolder and AI update', ['Smolder Sprites', 'AI update']],
 
+      ['v0.3.20', '2024/02/08', 'Names during champion select', ['Fixed issue where AI would not detect teammates names during ranked champion select']],
+
       //
     ];
   }
