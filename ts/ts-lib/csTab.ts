@@ -864,7 +864,7 @@ export class CsTab {
     const roleTooltips = $('.cs-table').find('.role-icon .translated-text').get();
     const roleNames = ['Top', 'Jungle', 'Mid', 'Bot', 'Support'];
 
-    const foundHiddenTeammates = inputView.chatRiotIDs.length == 5 && inputView.hiddenSummoners.filter((x) => !x).length < 5;
+    const foundHiddenTeammates = inputView.chatRiotIDs.length >= 5 && inputView.hiddenSummoners.filter((x) => !x).length < 5;
 
     for (let i = 0; i < 5; ++i) {
       const role0 = rolePrediction[i];

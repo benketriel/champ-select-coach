@@ -28,6 +28,7 @@ export class Lcu {
   private static RiotToken = '';
   private static RiotVersion = '';
   private static DbgTrace = '';
+  private static PreferredChatPath = lcuUrls.ChatParticipantsNew;
 
   public static async lcuRequest(cred: any, query: string): Promise<any> {
     const url = `https://127.0.0.1:${cred.port}/${query}`;
@@ -509,7 +510,7 @@ export class Lcu {
           return [];
         }
       }
-      let res = await Lcu.riotRequest(lcuUrls.ChatParticipants);
+      let res = await Lcu.riotRequest(Lcu.PreferredChatPath);
 
       if (!res || !res.participants) {
         let creds = null;
@@ -527,15 +528,19 @@ export class Lcu {
           ErrorReporting.report('getRiotIDsFromChat', { dbgTrace: this.DbgTrace });
           return [];
         }
-        res = await Lcu.riotRequest(lcuUrls.ChatParticipants);
+        res = await Lcu.riotRequest(Lcu.PreferredChatPath);
       }
       //Logger.log(JSON.stringify(res));
+      if (res && res.participants && res.participants.length == 0) {
+        Lcu.PreferredChatPath = Lcu.PreferredChatPath == lcuUrls.ChatParticipantsNew ? lcuUrls.ChatParticipantsOld : lcuUrls.ChatParticipantsNew;
+        //res = await Lcu.riotRequest(Lcu.PreferredChatPath); //Get it on the next one, we are already retrying quite often anyway...
+      }
 
       if (res && res.participants) {
         let riotIDs = res.participants
           .map((p) => (p.game_name || '') + '#' + (p.game_tag || ''))
           .map((p) => (p == '#' ? '' : p))
-          .filter((x) => x != null && x.length > 0);
+          .filter((x) => x != null && x.length > 0 && x.indexOf('!') == -1);
         riotIDs = [...new Set(riotIDs)];
         riotIDs.sort(); //If the order changes here we don't want it to make an updated lobby from it
         Logger.debug(riotIDs);

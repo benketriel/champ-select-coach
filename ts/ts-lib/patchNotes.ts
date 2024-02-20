@@ -226,6 +226,8 @@ export class PatchNotes {
 
       ['v0.3.20', '2024/02/08', 'Names during champion select', ['Fixed issue where AI would not detect teammates names during ranked champion select']],
 
+      ['v0.3.21', '2024/02/20', 'Names during champion select', ['Fixed issue where AI would detect people from open chat windows as teammates during ranked champion select']],
+
       //
     ];
   }

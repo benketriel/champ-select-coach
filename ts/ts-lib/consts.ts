@@ -1,4 +1,4 @@
-const version = 'v0.3.20';
+const version = 'v0.3.21';
 const lcuClassId = 10902;
 const lolClassId = 5426;
 
@@ -37,9 +37,9 @@ const lcuUrls = {
   RankedStatsQuery: 'lol-ranked/v1/ranked-stats/', //{puuid} //get tiers
   //MatchInfoQuery: 'lol-match-history/v1/games/', //{gameId} //get game details
 
-  // ChatParticipants: 'chat/v5/participants/champ-select', //Get names of people in CS old api
-  // ChatParticipants: 'chat/v5/participants/lol-champ-select', //Get names of people in CS
-  ChatParticipants: 'chat/v5/participants', //Get names of people in CS
+  ChatParticipantsOld: 'chat/v5/participants/champ-select', //Get names of people in CS old api
+  ChatParticipantsNew: 'chat/v5/participants/lol-champ-select', //Get names of people in CS
+  //ChatParticipants: 'chat/v5/participants', //Get names of people in CS
 };
 
 export { version, lcuClassId, lolClassId, interestingFeatures, windowNames, lcuUrls };
