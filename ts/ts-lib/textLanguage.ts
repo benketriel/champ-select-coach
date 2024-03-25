@@ -1058,7 +1058,7 @@ export const TranslatedText = {
     french: 'Voici les champions recommandés pour ce joueur dans ce salon, triés par score. Passez votre souris sur un champion pour voir comment sa sélection affecterait le score, ainsi que pour afficher les statistiques des parties précédentes.',
   },
   tutCSReady7: {
-    english: 'Here are the main roles this player plays, and how often he plays them',
+    english: 'Here are the main roles this player plays, and how often each one is played',
     spanish: 'Aquí se muestran los roles que este jugador juega, y con qué frequencia los juega',
     french: 'Voici les rôles principaux que ce joueur joue et à quelle fréquence il les joue.',
   },

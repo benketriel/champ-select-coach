@@ -695,13 +695,13 @@ export class CsManager {
       return;
     }
     const puuid = await CsDataFetcher.getPuuidByRegionAndRiotID(curr.region, curr.riotID); //Typically cached already
-    const sId = await CsDataFetcher.getSummonerIdByRegionAndPuuid(curr.region, puuid); //Typically cached already
+    //const sId = await CsDataFetcher.getSummonerIdByRegionAndPuuid(curr.region, puuid); //Typically cached already
     await Timer.wait(msBeforePollingStart);
     let spect = null;
     let csInput = null;
     while (Date.now() < this.pollingUntil) {
       try {
-        let spectData = await CsManager.getPartialCsInputThroughAPI(curr.region, sId);
+        let spectData = await CsManager.getPartialCsInputThroughAPI(curr.region, puuid);
         if (spectData != null && !Lcu.WHITELISTED_QUEUES.includes(spectData.queueId)) {
           Logger.log('Active game not whitelisted queue = ' + JSON.stringify(spect));
           return null;
@@ -768,8 +768,8 @@ export class CsManager {
     }
   }
 
-  private static async getPartialCsInputThroughAPI(region, summonerId) {
-    const spect = await CscApi.getRunningGame(region, summonerId);
+  private static async getPartialCsInputThroughAPI(region, puuid) {
+    const spect = await CscApi.getRunningGame(region, puuid);
 
     if (spect == null || !spect.result || !spect.result.participants || spect.result.participants.length != 10) return null;
 

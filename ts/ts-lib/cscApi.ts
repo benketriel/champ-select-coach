@@ -180,10 +180,10 @@ export class CscApi {
     return res;
   }
 
-  public static async getRunningGame(region: string, summonerId: string) {
-    const msg = { Action: 'RubyGetSpectator', Arguments: { region, summonerId } };
+  public static async getRunningGame(region: string, puuid: string) {
+    const msg = { Action: 'RubyGetSpectatorByPuuid', Arguments: { region, puuid } };
     const res = await CscApi.retrying(
-      { region, summonerId, func: 'getRunningGame' },
+      { region, puuid, func: 'getRunningGame' },
       1,
       () => CscApi.get(msg),
       (r) => {
@@ -191,7 +191,7 @@ export class CscApi {
         Logger.log({
           func: 'getRunningGame',
           millisTaken: r.millis,
-          queried: summonerId,
+          queried: puuid,
         });
         return true;
       }

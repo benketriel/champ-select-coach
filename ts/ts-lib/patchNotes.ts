@@ -228,6 +228,8 @@ export class PatchNotes {
 
       ['v0.3.21', '2024/02/20', 'Names during champion select', ['Fixed issue where AI would detect people from open chat windows as teammates during ranked champion select']],
 
+      ['v0.3.22', '2024/03/25', 'Spectator v5', ["Adjusted to Riot's updated API"]],
+
       //
     ];
   }
