@@ -230,6 +230,8 @@ export class PatchNotes {
 
       ['v0.3.22', '2024/03/25', 'Spectator v5', ["Adjusted to Riot's updated API"]],
 
+      ['v0.3.23', '2024/06/07', 'AI update', ['Long overdue AI update (some biases fixed)', 'Skarner sprites']],
+
       //
     ];
   }
