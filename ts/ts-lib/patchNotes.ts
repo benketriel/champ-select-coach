@@ -232,6 +232,8 @@ export class PatchNotes {
 
       ['v0.3.23', '2024/06/07', 'AI update', ['Long overdue AI update (some biases fixed)', 'Skarner sprites']],
 
+      ['v0.3.24', '2024/08/28', 'Aurora and AI update', ['AI update', 'Aurora sprites']],
+
       //
     ];
   }
