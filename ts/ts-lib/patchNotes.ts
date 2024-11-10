@@ -234,6 +234,8 @@ export class PatchNotes {
 
       ['v0.3.24', '2024/08/28', 'Aurora and AI update', ['AI update', 'Aurora sprites']],
 
+      ['v0.3.25', '2024/11/10', 'Ambessa and AI update', ['AI update', 'Ambessa sprites']],
+
       //
     ];
   }

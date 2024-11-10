@@ -1,4 +1,4 @@
-const version = 'v0.3.24';
+const version = 'v0.3.25';
 const lcuClassId = 10902;
 const lolClassId = 5426;
 
