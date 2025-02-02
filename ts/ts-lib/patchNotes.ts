@@ -238,6 +238,8 @@ export class PatchNotes {
 
       ['v0.3.26', '2025/01/19', 'Viktor and AI update', ['AI update', 'Viktor sprites']],
 
+      ['v0.3.27', '2025/02/02', 'Mel and AI update', ['AI update', 'Mel sprites']],
+
       //
     ];
   }
