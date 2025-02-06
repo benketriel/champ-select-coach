@@ -240,6 +240,8 @@ export class PatchNotes {
 
       ['v0.3.27', '2025/02/02', 'Mel and AI update', ['AI update', 'Mel sprites']],
 
+      ['v0.3.28', '2025/02/06', 'Personal histogram fix', ['Fixed a bug where the personal histogram was shifted 1.0 to the left for all users']],
+
       //
     ];
   }

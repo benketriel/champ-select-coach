@@ -619,7 +619,7 @@ export class PersonalTab {
 
     for (const hist of cscHistory) {
       const pred = this.cscHistoryPreGame ? hist.partialPrediction : hist.fullPrediction;
-      const targetI = Math.floor((pred - 0.05) / 0.1);
+      const targetI = Math.floor((pred + 0.05) / 0.1);
       if (hist.userWon) {
         playerWins[targetI]++;
       } else {
