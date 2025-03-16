@@ -85,13 +85,13 @@ export class CsTab {
       const role = Math.floor(parseInt(i) / 4);
 
       const elm = editIcons[i];
-      const isActive = async () => that.currentCsManager.getCsView().editable && Subscriptions.isSubscribed();
+      const isActive = async () => that.currentCsManager.getCsView().editable && Subscriptions.allowEdits();
       const onClick = idx == 0 ? async () => that.editChampion(role + 5 * team) : async () => that.editSummoner(role + 5 * team);
       Utils.setCallbacksForEditButton(elm, isActive, onClick);
     }
     Utils.setCallbacksForEditButton(
       $('.cs-region-edit-button').get(0),
-      async () => that.currentCsManager.getCsView().editable && Subscriptions.isSubscribed(),
+      async () => that.currentCsManager.getCsView().editable && Subscriptions.allowEdits(),
       async () => that.editRegion()
     );
 
@@ -354,7 +354,7 @@ export class CsTab {
 
   // Heart of this class
   private update(manager: CsManager, change: string) {
-    const subscribed = Subscriptions.isSubscribed();
+    const allowEdits = Subscriptions.allowEdits();
     this.currentCsManager = manager;
     this.currentCsManager.ongoingProgressBar.setActive();
 
@@ -384,7 +384,7 @@ export class CsTab {
       const roleToIdxView = this.roleToIdx(rolePredictionView);
       this.setAllToLoading(manager.ongoingUpdaters > 0);
       this.updateDistributionLegend(patchInfo, side, swappedChampsView, rolePredictionView);
-      this.updateFooter(patchInfo, csInputView, editable && subscribed);
+      this.updateFooter(patchInfo, csInputView, editable && allowEdits);
       this.updateSwaps(patchInfo, side, csInputView, roleToIdxView, mergedTier, !editable);
       this.updateSummonersAndRoles(patchInfo, side, csInputView, rolePredictionView, mergedTier);
       this.updatePicking(side, csInputView, rolePredictionView, swappable && !editable);

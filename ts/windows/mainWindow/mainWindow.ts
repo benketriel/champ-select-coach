@@ -145,7 +145,7 @@ export class MainWindow {
         if (maxTries == 0) return;
       }
 
-      if (Subscriptions.isSubscribed()) {
+      if (Subscriptions.hideAds()) {
         MainWindow.deactivateAds(); //No ads for subscribed
         return;
       }
@@ -154,7 +154,7 @@ export class MainWindow {
         MainWindow.deactivateAds();
       } else if (state.window_previous_state === 'minimized' && state.window_state === 'normal') {
         MainWindow.minimized = false;
-        if (!Subscriptions.isSubscribed()) {
+        if (!Subscriptions.hideAds()) {
           await MainWindow.activateAds();
         }
       }
@@ -171,13 +171,16 @@ export class MainWindow {
     MainWindow.lastActivity = new Date().getTime();
     await Timer.wait(100); //Just prevent things from happening exactly when you click the window
 
-    if (Subscriptions.isSubscribed()) {
+    if (Subscriptions.hideAds()) {
       MainWindow.deactivateAds();
-      $('.side-menu-add-manual-cs').show();
       $('.owad-container-footer').hide();
     } else {
-      $('.side-menu-add-manual-cs').hide();
       $('.owad-container-footer').show();
+    }
+    if (Subscriptions.allowEdits()) {
+      $('.side-menu-add-manual-cs').show();
+    } else {
+      $('.side-menu-add-manual-cs').hide();
     }
   }
 
@@ -551,7 +554,7 @@ export class MainWindow {
     if (main.selectedView == 'personal') return; //Already selected
 
     // if (!main.personalTab.readyToBeDisplayed()) {
-    //   if (Subscriptions.isSubscribed()) {
+    //   if (Subscriptions.allowEdits()) {
     //     await main.personalTab.editSummonerAndRegion();
     //   } else {
     //     Popup.message(TranslatedText.lolDisconnected.english, TranslatedText.cscNotConnectingToLCU.english);

@@ -12,6 +12,14 @@ export class Subscriptions {
     return Subscriptions.subscriptionStatus;
   }
 
+  public static hideAds() {
+    return this.isSubscribed();
+  }
+
+  public static allowEdits() {
+    return this.isSubscribed(); // If allowed for everyone, then need to change the tutorial text
+  }
+
   public static async updateSubscriptionStatus() {
     if (new Date().getTime() - Subscriptions.lastChecked > 1000 * 10) {
       const result = <boolean>await new Promise((resolve) => {

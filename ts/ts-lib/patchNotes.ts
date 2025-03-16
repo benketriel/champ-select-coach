@@ -242,6 +242,21 @@ export class PatchNotes {
 
       ['v0.3.28', '2025/02/06', 'Personal histogram fix', ['Fixed a bug where the personal histogram was shifted 1.0 to the left for all users']],
 
+      [
+        'v0.3.29',
+        '2025/03/16',
+        'New AI model and ME region',
+        [
+          'CSC is now supported on ME region',
+          'Larger AI model structure',
+          'The AI now sees the 20 latest games for each player',
+          'Overall AI accuracy increased, and faster load times',
+          'Fixed Kill Participation computation',
+          'Fixed CS per minute bug (will only affect games after this update)',
+          'Other minor bugfixes',
+        ],
+      ],
+
       //
     ];
   }

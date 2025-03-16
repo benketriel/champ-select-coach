@@ -117,7 +117,7 @@ export class PersonalTab {
 
     Utils.setCallbacksForEditButton(
       $('.personal-title-edit-button').get(0),
-      async () => Subscriptions.isSubscribed(),
+      async () => Subscriptions.allowEdits(),
       async () => await that.editSummonerAndRegion()
     );
 
@@ -775,7 +775,7 @@ export class PersonalTab {
   }
 
   public async editSummonerAndRegion() {
-    if (!Subscriptions.isSubscribed()) return;
+    if (!Subscriptions.allowEdits()) return;
 
     Popup.text(TranslatedText.editPlayer.english, TranslatedText.enterPlayerRiotID.english, this.riotID || '', [], (riotID) => {
       if (riotID.length == 0 || riotID.search('<') != -1 || riotID.search('>') != -1) {
