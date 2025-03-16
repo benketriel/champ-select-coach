@@ -472,9 +472,23 @@ export class MainWindow {
     $('body').on('mousedown', async () => await MainWindow.activity());
     $('.tooltip').on('mouseenter', (e) => that.repositionOverflowingPopup(e.currentTarget));
 
-    $('.translated-text').on('DOMSubtreeModified', (e: any) => {
-      Translator.updateTranslation(this.patchInfo, e.currentTarget);
+    // Deprecated:
+    // $('.translated-text').on('DOMSubtreeModified', (e: any) => {
+    //   Translator.updateTranslation(this.patchInfo, e.currentTarget);
+    // });
+
+    const callback = (mutationsList: MutationRecord[], observer: MutationObserver) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+          Translator.updateTranslation(this.patchInfo, mutation.target as HTMLElement);
+        }
+      }
+    };
+    $('.translated-text').each((index, element) => {
+      const observer = new MutationObserver(callback);
+      observer.observe(element, { childList: true, subtree: true });
     });
+
     Translator.updateAllTranslations(this.patchInfo);
   }
 

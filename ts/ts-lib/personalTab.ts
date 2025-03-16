@@ -146,8 +146,8 @@ export class PersonalTab {
       $('.lcuStatusLightDisconnected').hide();
       $('.lcuStatusLightConnected').show();
       $('.s-lcu-status-text').removeClass('s-lcu-status-text-disconnected');
-      $('.s-lcu-status-text').removeClass('translated-text');
-      $('.s-lcu-status-text').off('DOMSubtreeModified'); //This is needed to remove the translation callback as well
+      // $('.s-lcu-status-text').removeClass('translated-text');
+      // $('.s-lcu-status-text').off('DOMSubtreeModified'); //This is needed to remove the translation callback as well
       $('.s-lcu-status-text').html(curr.riotID);
 
       this.enqueueUpdate(async () => {

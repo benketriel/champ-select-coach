@@ -248,6 +248,7 @@ export class PatchNotes {
         'New AI model and ME region',
         [
           'CSC is now supported on ME region',
+          'Added Brazilian Portuguese translation',
           'Larger AI model structure',
           'The AI now sees the 20 latest games for each player',
           'Overall AI accuracy increased, and faster load times',
