@@ -10,24 +10,6 @@ import { TranslatedText } from './textLanguage';
 export class CscApi {
   private static URL = 'http://174.138.111.148/gate';
 
-  public static async getSummonersById(region: string, summonerIds: string[]) {
-    const msg = { Action: 'RubyGetSummonersById', Arguments: { region, summonerIds: summonerIds.join(',') } };
-    const res = await CscApi.retrying(
-      { region, summonerIds: summonerIds, func: 'getSummonersById' },
-      5,
-      () => CscApi.get(msg),
-      (r) => {
-        if (!r || !r.result) return false;
-        Logger.log({
-          func: 'getSummonersById',
-          millisTaken: r.millis,
-        });
-        return true;
-      }
-    );
-    return res;
-  }
-
   public static async getSummonersByPuuid(region: string, puuids: string[]) {
     const msg = { Action: 'RubyGetSummonersByPuuid', Arguments: { region, puuids: puuids.join(',') } };
     const res = await CscApi.retrying(
@@ -85,10 +67,10 @@ export class CscApi {
     return res;
   }
 
-  public static async getMasteries(region: string, summonerIds: string[]) {
-    const msg = { Action: 'RubyGetMasteries', Arguments: { region, summonerIds: summonerIds.join(',') } };
+  public static async getMasteries(region: string, puuids: string[]) {
+    const msg = { Action: 'RubyGetMasteriesByPuuid', Arguments: { region, puuids: puuids.join(',') } };
     const res = await CscApi.retrying(
-      { region, summonerIds, func: 'getMasteries' },
+      { region, puuids, func: 'getMasteries' },
       5,
       () => CscApi.get(msg),
       (r) => {
@@ -96,9 +78,9 @@ export class CscApi {
         Logger.log({
           func: 'getMasteries',
           millisTaken: r.millis,
-          queriedAmount: summonerIds.length,
+          queriedAmount: puuids.length,
           returnedAmount: Object.keys(r.result).length,
-          missing: summonerIds.filter((x) => r.result[x] === undefined),
+          missing: puuids.filter((x) => r.result[x] === undefined),
         });
         return true;
       }
@@ -106,10 +88,10 @@ export class CscApi {
     return res;
   }
 
-  public static async getTiers(region: string, soloQueue: boolean, summonerIds: string[]) {
-    const msg = { Action: 'RubyGetTiers', Arguments: { region, soloQueue: soloQueue ? 'true' : 'false', summonerIds: summonerIds.join(',') } };
+  public static async getTiers(region: string, soloQueue: boolean, puuids: string[]) {
+    const msg = { Action: 'RubyGetTiersByPuuid', Arguments: { region, soloQueue: soloQueue ? 'true' : 'false', puuids: puuids.join(',') } };
     const res = await CscApi.retrying(
-      { region, soloQueue, summonerIds, func: 'getTiers' },
+      { region, soloQueue, puuids, func: 'getTiers' },
       5,
       () => CscApi.get(msg),
       (r) => {
@@ -117,11 +99,11 @@ export class CscApi {
         Logger.log({
           func: 'getTiers',
           millisTaken: r.millis,
-          queriedAmount: summonerIds.length,
+          queriedAmount: puuids.length,
           fromApi: r.fromApi,
           fromDb: r.fromDb,
           returnedAmount: Object.keys(r.result).length,
-          missing: summonerIds.filter((x) => r.result[x] === undefined),
+          missing: puuids.filter((x) => r.result[x] === undefined),
         });
         return true;
       }
@@ -291,8 +273,8 @@ export class CscApi {
     return res;
   }
 
-  public static async reportError(json: string, region: string, reporterSummonerId: string) {
-    const msg = { Action: 'RubyReportError', Arguments: { json, region, reporterSummonerId } };
+  public static async reportError(json: string, region: string, reporterPuuid: string) {
+    const msg = { Action: 'RubyReportError', Arguments: { json, region, reporterPuuid } };
     const res = await CscApi.retrying(
       null,
       2,
@@ -303,7 +285,7 @@ export class CscApi {
           func: 'reportError',
           json,
           region,
-          reporterSummonerId,
+          reporterPuuid,
         });
         return true;
       }

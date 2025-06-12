@@ -143,7 +143,7 @@ export class CsData {
 
 export class SpectatorData {
   public queueId = '';
-  public summonerIds = [];
+  public puuids = [];
   public championIds = [];
   public summonerSpells = [];
 }
@@ -695,7 +695,6 @@ export class CsManager {
       return;
     }
     const puuid = await CsDataFetcher.getPuuidByRegionAndRiotID(curr.region, curr.riotID); //Typically cached already
-    //const sId = await CsDataFetcher.getSummonerIdByRegionAndPuuid(curr.region, puuid); //Typically cached already
     await Timer.wait(msBeforePollingStart);
     let spect = null;
     let csInput = null;
@@ -728,7 +727,7 @@ export class CsManager {
         newCsInput.ownerRiotID = curr.riotID;
         newCsInput.picking = [false, false, false, false, false, false, false, false, false, false];
         if (spectData) {
-          const riotIDs = await CsDataFetcher.getRiotIDsByRegionAndSummonerId(curr.region, spectData.summonerIds);
+          const riotIDs = await CsDataFetcher.getRiotIDsByRegionAndPuuid(curr.region, spectData.puuids);
 
           newCsInput.championIds = spectData.championIds;
           newCsInput.queueId = spectData.queueId;
@@ -775,7 +774,7 @@ export class CsManager {
 
     const spectData = new SpectatorData();
     spectData.queueId = spect.result.gameQueueConfigId.toString();
-    spectData.summonerIds = spect.result.participants.map((x) => x.summonerId);
+    spectData.puuids = spect.result.participants.map((x) => x.puuid);
     spectData.championIds = spect.result.participants.map((x) => x.championId.toString());
     spectData.summonerSpells = spect.result.participants.map((x) => [x.spell1Id || -1, x.spell2Id || -1]);
 

@@ -258,6 +258,8 @@ export class PatchNotes {
         ],
       ],
 
+      ['v0.3.30', '2025/06/12', 'API update', ['Updated to the latest Riot API']],
+
       //
     ];
   }

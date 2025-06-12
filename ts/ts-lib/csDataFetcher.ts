@@ -48,7 +48,6 @@ export class Cache {
 export class CsDataFetcher {
   private static getAccountByRiotIdCache = new Cache(100, 24 * 60);
   private static getSummonersByPuuidCache = new Cache(100, 24 * 60);
-  private static getSummonersByIdCache = new Cache(100, 24 * 60);
   private static getAccountsByPuuidCache = new Cache(100, 24 * 60);
   private static getMatchesCache = new Cache(2000, 24 * 60); //2KB each
 
@@ -58,21 +57,15 @@ export class CsDataFetcher {
   private static cscApiFlexTierCache = new Cache(100, 24 * 60);
   // private static lcuTierCache = new Cache(100, 5);
 
-  public static async getRiotIDsByRegionAndSummonerId(region: string, summonerIds: string[]) {
-    const summonerInfos = await this.cacheAndFetch(region, summonerIds, true, this.getSummonersByIdCache, CscApi.getSummonersById); //API call (slow)
-    const puuids = summonerIds.map((x) => (summonerInfos[x] || {}).puuid || null);
-    const foundPuuids = puuids.filter((x) => x != null);
-
-    let accounts = {};
-    if (foundPuuids.length > 0) {
-      accounts = await this.cacheAndFetch(region, foundPuuids, true, this.getAccountsByPuuidCache, CscApi.getAccountsByPuuid); //API call (slow)
-    }
+  public static async getRiotIDsByRegionAndPuuid(region: string, puuids: string[]) {
+    let accounts = await this.cacheAndFetch(region, puuids, true, this.getAccountsByPuuidCache, CscApi.getAccountsByPuuid); //API call (slow)
 
     const riotIDs = [];
-    for (let i in summonerIds) {
-      if (puuids[i] && accounts[puuids[i]] && accounts[puuids[i]].gameName && accounts[puuids[i]].tagLine) {
-        const gameName = accounts[puuids[i]].gameName;
-        const tagLine = accounts[puuids[i]].tagLine;
+    for (let i in puuids) {
+      const puuid = puuids[i];
+      if (puuid && accounts[puuid] && accounts[puuid].gameName && accounts[puuid].tagLine) {
+        const gameName = accounts[puuid].gameName;
+        const tagLine = accounts[puuid].tagLine;
         let riotID = gameName + '#' + tagLine;
         if (riotID == '#') riotID = '';
         riotIDs.push(riotID);
@@ -90,13 +83,6 @@ export class CsDataFetcher {
     return puuid;
   }
 
-  public static async getSummonerIdByRegionAndPuuid(region: string, puuid: string) {
-    const summonerInfos = await this.cacheAndFetch(region, [puuid], true, this.getSummonersByPuuidCache, CscApi.getSummonersByPuuid); //API call (slow)
-    const summonerId = (summonerInfos[puuid] || {}).id || null;
-
-    return summonerId;
-  }
-
   public static async getPersonalData(region: string, riotID: string, soloQueue: boolean) {
     const csData = new CsData();
 
@@ -109,17 +95,16 @@ export class CsDataFetcher {
       csData.summonerInfo[riotID] = summonerByPuuid[puuid];
       csData.summonerInfo[riotID]['riotID'] = riotID;
     }
-    const summonerIds = [(csData.summonerInfo[riotID] || {}).id || ''];
+    const puuids = [(csData.summonerInfo[riotID] || {}).puuid || ''];
 
-    //const masteriesTask = this.cacheAndFetch(region, summonerIds, false, this.getMasteriesCache, CscApi.getMasteries); //DB
-    const tiersTask = this.cacheAndFetch(region, summonerIds, false, soloQueue ? this.cscApiSoloQTierCache : this.cscApiFlexTierCache, (region: string, sIds: string[]) => CscApi.getTiers(region, soloQueue, sIds)); //DB
+    const tiersTask = this.cacheAndFetch(region, puuids, false, soloQueue ? this.cscApiSoloQTierCache : this.cscApiFlexTierCache, (region: string, puuids: string[]) => CscApi.getTiers(region, soloQueue, puuids)); //DB
 
     const historiesByPuuid = await this.cacheAndFetch(region, [puuid], true, this.getHistoriesCache, CscApi.getHistories); //API call (slow)
     const matchIds = <string[]>[...new Set(Utils.flattenArray(Object.keys(historiesByPuuid).map((x) => historiesByPuuid[x])))];
 
     csData.matches = await this.cacheAndFetch(region, matchIds, false, this.getMatchesCache, CscApi.getMatches); //API+DB (slow)
-    //const masteriesBySummonerId = await masteriesTask;
-    const tiersBySummonerId = await tiersTask;
+
+    const tiersByPuuid = await tiersTask;
 
     //Make the dictionaries by riotID instead
     csData.histories = {};
@@ -129,19 +114,13 @@ export class CsDataFetcher {
     csData.histories[riotID] = [];
     csData.masteries[riotID] = {};
     csData.tiers[riotID] = [];
-    if (puuid != '' && csData.summonerInfo[riotID]) {
-      const info = csData.summonerInfo[riotID];
+    if (puuid != '') {
       csData.histories[riotID] = historiesByPuuid[puuid];
-      //csData.masteries[riotID] = masteriesBySummonerId[info.id];
-      csData.tiers[riotID] = tiersBySummonerId[info.id];
+      csData.tiers[riotID] = tiersByPuuid[puuid];
     }
 
     //Get LCU tiers
-    // const lcuTiers = await this.cacheAndFetch(region, [riotID], false, this.lcuTierCache, async (region: string, rIds: string[]) => await Lcu.getSummonersTierByRiotID(rIds));
     csData.lcuTiers = {};
-    // for (let riotID in lcuTiers) {
-    //   csData.lcuTiers[riotID] = CsDataFetcher.parseLCUTier(lcuTiers[riotID], soloQueue);
-    // }
 
     return csData;
   }
@@ -176,18 +155,15 @@ export class CsDataFetcher {
         currCsData.summonerInfo[riotID]['riotID'] = riotID;
       }
     }
-    const summonerIds = allRiotIDs.map((x) => (currCsData.summonerInfo[x] || {}).id || '');
 
     const isFlex = CsTab.isFlex(patchInfo, csInput.queueId);
-    //const masteriesTask = this.cacheAndFetch(csInput.region, summonerIds, false, this.getMasteriesCache, CscApi.getMasteries); //DB
-    const tiersTask = this.cacheAndFetch(csInput.region, summonerIds, false, isFlex ? this.cscApiFlexTierCache : this.cscApiSoloQTierCache, (region: string, sIds: string[]) => CscApi.getTiers(region, !isFlex, sIds)); //DB
+    const tiersTask = this.cacheAndFetch(csInput.region, puuids, false, isFlex ? this.cscApiFlexTierCache : this.cscApiSoloQTierCache, (region: string, puuids: string[]) => CscApi.getTiers(region, !isFlex, puuids)); //DB
 
     const historiesByPuuid = await this.cacheAndFetch(csInput.region, puuids, true, this.getHistoriesCache, CscApi.getHistories); //API call (slow)
     const matchIds = <string[]>[...new Set(Utils.flattenArray(Object.keys(historiesByPuuid).map((x) => historiesByPuuid[x])))];
 
     currCsData.matches = await this.cacheAndFetch(csInput.region, matchIds, false, this.getMatchesCache, CscApi.getMatches); //API+DB (slow)
-    //const masteriesBySummonerId = await masteriesTask;
-    const tiersBySummonerId = await tiersTask;
+    const tiersByPuuid = await tiersTask;
 
     //Make the dictionaries by riotID instead
     currCsData.histories = {};
@@ -201,17 +177,12 @@ export class CsDataFetcher {
       if (currCsData.summonerInfo[riotID]) {
         const info = currCsData.summonerInfo[riotID];
         currCsData.histories[riotID] = historiesByPuuid[info.puuid];
-        //currCsData.masteries[riotID] = masteriesBySummonerId[info.id];
-        currCsData.tiers[riotID] = tiersBySummonerId[info.id];
+        currCsData.tiers[riotID] = tiersByPuuid[info.id];
       }
     }
 
     //Get LCU tiers
-    // const lcuTiers = await this.cacheAndFetch(csInput.region, csInput.riotIDs, false, this.lcuTierCache, async (region: string, sIds: string[]) => await Lcu.getSummonersTierByRiotID(sIds));
     currCsData.lcuTiers = {};
-    // for (let riotID in lcuTiers) {
-    //   currCsData.lcuTiers[riotID] = CsDataFetcher.parseLCUTier(lcuTiers[riotID], !isFlex);
-    // }
 
     return currCsData;
   }
