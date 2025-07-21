@@ -177,7 +177,7 @@ export class CsDataFetcher {
       if (currCsData.summonerInfo[riotID]) {
         const info = currCsData.summonerInfo[riotID];
         currCsData.histories[riotID] = historiesByPuuid[info.puuid];
-        currCsData.tiers[riotID] = tiersByPuuid[info.id];
+        currCsData.tiers[riotID] = tiersByPuuid[info.puuid];
       }
     }
 
